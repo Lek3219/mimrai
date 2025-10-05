@@ -1,18 +1,17 @@
-import { integrationsCache } from "@mimir/cache/integrations-cache";
-import { and, desc, eq, type SQL } from "drizzle-orm";
-import { initIntegrationSingle } from "@/lib/integrations/init";
 import {
 	type IntegrationConfig,
 	type IntegrationName,
 	integrationsRegistry,
-} from "@/lib/integrations/registry";
+} from "@integration/registry";
+import { integrationsCache } from "@mimir/cache/integrations-cache";
+import { and, desc, eq, type SQL } from "drizzle-orm";
 import { db } from "..";
 import {
 	integrationLogs,
 	integrations,
 	integrationUserLink,
 	users,
-} from "../schema/schemas";
+} from "../schema";
 
 export const installIntegration = async ({
 	type,
@@ -55,7 +54,7 @@ export const installIntegration = async ({
 		})
 		.returning();
 
-	await initIntegrationSingle(integration);
+	// await initIntegrationSingle(integration);
 
 	return integration;
 };
@@ -188,7 +187,7 @@ export const updateIntegration = async ({
 		throw new Error("Integration not found");
 	}
 
-	const registry = integrationsRegistry[existing.type];
+	const registry = integrationsRegistry[existing.type as IntegrationName];
 	if (!registry) {
 		throw new Error("Unsupported integration type");
 	}
@@ -212,7 +211,7 @@ export const updateIntegration = async ({
 		config: safeConfig.data,
 	});
 	// Re-initialize the integration with the new config
-	await initIntegrationSingle(updated);
+	// await initIntegrationSingle(updated);
 
 	return updated;
 };
@@ -278,4 +277,36 @@ export const getLinkedUsers = async ({
 		},
 		data,
 	};
+};
+
+export const getLinkedUserByExternalId = async ({
+	integrationId,
+	externalUserId,
+	teamId,
+}: {
+	integrationId: string;
+	externalUserId: string;
+	teamId?: string;
+}) => {
+	const whereClause: SQL[] = [
+		eq(integrationUserLink.integrationId, integrationId),
+		eq(integrationUserLink.externalUserId, externalUserId),
+	];
+
+	if (teamId) whereClause.push(eq(integrations.teamId, teamId));
+
+	const [link] = await db
+		.select({
+			id: integrationUserLink.id,
+			userId: integrationUserLink.userId,
+		})
+		.from(integrationUserLink)
+		.where(and(...whereClause))
+		.innerJoin(
+			integrations,
+			eq(integrationUserLink.integrationId, integrations.id),
+		)
+		.limit(1);
+
+	return link;
 };

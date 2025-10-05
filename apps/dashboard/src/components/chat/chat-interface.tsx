@@ -6,7 +6,6 @@ import { DefaultChatTransport, generateId } from "ai";
 import { useMemo } from "react";
 import { useChatParams } from "@/hooks/use-chat-params";
 import { queryClient, trpc } from "@/utils/trpc";
-import { ChatContainerContent, ChatContainerRoot } from "../ui/chat-container";
 import { ChatInput } from "./input";
 import { Messages } from "./messages";
 

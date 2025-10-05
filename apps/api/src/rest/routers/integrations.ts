@@ -1,7 +1,7 @@
+import { associateMattermostUserSchema } from "@api/schemas/integrations";
+import { db } from "@db";
+import { integrationUserLink } from "@db/schema/schemas";
 import { OpenAPIHono } from "@hono/zod-openapi";
-import { db } from "@/db";
-import { integrationUserLink } from "@/db/schema/schemas";
-import { associateMattermostUserSchema } from "@/schemas/integrations";
 import type { Context } from "../types";
 
 const app = new OpenAPIHono<Context>();

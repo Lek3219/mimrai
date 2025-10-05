@@ -1,4 +1,25 @@
+import { chatTitleArtifact } from "@api/ai/artifacts/chat-title";
+import { setContext } from "@api/ai/context";
+import { generateSystemPrompt } from "@api/ai/generate-system-prompt";
+import {
+	extractTextContent,
+	generateTitle,
+	hasEnoughContent,
+} from "@api/ai/generate-title";
+import { createToolRegistry } from "@api/ai/tool-types";
+import type { ChatMessageMetadata } from "@api/ai/types";
+import { formatToolCallTitle } from "@api/ai/utils/format-tool-call-title";
+import { getUserContext } from "@api/ai/utils/get-user-context";
+import type { Context } from "@api/rest/types";
+import { chatRequestSchema } from "@api/schemas/chat";
+import { shouldForceStop } from "@api/utils/streaming-utils";
+import { db } from "@db/index";
 import { OpenAPIHono } from "@hono/zod-openapi";
+import {
+	getChatById,
+	saveChat,
+	saveChatMessage,
+} from "@mimir/db/queries/chats";
 import { logger } from "@mimir/logger";
 import {
 	convertToModelMessages,
@@ -9,23 +30,6 @@ import {
 	streamText,
 	validateUIMessages,
 } from "ai";
-import { chatTitleArtifact } from "@/ai/artifacts/chat-title";
-import { setContext } from "@/ai/context";
-import { generateSystemPrompt } from "@/ai/generate-system-prompt";
-import {
-	extractTextContent,
-	generateTitle,
-	hasEnoughContent,
-} from "@/ai/generate-title";
-import { createToolRegistry } from "@/ai/tool-types";
-import type { ChatMessageMetadata } from "@/ai/types";
-import { formatToolCallTitle } from "@/ai/utils/format-tool-call-title";
-import { getUserContext } from "@/ai/utils/get-user-context";
-import { db } from "@/db";
-import { getChatById, saveChat, saveChatMessage } from "@/db/queries/chats";
-import type { Context } from "@/rest/types";
-import { chatRequestSchema } from "@/schemas/chat";
-import { shouldForceStop } from "@/utils/streaming-utils";
 
 const app = new OpenAPIHono<Context>();
 

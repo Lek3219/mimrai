@@ -1,5 +1,5 @@
+import { priorityEnum } from "@db/schema/schemas";
 import z from "zod";
-import { priorityEnum } from "@/db/schema/schemas";
 import { paginationSchema } from "./base";
 
 export const getTasksSchema = z.object({

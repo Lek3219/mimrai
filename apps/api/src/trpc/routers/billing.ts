@@ -1,8 +1,8 @@
+import { polarClient, stripeClient } from "@api/lib/payments";
+import { createCheckoutSchema } from "@api/schemas/billing";
+import { protectedProcedure, router } from "@api/trpc/init";
+import { getTeamById } from "@mimir/db/queries/teams";
 import { getAppUrl } from "@mimir/utils/envs";
-import { getTeamById } from "@/db/queries/teams";
-import { polarClient, stripeClient } from "@/lib/payments";
-import { createCheckoutSchema } from "@/schemas/billing";
-import { protectedProcedure, router } from "@/trpc/init";
 
 export const billingRouter = router({
 	subscription: protectedProcedure.query(async ({ ctx }) => {

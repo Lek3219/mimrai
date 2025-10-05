@@ -1,7 +1,7 @@
+import { tasks } from "@db/schema/schemas";
 import { tool } from "ai";
 import { and, eq } from "drizzle-orm";
 import z from "zod";
-import { tasks } from "@/db/schema/schemas";
 import { getContext } from "../context";
 
 export const updateTaskToolSchema = z.object({

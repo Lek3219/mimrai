@@ -1,5 +1,5 @@
+import type { Scope } from "@api/lib/scopes";
 import { initTRPC, TRPCError } from "@trpc/server";
-import type { Scope } from "@/lib/scopes";
 import type { Context } from "../lib/context";
 
 type Meta = {

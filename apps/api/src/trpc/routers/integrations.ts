@@ -1,14 +1,8 @@
 import {
-	getIntegrationById,
-	getIntegrationByType,
-	getIntegrationLogs,
-	getIntegrations,
-	getLinkedUsers,
-	installIntegration,
-	updateIntegration,
-} from "@/db/queries/integrations";
-import { integrationsRegistry } from "@/lib/integrations/registry";
-import { validateIntegration } from "@/lib/integrations/validate";
+	type IntegrationName,
+	integrationsRegistry,
+} from "@api/lib/integrations/registry";
+import { validateIntegration } from "@api/lib/integrations/validate";
 import {
 	getIntegrationByIdSchema,
 	getIntegrationByTypeSchema,
@@ -17,8 +11,17 @@ import {
 	installIntegrationSchema,
 	updateIntegrationSchema,
 	validateIntegrationSchema,
-} from "@/schemas/integrations";
-import { protectedProcedure, router } from "@/trpc/init";
+} from "@api/schemas/integrations";
+import { protectedProcedure, router } from "@api/trpc/init";
+import {
+	getIntegrationById,
+	getIntegrationByType,
+	getIntegrationLogs,
+	getIntegrations,
+	getLinkedUsers,
+	installIntegration,
+	updateIntegration,
+} from "@mimir/db/queries/integrations";
 
 export const integrationsRouter = router({
 	get: protectedProcedure.query(async ({ ctx }) => {
@@ -42,7 +45,7 @@ export const integrationsRouter = router({
 	getByType: protectedProcedure
 		.input(getIntegrationByTypeSchema)
 		.query(async ({ ctx, input }) => {
-			const integration = integrationsRegistry[input.type];
+			const integration = integrationsRegistry[input.type as IntegrationName];
 			const installedIntegration = await getIntegrationByType({
 				type: input.type,
 				teamId: ctx.user.teamId!,

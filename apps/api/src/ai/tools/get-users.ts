@@ -1,7 +1,6 @@
+import { getMembers } from "@mimir/db/queries/teams";
 import { tool } from "ai";
-import z from "zod";
-import { getMembers } from "@/db/queries/teams";
-import { getUsers } from "@/db/queries/users";
+import { z } from "zod";
 import { getContext } from "../context";
 
 export const getTasksToolSchema = z.object({

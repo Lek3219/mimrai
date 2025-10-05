@@ -1,4 +1,4 @@
-import { google } from "@ai-sdk/google";
+import { openai } from "@ai-sdk/openai";
 import type { InferUITools } from "ai";
 import { getContext } from "./context";
 import { createTaskTool } from "./tools/create-task";
@@ -12,13 +12,19 @@ export const createToolRegistry = () => {
 	const context = getContext();
 
 	return {
-		createTask: createTaskTool,
-		getColumns: getColumnsTool,
-		getTasks: getTasksTool,
-		updateTask: updateTaskTool,
+		// createTask: createTaskTool,
+		// getColumns: getColumnsTool,
+		// getTasks: getTasksTool,
+		// updateTask: updateTaskTool,
 		getUsers: getUsersTool,
-		web_search: google.tools.googleSearch({
-			mode: "MODE_DYNAMIC",
+		web_search: openai.tools.webSearch({
+			searchContextSize: "medium",
+			userLocation: {
+				type: "approximate",
+				country: context.user.country ?? undefined,
+				city: context.user.city ?? undefined,
+				region: context.user.region ?? undefined,
+			},
 		}),
 	};
 };

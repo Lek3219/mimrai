@@ -1,4 +1,4 @@
-import type { integrations } from "@/db/schema/schemas";
+import type { integrations } from "@mimir/db/schema";
 import { initMattermost, initMattermostSingle } from "./mattermost/init";
 
 export const initIntegrations = async () => {

@@ -1,17 +1,18 @@
 import "dotenv/config";
 import { trpcServer } from "@hono/trpc-server";
 import { OpenAPIHono } from "@hono/zod-openapi";
+import { initIntegrations } from "@mimir/integration/init";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { secureHeaders } from "hono/secure-headers";
 import { auth } from "./lib/auth";
 import { createContext } from "./lib/context";
-import { initIntegrations } from "./lib/integrations/init";
 import { routers } from "./rest/routers";
+import type { Context } from "./rest/types";
 import { webhooksRouters } from "./rest/webhooks";
 import { appRouter } from "./trpc/routers/index";
 
-const app = new OpenAPIHono();
+const app = new OpenAPIHono<Context>();
 
 app.use(logger());
 app.use(secureHeaders());

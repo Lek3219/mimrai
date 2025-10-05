@@ -1,7 +1,7 @@
+import type { GetUsersInput } from "@api/schemas/users";
 import { and, eq, ilike, type SQL } from "drizzle-orm";
-import type { GetUsersInput } from "@/schemas/users";
 import { db } from "..";
-import { teams, users, usersOnTeams } from "../schema/schemas";
+import { teams, users, usersOnTeams } from "../schema";
 
 export const getUserById = async (userId: string) => {
 	const [user] = await db

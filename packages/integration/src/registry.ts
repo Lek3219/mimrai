@@ -10,7 +10,7 @@ export const integrationsRegistry = {
 			url: z.string().url("Invalid URL"),
 		}),
 	},
-};
+} as const;
 
 export type IntegrationName = keyof typeof integrationsRegistry;
 export type IntegrationConfig<T extends IntegrationName = IntegrationName> =

@@ -1,6 +1,6 @@
+import { getTeamById } from "@mimir/db/queries/teams";
+import { getUserById } from "@mimir/db/queries/users";
 import { HTTPException } from "hono/http-exception";
-import { getTeamById } from "@/db/queries/teams";
-import { getUserById } from "@/db/queries/users";
 import { type ChatUserContext, chatCache } from "../chat-cache";
 
 interface GetUserContextParams {

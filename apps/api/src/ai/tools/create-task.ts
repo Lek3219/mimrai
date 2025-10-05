@@ -1,6 +1,6 @@
+import { tasks } from "@db/schema";
 import { tool } from "ai";
 import z from "zod";
-import { tasks } from "@/db/schema/schemas";
 import { getContext } from "../context";
 
 export const createTaskToolSchema = z.object({

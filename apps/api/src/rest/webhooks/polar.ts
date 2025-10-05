@@ -1,7 +1,7 @@
 import { OpenAPIHono } from "@hono/zod-openapi";
+import { updateTeamPlan } from "@mimir/db/queries/teams";
 import { getPlanByProductId } from "@mimir/utils/plans";
 import { validateEvent } from "@polar-sh/sdk/webhooks.js";
-import { updateTeamPlan } from "@/db/queries/teams";
 
 const app = new OpenAPIHono();
 

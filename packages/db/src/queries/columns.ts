@@ -1,7 +1,6 @@
 import { and, eq, type SQL } from "drizzle-orm";
-import type { DeleteColumnInput, UpdateColumnInput } from "@/schemas/columns";
 import { db } from "..";
-import { columns } from "../schema/schemas";
+import { columns } from "../schema";
 
 export const getColumns = async ({
 	pageSize,

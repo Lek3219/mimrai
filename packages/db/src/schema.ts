@@ -1,5 +1,10 @@
+import { randomUUID } from "node:crypto";
+import type { UIChatMessage } from "@api/ai/types";
+import type {
+	IntegrationConfig,
+	IntegrationName,
+} from "@api/lib/integrations/registry";
 import { randomColor } from "@mimir/utils/random";
-import { randomUUID } from "crypto";
 import { relations } from "drizzle-orm";
 import {
 	boolean,
@@ -14,11 +19,6 @@ import {
 	timestamp,
 	unique,
 } from "drizzle-orm/pg-core";
-import type { UIChatMessage } from "@/ai/types";
-import type {
-	IntegrationConfig,
-	IntegrationName,
-} from "@/lib/integrations/registry";
 
 export const plansEnum = pgEnum("plans", ["starter", "enterprise"]);
 

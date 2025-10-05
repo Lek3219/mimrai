@@ -1,9 +1,7 @@
-import { create } from "domain";
+import { addMeterUsage } from "@api/lib/meters";
 import { and, eq, type SQL } from "drizzle-orm";
-import { addMeterUsage } from "@/lib/meters";
-import { polarClient } from "@/lib/payments";
 import { db } from "..";
-import { teams, userInvites, users, usersOnTeams } from "../schema/schemas";
+import { teams, userInvites, usersOnTeams } from "../schema";
 import { switchTeam } from "./users";
 
 export const acceptTeamInvite = async ({
@@ -86,7 +84,7 @@ export const createTeamInvite = async ({
 			},
 		})
 		.from(userInvites)
-		.where(eq(userInvites.id, invite.id))
+		.where(eq(userInvites.id, invite!.id))
 		.rightJoin(teams, eq(teams.id, userInvites.teamId))
 		.limit(1);
 

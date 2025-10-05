@@ -1,8 +1,8 @@
+import { users } from "@db/schema/schemas";
 import { PLANS, POLAR_ENVIRONMENT } from "@mimir/utils/plans";
 import { checkout, polar, portal, usage } from "@polar-sh/better-auth";
 import { type BetterAuthOptions, betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { users } from "@/db/schema/schemas";
 import { db } from "../db";
 import * as schema from "../db/schema/auth";
 import { polarClient } from "./payments";

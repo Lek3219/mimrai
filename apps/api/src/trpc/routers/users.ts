@@ -1,7 +1,7 @@
-import { getCurrentUser, switchTeam } from "@/db/queries/users";
-import { roleScopes } from "@/lib/scopes";
-import { switchTeamSchema } from "@/schemas/users";
-import { protectedProcedure, router } from "@/trpc/init";
+import { roleScopes } from "@api/lib/scopes";
+import { switchTeamSchema } from "@api/schemas/users";
+import { protectedProcedure, router } from "@api/trpc/init";
+import { getCurrentUser, switchTeam } from "@mimir/db/queries/users";
 
 export const usersRouter = router({
 	getCurrent: protectedProcedure.query(async ({ ctx }) => {

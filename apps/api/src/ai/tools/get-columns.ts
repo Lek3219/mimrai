@@ -1,7 +1,7 @@
+import { columns } from "@db/schema/schemas";
 import { tool } from "ai";
 import { eq } from "drizzle-orm";
 import z from "zod";
-import { columns } from "@/db/schema/schemas";
 import { getContext } from "../context";
 
 export const getColumnsToolSchema = z.object({});

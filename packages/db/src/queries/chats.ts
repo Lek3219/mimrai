@@ -1,7 +1,7 @@
+import type { UIChatMessage } from "@api/ai/types";
 import { and, eq } from "drizzle-orm";
-import type { UIChatMessage } from "@/ai/types";
 import { db } from "..";
-import { chatMessages, chats } from "../schema/schemas";
+import { chatMessages, chats } from "../schema";
 
 export const getChatById = async (chatId: string, teamId: string) => {
 	const [chat] = await db

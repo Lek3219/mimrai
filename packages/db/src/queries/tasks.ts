@@ -1,11 +1,11 @@
-import { and, eq, ilike, inArray, type SQL } from "drizzle-orm";
 import type {
 	CreateTaskInput,
 	DeleteTaskInput,
 	UpdateTaskInput,
-} from "@/schemas/tasks";
+} from "@api/schemas/tasks";
+import { and, eq, ilike, inArray, type SQL } from "drizzle-orm";
 import { db } from "..";
-import { columns, tasks, users } from "../schema/schemas";
+import { columns, tasks, users } from "../schema";
 
 export const getTasks = async ({
 	pageSize = 20,

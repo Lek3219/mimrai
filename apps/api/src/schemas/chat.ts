@@ -1,5 +1,5 @@
+import type { UIChatMessage } from "@api/ai/types";
 import z from "zod";
-import type { UIChatMessage } from "@/ai/types";
 
 export const messageSchema = z.custom<UIChatMessage>();
 

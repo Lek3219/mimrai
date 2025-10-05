@@ -1,22 +1,4 @@
-import { InviteEmail } from "@mimir/email/emails/invite";
-import {
-	changeOwner,
-	createTeam,
-	getMemberById,
-	getMembers,
-	getTeamById,
-	leaveTeam,
-	updateMember,
-	updateTeam,
-} from "@/db/queries/teams";
-import {
-	acceptTeamInvite,
-	createTeamInvite,
-	getTeamInviteById,
-	getTeamInvites,
-} from "@/db/queries/user-invites";
-import { getAvailableTeams } from "@/db/queries/users";
-import { resend } from "@/lib/resend";
+import { resend } from "@api/lib/resend";
 import {
 	acceptTeamInviteSchema,
 	createTeamInviteSchema,
@@ -28,8 +10,26 @@ import {
 	transferOwnershipSchema,
 	updateMemberSchema,
 	updateTeamSchema,
-} from "@/schemas/teams";
-import { protectedProcedure, router } from "@/trpc/init";
+} from "@api/schemas/teams";
+import { protectedProcedure, router } from "@api/trpc/init";
+import {
+	changeOwner,
+	createTeam,
+	getMemberById,
+	getMembers,
+	getTeamById,
+	leaveTeam,
+	updateMember,
+	updateTeam,
+} from "@mimir/db/queries/teams";
+import {
+	acceptTeamInvite,
+	createTeamInvite,
+	getTeamInviteById,
+	getTeamInvites,
+} from "@mimir/db/queries/user-invites";
+import { getAvailableTeams } from "@mimir/db/queries/users";
+import { InviteEmail } from "@mimir/email/emails/invite";
 
 export const teamsRouter = router({
 	getAvailable: protectedProcedure.query(async ({ ctx }) => {

@@ -1,7 +1,20 @@
 const window = globalThis as unknown as { WebSocket?: typeof WebSocket };
 
+import { randomUUID } from "node:crypto";
+import { setContext } from "@api/ai/context";
+import { generateSystemPrompt } from "@api/ai/generate-system-prompt";
+import { createToolRegistry } from "@api/ai/tool-types";
+import { getUserContext } from "@api/ai/utils/get-user-context";
+import { createAdminClient } from "@api/lib/supabase";
+import { shouldForceStop } from "@api/utils/streaming-utils";
 import { Client4, type WebSocketMessage } from "@mattermost/client";
 import { integrationsCache } from "@mimir/cache/integrations-cache";
+import { db } from "@mimir/db/client";
+import {
+	getIntegrationByType,
+	getLinkedUserByExternalId,
+} from "@mimir/db/queries/integrations";
+import { type integrations, integrationUserLink } from "@mimir/db/schema";
 import {
 	convertToModelMessages,
 	generateText,
@@ -9,17 +22,8 @@ import {
 	type UIMessage,
 } from "ai";
 import { fetch } from "bun";
-import { randomUUID } from "crypto";
 import { eq } from "drizzle-orm";
 import WebSocket from "ws";
-import { setContext } from "@/ai/context";
-import { generateSystemPrompt } from "@/ai/generate-system-prompt";
-import { createToolRegistry } from "@/ai/tool-types";
-import { getUserContext } from "@/ai/utils/get-user-context";
-import { db } from "@/db";
-import { integrations, integrationUserLink } from "@/db/schema/schemas";
-import { createAdminClient } from "@/lib/supabase";
-import { shouldForceStop } from "@/utils/streaming-utils";
 import { log } from "../logger";
 
 if (!globalThis.WebSocket) {
@@ -28,11 +32,7 @@ if (!globalThis.WebSocket) {
 }
 
 export const initMattermost = async () => {
-	const data = await db
-		.select()
-		.from(integrations)
-		.where(eq(integrations.type, "mattermost"));
-
+	const data = await getIntegrationByType({ type: "mattermost" });
 	for (const integration of data) {
 		// Initialize Mattermost integration with the config
 		await initMattermostSingle(integration);
@@ -124,7 +124,7 @@ export const initMattermostSingle = async (
 			},
 		},
 	);
-	const wsClient = wsClients[integration.id];
+	const wsClient = wsClients[integration.id]!;
 
 	wsClient.on("message", async (data) => {
 		const parsedData = JSON.parse(data.toString()) as WebSocketMessage;
@@ -175,11 +175,10 @@ export const initMattermostSingle = async (
 				if (senderName !== "@alain") return;
 
 				if (isDirect || isMentioned) {
-					const [associetedUser] = await db
-						.select()
-						.from(integrationUserLink)
-						.where(eq(integrationUserLink.externalUserId, senderId))
-						.limit(1);
+					const associetedUser = await getLinkedUserByExternalId({
+						externalUserId: senderId,
+						integrationId: integration.id,
+					});
 
 					if (!associetedUser) {
 						// associate the user
@@ -318,6 +317,7 @@ export const initMattermostSingle = async (
 								system: systemPrompt,
 								messages: convertToModelMessages(relevantMessages),
 								temperature: 0.7,
+								// @ts-expect-error
 								tools: createToolRegistry(),
 								stopWhen: (step) => {
 									// Stop if we've reached 10 steps (original condition)

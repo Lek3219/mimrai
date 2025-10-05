@@ -1,5 +1,9 @@
+import {
+	getAvailableTeams,
+	getUserById,
+	switchTeam,
+} from "@mimir/db/queries/users";
 import type { Context as HonoContext } from "hono";
-import { getAvailableTeams, getUserById, switchTeam } from "@/db/queries/users";
 import { auth } from "./auth";
 import { roleScopes } from "./scopes";
 

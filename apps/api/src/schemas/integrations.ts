@@ -1,8 +1,8 @@
-import z from "zod";
 import {
 	type IntegrationConfig,
 	integrationsRegistry,
-} from "@/lib/integrations/registry";
+} from "@api/lib/integrations/registry";
+import z from "zod/v4";
 
 export const installIntegrationSchema = z.object({
 	type: z.literal(

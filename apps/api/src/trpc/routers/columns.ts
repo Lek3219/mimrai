@@ -1,18 +1,18 @@
 import {
-	createColumn,
-	deleteColumn,
-	getColumnById,
-	getColumns,
-	updateColumn,
-} from "@/db/queries/columns";
-import {
 	createColumnSchema,
 	deleteColumnSchema,
 	getColumnByIdSchema,
 	getColumnsSchema,
 	updateColumnSchema,
-} from "@/schemas/columns";
-import { protectedProcedure, router } from "@/trpc/init";
+} from "@api/schemas/columns";
+import { protectedProcedure, router } from "@api/trpc/init";
+import {
+	createColumn,
+	deleteColumn,
+	getColumnById,
+	getColumns,
+	updateColumn,
+} from "@mimir/db/queries/columns";
 
 export const columnsRouter = router({
 	get: protectedProcedure

@@ -3,7 +3,8 @@
 	"compilerOptions": {
 		"baseUrl": ".",
 		"paths": {
-			"@/*": ["./src/*"]
+			"@/*": ["./src/*"],
+			"@api/*": ["../api/src/*"]
 		},
 		"strict": true,
 		"verbatimModuleSyntax": true
@@ -15,50 +16,5 @@
 		"./next-env.d.ts",
 		".next/types/**/*.ts"
 	],
-	"exclude": ["node_modules", ".next"],
-	"references": [
-		{
-			"path": "../api"
-		}
-	]
+	"exclude": ["node_modules", ".next"]
 }
-
-// {
-// 	"compilerOptions": {
-// 		"target": "ES2017",
-// 		"lib": ["dom", "dom.iterable", "esnext"],
-// 		"allowJs": true,
-// 		"skipLibCheck": true,
-// 		"strict": true,
-// 		"noEmit": true,
-// 		"esModuleInterop": true,
-// 		"module": "esnext",
-// 		"moduleResolution": "bundler",
-// 		"resolveJsonModule": true,
-// 		"isolatedModules": true,
-// 		"verbatimModuleSyntax": true,
-// 		"jsx": "preserve",
-// 		"incremental": true,
-// 		"plugins": [
-// 			{
-// 				"name": "next"
-// 			}
-// 		],
-// 		"paths": {
-// 			"@/*": ["./src/*"]
-// 		}
-// 	},
-// 	"include": [
-// 		"./**/*.ts",
-// 		"./**/*.tsx",
-// 		"./.next/types/**/*.ts",
-// 		"./next-env.d.ts",
-// 		".next/types/**/*.ts"
-// 	],
-// 	"exclude": ["./node_modules"],
-// 	"references": [
-// 		{
-// 			"path": "../server"
-// 		}
-// 	]
-// }

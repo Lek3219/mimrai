@@ -1,7 +1,11 @@
 {
-	"$schema": "https://turbo.build/schema.json",
-	"ui": "tui",
+	"$schema": "https://turborepo.org/schema.json",
+	"globalDependencies": ["**/.env"],
+	"ui": "stream",
 	"tasks": {
+		"topo": {
+			"dependsOn": ["^topo"]
+		},
 		"build": {
 			"dependsOn": ["^build"],
 			"inputs": ["$TURBO_DEFAULT$", ".env*"],
@@ -10,10 +14,14 @@
 		"lint": {
 			"dependsOn": ["^lint"]
 		},
+		"clean": {
+			"cache": false
+		},
 		"check-types": {
 			"dependsOn": ["^check-types"]
 		},
 		"dev": {
+			"inputs": ["$TURBO_DEFAULT$", ".env"],
 			"cache": false,
 			"persistent": true
 		},

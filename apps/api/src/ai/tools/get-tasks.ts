@@ -1,7 +1,7 @@
+import { getTasks } from "@mimir/db/queries/tasks";
 import { getAppUrl } from "@mimir/utils/envs";
 import { tool } from "ai";
 import z from "zod";
-import { getTasks } from "@/db/queries/tasks";
 import { taskArtifact, tasksListArtifact } from "../artifacts/task";
 import { taskFiltersArtifact } from "../artifacts/task-filters";
 import { getContext } from "../context";

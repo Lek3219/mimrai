@@ -1,6 +1,6 @@
 import { artifact } from "@ai-sdk-tools/artifacts";
+import { priorityEnum } from "@db/schema/schemas";
 import z from "zod";
-import { priorityEnum } from "@/db/schema/schemas";
 
 export const taskArtifact = artifact(
 	"task",

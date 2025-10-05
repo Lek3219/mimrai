@@ -1,17 +1,17 @@
 import {
+	createTaskSchema,
+	deleteTaskSchema,
+	getTasksSchema,
+	updateTaskSchema,
+} from "@api/schemas/tasks";
+import { protectedProcedure, router } from "@api/trpc/init";
+import {
 	createTask,
 	deleteTask,
 	getTaskById,
 	getTasks,
 	updateTask,
-} from "@/db/queries/tasks";
-import {
-	createTaskSchema,
-	deleteTaskSchema,
-	getTasksSchema,
-	updateTaskSchema,
-} from "@/schemas/tasks";
-import { protectedProcedure, router } from "@/trpc/init";
+} from "@mimir/db/queries/tasks";
 
 export const tasksRouter = router({
 	get: protectedProcedure

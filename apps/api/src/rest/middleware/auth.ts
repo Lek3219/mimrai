@@ -1,8 +1,8 @@
+import { auth } from "@api/lib/auth";
+import { getUserById } from "@mimir/db/queries/users";
 import type { Session } from "better-auth";
 import type { MiddlewareHandler } from "hono";
 import { HTTPException } from "hono/http-exception";
-import { getUserById } from "@/db/queries/users";
-import { auth } from "@/lib/auth";
 import type { Context } from "../types";
 
 export const withAuth: MiddlewareHandler = async (c, next) => {

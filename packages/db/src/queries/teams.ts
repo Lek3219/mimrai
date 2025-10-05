@@ -1,8 +1,8 @@
+import { addMeterUsage } from "@api/lib/meters";
+import { stripeClient } from "@api/lib/payments";
 import { and, eq, ilike, ne, type SQL } from "drizzle-orm";
-import { addMeterUsage } from "@/lib/meters";
-import { polarClient, stripeClient } from "@/lib/payments";
 import { db } from "..";
-import { type plansEnum, teams, users, usersOnTeams } from "../schema/schemas";
+import { type plansEnum, teams, users, usersOnTeams } from "../schema";
 
 export const getTeamById = async (teamId: string) => {
 	const [team] = await db
@@ -38,7 +38,7 @@ export const createTeam = async ({
 		name: name,
 		email: email,
 		metadata: {
-			teamId: team.id,
+			teamId: team!.id,
 		},
 	});
 
@@ -46,11 +46,11 @@ export const createTeam = async ({
 	await db
 		.update(teams)
 		.set({ customerId: customer.id })
-		.where(eq(teams.id, team.id));
+		.where(eq(teams.id, team!.id));
 
 	await db
 		.insert(usersOnTeams)
-		.values({ teamId: team.id, userId, role: "owner" });
+		.values({ teamId: team!.id, userId, role: "owner" });
 
 	const userTeams = await db
 		.select({ id: usersOnTeams.teamId })
@@ -60,7 +60,10 @@ export const createTeam = async ({
 
 	if (userTeams.length === 1) {
 		// This is the first team, set it as the user's current team
-		await db.update(users).set({ teamId: team.id }).where(eq(users.id, userId));
+		await db
+			.update(users)
+			.set({ teamId: team!.id })
+			.where(eq(users.id, userId));
 	}
 
 	return team;
@@ -107,22 +110,22 @@ export const updateTeam = async ({
 	// Update the customer in Stripe if it exists
 	if (existingCustomer) {
 		await stripeClient.customers.update(existingCustomer.id, {
-			name: team.name,
-			email: team.email,
+			name: team!.name,
+			email: team!.email,
 		});
 	} else {
 		// Create a new customer in Stripe if it doesn't exist
 		const customer = await stripeClient.customers.create({
-			name: team.name,
-			email: team.email,
+			name: team!.name,
+			email: team!.email,
 			metadata: {
-				teamId: team.id,
+				teamId: team!.id,
 			},
 		});
 		await db
 			.update(teams)
 			.set({ customerId: customer.id })
-			.where(eq(teams.id, team.id));
+			.where(eq(teams.id, team!.id));
 	}
 
 	return team;

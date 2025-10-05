@@ -1,5 +1,5 @@
-import { db } from "@/db";
-import { integrationLogs } from "@/db/schema/schemas";
+import { db } from "@mimir/db/client";
+import { integrationLogs } from "@mimir/db/schema";
 
 export const log = (
 	integrationId: string,
