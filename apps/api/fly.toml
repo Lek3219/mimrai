@@ -1,5 +1,5 @@
 app = 'mimir-api'
-primary_region = 'mia'
+primary_region = 'atl'
 
 [build]
 
@@ -15,6 +15,6 @@ primary_region = 'mia'
   processes = ['app']
 
 [[vm]]
-  memory = '1gb'
+  memory = '512MB'
   cpu_kind = 'shared'
   cpus = 1
