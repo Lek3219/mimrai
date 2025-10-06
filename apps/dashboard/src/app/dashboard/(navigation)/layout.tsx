@@ -1,4 +1,4 @@
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import Header from "@/components/header";
 import { GlobalSheets } from "@/components/sheets/global-sheets";
@@ -9,11 +9,11 @@ export default async function DashboardLayout({
 }: {
 	children: React.ReactNode;
 }) {
-	const currentHeaders = await headers();
+	const cookie = await cookies();
 	const { data: session } = await authClient.getSession({
 		fetchOptions: {
 			headers: {
-				cookie: currentHeaders.get("cookie") ?? "",
+				cookie: cookie.toString(),
 			},
 			onRequest(context) {
 				console.log("Request Context:", context);
