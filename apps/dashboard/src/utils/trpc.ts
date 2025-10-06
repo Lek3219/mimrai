@@ -2,7 +2,6 @@ import type { AppRouter } from "@mimir/api/trpc";
 import { QueryCache, QueryClient } from "@tanstack/react-query";
 import { createTRPCClient, httpBatchLink, loggerLink } from "@trpc/client";
 import { createTRPCOptionsProxy } from "@trpc/tanstack-react-query";
-import { toast } from "sonner";
 
 export const queryClient = new QueryClient({
 	queryCache: new QueryCache({
@@ -21,6 +20,11 @@ const trpcClient = createTRPCClient<AppRouter>({
 				if (typeof window === "undefined") {
 					const headersImport = await import("next/headers");
 					const currentHeaders = await headersImport.headers();
+
+					console.log(
+						"Current Headers:",
+						Object.fromEntries(currentHeaders.entries()),
+					);
 
 					// Server-side, embed the request headers
 					return fetch(url, {

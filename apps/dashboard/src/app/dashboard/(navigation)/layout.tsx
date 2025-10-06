@@ -9,6 +9,10 @@ export default async function DashboardLayout({
 }: {
 	children: React.ReactNode;
 }) {
+	console.log({
+		...(await headers()),
+	});
+
 	const { data: session } = await authClient.getSession({
 		fetchOptions: {
 			headers: await headers(),

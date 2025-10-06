@@ -14,7 +14,7 @@ import {
 	getIntegrationByType,
 	getLinkedUserByExternalId,
 } from "@mimir/db/queries/integrations";
-import { type integrations, integrationUserLink } from "@mimir/db/schema";
+import type { integrations } from "@mimir/db/schema";
 import {
 	convertToModelMessages,
 	generateText,
@@ -22,7 +22,6 @@ import {
 	type UIMessage,
 } from "ai";
 import { fetch } from "bun";
-import { eq } from "drizzle-orm";
 import WebSocket from "ws";
 import { log } from "../logger";
 
@@ -114,6 +113,7 @@ export const initMattermostSingle = async (
 	const client = new Client4();
 	client.setUrl(integration.config.url);
 	client.setToken(integration.config.token);
+
 	const me = await client.getMe();
 
 	wsClients[integration.id] = new WebSocket(

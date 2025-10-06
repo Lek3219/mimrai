@@ -10,6 +10,7 @@ export const settingsLinks: {
 	{ to: "/dashboard/settings/general", label: "General" },
 	{ to: "/dashboard/settings/billing", label: "Billing" },
 	{ to: "/dashboard/settings/members", label: "Members" },
+	{ to: "/dashboard/settings/labels", label: "Labels" },
 	{ to: "/dashboard/settings/integrations", label: "Integrations" },
 ];
 

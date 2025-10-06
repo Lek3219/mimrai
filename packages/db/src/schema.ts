@@ -398,3 +398,31 @@ export const integrationUserLink = pgTable(
 		}),
 	],
 );
+
+export const taskLabels = pgTable(
+	"task_labels",
+	{
+		id: text()
+			.primaryKey()
+			.$defaultFn(() => randomUUID()),
+		name: text().notNull(),
+		description: text(),
+		color: text().notNull(),
+		teamId: text("team_id").notNull(),
+		createdAt: timestamp("created_at", {
+			withTimezone: true,
+			mode: "string",
+		}).defaultNow(),
+		updatedAt: timestamp("updated_at", {
+			withTimezone: true,
+			mode: "string",
+		}).defaultNow(),
+	},
+	(table) => [
+		foreignKey({
+			columns: [table.teamId],
+			foreignColumns: [teams.id],
+			name: "task_labels_team_id_fkey",
+		}),
+	],
+);

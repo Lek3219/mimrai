@@ -1,10 +1,7 @@
 import { Provider as ChatProvider } from "@ai-sdk-tools/store";
 import type { UIChatMessage } from "@mimir/api/ai/types";
-import { headers } from "next/headers";
-import { redirect } from "next/navigation";
 import { ChatContainer } from "@/components/chat/chat-container";
 import { KanbanBoard } from "@/components/kanban/kanban-board";
-import { authClient } from "@/lib/auth-client";
 import { queryClient, trpc } from "@/utils/trpc";
 
 type Props = {
