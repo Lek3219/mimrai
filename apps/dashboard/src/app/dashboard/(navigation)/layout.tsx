@@ -15,6 +15,9 @@ export default async function DashboardLayout({
 			headers: {
 				cookie: currentHeaders.get("cookie") ?? "",
 			},
+			onRequest(context) {
+				console.log("Request Context:", context);
+			},
 		},
 	});
 

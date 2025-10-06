@@ -15,7 +15,9 @@ export default async function Page({ params }: Props) {
 
 	const { data: session } = await authClient.getSession({
 		fetchOptions: {
-			headers: await headers(),
+			headers: {
+				cookie: (await headers()).get("cookie") ?? "",
+			},
 		},
 	});
 
