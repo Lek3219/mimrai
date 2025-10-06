@@ -23,6 +23,8 @@ const trpcClient = createTRPCClient<AppRouter>({
 					const currentHeaders = await headersImport.headers();
 					const headersObject = Object.fromEntries(currentHeaders.entries());
 
+					console.log({ url });
+
 					// Server-side, embed the request headers
 					const response = await fetch(url, {
 						...options,

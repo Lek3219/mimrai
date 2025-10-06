@@ -42,6 +42,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Slot } from "@radix-ui/react-slot";
+import { motion } from "motion/react";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 
@@ -1088,7 +1089,6 @@ interface KanbanOverlayProps
 
 function KanbanOverlay(props: KanbanOverlayProps) {
 	const { container: containerProp, children, ...overlayProps } = props;
-
 	const context = useKanbanContext(OVERLAY_NAME);
 
 	const [mounted, setMounted] = React.useState(false);
@@ -1103,23 +1103,25 @@ function KanbanOverlay(props: KanbanOverlayProps) {
 		context.activeId && context.activeId in context.items ? "column" : "item";
 
 	return ReactDOM.createPortal(
-		<DragOverlay
-			dropAnimation={dropAnimation}
-			modifiers={context.modifiers}
-			className={cn(!context.flatCursor && "cursor-grabbing")}
-			{...overlayProps}
-		>
-			<KanbanOverlayContext.Provider value={true}>
-				{context.activeId && children
-					? typeof children === "function"
-						? children({
-								value: context.activeId,
-								variant,
-							})
-						: children
-					: null}
-			</KanbanOverlayContext.Provider>
-		</DragOverlay>,
+		<motion.div>
+			<DragOverlay
+				dropAnimation={dropAnimation}
+				modifiers={context.modifiers}
+				className={cn(!context.flatCursor && "cursor-grabbing")}
+				{...overlayProps}
+			>
+				<KanbanOverlayContext.Provider value={true}>
+					{context.activeId && children
+						? typeof children === "function"
+							? children({
+									value: context.activeId,
+									variant,
+								})
+							: children
+						: null}
+				</KanbanOverlayContext.Provider>
+			</DragOverlay>
+		</motion.div>,
 		container,
 	);
 }
