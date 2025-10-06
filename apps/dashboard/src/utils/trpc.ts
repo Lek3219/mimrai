@@ -19,11 +19,12 @@ const trpcClient = createTRPCClient<AppRouter>({
 			async fetch(url, options) {
 				if (typeof window === "undefined") {
 					const headersImport = await import("next/headers");
+
 					const currentHeaders = await headersImport.headers();
 					const headersObject = Object.fromEntries(currentHeaders.entries());
 
 					// Server-side, embed the request headers
-					return fetch(url, {
+					const response = await fetch(url, {
 						...options,
 						headers: {
 							...options?.headers,
@@ -31,6 +32,13 @@ const trpcClient = createTRPCClient<AppRouter>({
 						},
 						credentials: "include",
 					});
+
+					if (!response.ok) {
+						const errorJson = await response.clone().json();
+						console.error("tRPC Error:", errorJson);
+					}
+
+					return response;
 				}
 
 				// Client-side, include cookies
