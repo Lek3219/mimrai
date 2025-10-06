@@ -1,4 +1,5 @@
 import "dotenv/config";
+import "./lib/instrument";
 import { trpcServer } from "@hono/trpc-server";
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { initIntegrations } from "@mimir/integration/init";

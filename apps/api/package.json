@@ -24,6 +24,7 @@
 		"@mimir/integration": "workspace:*",
 		"@mimir/logger": "workspace:*",
 		"@mimir/utils": "workspace:*",
+		"@sentry/node": "^10.17.0",
 		"@supabase/supabase-js": "^2.58.0",
 		"@trpc/server": "^11.6.0",
 		"ai": "^5.0.56",

@@ -3,7 +3,8 @@ import type {
 	DeleteTaskInput,
 	UpdateTaskInput,
 } from "@api/schemas/tasks";
-import { and, eq, ilike, inArray, type SQL } from "drizzle-orm";
+import { subDays } from "date-fns";
+import { and, eq, gte, ilike, inArray, or, type SQL } from "drizzle-orm";
 import { db } from "..";
 import { columns, tasks, users } from "../schema";
 
@@ -20,7 +21,7 @@ export const getTasks = async ({
 	search?: string;
 }) => {
 	console.log("Input:", input);
-	const whereConditions: SQL[] = [];
+	const whereConditions: (SQL | undefined)[] = [];
 
 	input.assigneeId &&
 		input.assigneeId.length > 0 &&
@@ -29,6 +30,17 @@ export const getTasks = async ({
 		whereConditions.push(inArray(tasks.columnId, input.columnId));
 	input.teamId && whereConditions.push(eq(tasks.teamId, input.teamId));
 	input.search && whereConditions.push(ilike(tasks.title, `%${input.search}%`));
+
+	// exlude done tasks with more than 3 days
+	whereConditions.push(
+		or(
+			eq(columns.isFinalState, false),
+			and(
+				eq(columns.isFinalState, true),
+				gte(tasks.updatedAt, subDays(new Date(), 3).toISOString()),
+			),
+		),
+	);
 
 	const query = db
 		.select({
