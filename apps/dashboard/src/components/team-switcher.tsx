@@ -41,11 +41,11 @@ export const TeamSwitcher = () => {
 				>
 					<Avatar className="size-6 text-xs">
 						<AvatarFallback className="bg-primary text-primary-foreground">
-							{user?.team.name.charAt(0).toUpperCase()}
+							{user?.team?.name?.charAt(0).toUpperCase()}
 						</AvatarFallback>
 					</Avatar>
 					<div className="flex items-center justify-between gap-1">
-						<div className="text-sm">{user?.team.name}</div>
+						<div className="text-sm">{user?.team?.name}</div>
 						<ChevronsUpDownIcon className="size-3.5" />
 					</div>
 				</button>

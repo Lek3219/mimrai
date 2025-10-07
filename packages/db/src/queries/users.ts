@@ -12,26 +12,36 @@ export const getUserById = async (userId: string) => {
 	return user;
 };
 
-export const getCurrentUser = async (userId: string, teamId: string) => {
-	const [user] = await db
+export const getCurrentUser = async (userId: string, teamId?: string) => {
+	const query = db
 		.select({
 			id: users.id,
 			name: users.name,
 			email: users.email,
-			team: {
-				id: teams.id,
-				name: teams.name,
-				role: usersOnTeams.role,
-			},
+			...(teamId && {
+				team: {
+					id: teams.id,
+					name: teams.name,
+					role: usersOnTeams.role,
+				},
+			}),
 		})
 		.from(users)
 		.where(eq(users.id, userId))
-		.innerJoin(
-			usersOnTeams,
-			and(eq(users.id, usersOnTeams.userId), eq(usersOnTeams.teamId, teamId)),
-		)
-		.innerJoin(teams, eq(teams.id, usersOnTeams.teamId))
+
 		.limit(1);
+
+	if (teamId) {
+		query
+			.leftJoin(
+				usersOnTeams,
+				and(eq(users.id, usersOnTeams.userId), eq(usersOnTeams.teamId, teamId)),
+			)
+			.leftJoin(teams, eq(teams.id, usersOnTeams.teamId));
+	}
+
+	const [user] = await query;
+
 	return user;
 };
 

@@ -15,6 +15,9 @@ export const useScopes = (scopes: Scope[]) => {
 
 	if (scopes.length === 0) return true;
 
+	if (!user.team) return false;
+	if (!user.team.scopes) return false;
+
 	if (user.team.scopes.length === 0) return false;
 
 	// Check if user has all required scopes
