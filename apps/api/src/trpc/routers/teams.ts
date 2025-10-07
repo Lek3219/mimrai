@@ -38,7 +38,6 @@ export const teamsRouter = router({
 	}),
 
 	create: protectedProcedure
-		.meta({ scopes: ["team:write"] })
 		.input(createTeamSchema)
 		.meta({
 			team: false,
