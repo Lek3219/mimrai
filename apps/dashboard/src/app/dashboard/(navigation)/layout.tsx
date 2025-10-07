@@ -12,6 +12,10 @@ export default async function DashboardLayout({
 	const { data: session } = await authClient.getSession({
 		fetchOptions: {
 			headers: await headers(),
+			credentials: "include",
+			onRequest(context) {
+				console.log("Requesting session:", context);
+			},
 		},
 	});
 
