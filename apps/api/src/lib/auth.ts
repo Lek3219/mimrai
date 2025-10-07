@@ -32,6 +32,7 @@ export const auth = betterAuth<BetterAuthOptions>({
 	advanced: {
 		defaultCookieAttributes: {
 			sameSite: "none",
+			domain: process.env.BETTER_AUTH_DOMAIN || "localhost",
 			secure: true,
 			httpOnly: true,
 		},
