@@ -60,7 +60,10 @@ export default function Page() {
 				</p>
 			</div>
 			<Form {...form}>
-				<form onSubmit={form.handleSubmit(handleSubmit)} className="max-w-md">
+				<form
+					onSubmit={form.handleSubmit(handleSubmit)}
+					className="max-w-md space-y-4"
+				>
 					<FormField
 						control={form.control}
 						name="name"

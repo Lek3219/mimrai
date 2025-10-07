@@ -32,8 +32,6 @@ export async function createContext({ context }: CreateContextOptions) {
 			user.teamId = teams[0].id;
 			await switchTeam(user.id, teams[0].id);
 			currentTeam = teams[0];
-		} else {
-			throw new Error("User is not part of any team");
 		}
 	} else {
 		// verify teamId is valid
@@ -43,8 +41,8 @@ export async function createContext({ context }: CreateContextOptions) {
 		if (!currentTeam) throw new Error("User's current team is not valid");
 	}
 
-	const role = currentTeam.role;
-	const scopes = roleScopes[role];
+	const role = currentTeam?.role;
+	const scopes = role ? roleScopes[role] : [];
 
 	return {
 		session,
