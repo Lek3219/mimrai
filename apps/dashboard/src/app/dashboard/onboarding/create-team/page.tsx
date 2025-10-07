@@ -75,6 +75,20 @@ export default function Page() {
 						)}
 					/>
 
+					<FormField
+						control={form.control}
+						name="email"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>Email</FormLabel>
+								<FormControl>
+									<Input placeholder="acme@example.com" {...field} />
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+
 					<div className="mt-6 flex justify-start">
 						<Button
 							className="flex w-32 items-center justify-between"

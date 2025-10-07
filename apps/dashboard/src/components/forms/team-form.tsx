@@ -1,7 +1,8 @@
 "use client";
 import { useMutation } from "@tanstack/react-query";
+import { use, useEffect } from "react";
 import z from "zod";
-import { useScopes } from "@/hooks/use-user";
+import { useScopes, useUser } from "@/hooks/use-user";
 import { useZodForm } from "@/hooks/use-zod-form";
 import { cn } from "@/lib/utils";
 import { queryClient, trpc } from "@/utils/trpc";
@@ -38,16 +39,21 @@ export const TeamForm = ({
 	defaultValues?: Partial<z.infer<typeof teamFormSchema>>;
 	scrollarea?: boolean;
 }) => {
+	const user = useUser();
 	const canWriteTeam = useScopes(["team:write"]);
 	const form = useZodForm(teamFormSchema, {
 		defaultValues: {
 			name: "",
-			email: "",
+			email: user?.email || "",
 			description: "",
 			...defaultValues,
 		},
 		disabled: !canWriteTeam,
 	});
+
+	useEffect(() => {
+		form.setValue("email", user?.email || "");
+	}, [user?.email]);
 
 	const { mutateAsync: createTeam } = useMutation(
 		trpc.teams.create.mutationOptions(),
