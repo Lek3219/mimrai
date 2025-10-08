@@ -23,17 +23,18 @@ export function KanbanBoard() {
 	const { setParams: setColumnParams } = useColumnParams();
 	const { ...filters } = useTasksFilterParams();
 	const { data: columns } = useQuery(trpc.columns.get.queryOptions());
+
+	const queryKey = React.useMemo(() => {
+		return {
+			assigneeId: filters.assigneeId ?? undefined,
+			search: filters.search ?? undefined,
+			labels: filters.labels ?? undefined,
+		};
+	}, [filters]);
 	const { data: tasks } = useQuery(
-		trpc.tasks.get.queryOptions(
-			{
-				assigneeId: filters.assigneeId ?? undefined,
-				search: filters.search ?? undefined,
-				labels: filters.labels ?? undefined,
-			},
-			{
-				placeholderData: (prev) => prev,
-			},
-		),
+		trpc.tasks.get.queryOptions(queryKey, {
+			placeholderData: (prev) => prev,
+		}),
 	);
 
 	const { mutateAsync: updateTask } = useMutation(
@@ -121,25 +122,6 @@ export function KanbanBoard() {
 								overItem.order++;
 							}
 
-							queryClient.setQueryData(
-								trpc.tasks.get.queryKey(),
-								(oldData: any) => {
-									if (!oldData) return oldData;
-									return {
-										...oldData,
-										data: oldData.data.map((task: any) => {
-											if (task.id === activeItem.id) {
-												return activeItem;
-											}
-											if (task.id === overItem.id) {
-												return overItem;
-											}
-											return task;
-										}),
-									};
-								},
-							);
-
 							await updateTask({
 								id: activeItem.id,
 								columnId: activeItem.columnId,
@@ -160,21 +142,6 @@ export function KanbanBoard() {
 							activeItem.columnId = overColumnId;
 							activeItem.order = 0;
 
-							queryClient.setQueryData(
-								trpc.tasks.get.queryKey(),
-								(oldData: any) => {
-									if (!oldData) return oldData;
-									return {
-										...oldData,
-										data: oldData.data.map((task: any) => {
-											if (task.id === activeItem.id) {
-												return activeItem;
-											}
-											return task;
-										}),
-									};
-								},
-							);
 							await updateTask({
 								id: activeItem.id,
 								columnId: activeItem.columnId,

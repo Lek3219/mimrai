@@ -1,6 +1,7 @@
 import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
+import { getSession } from "@/lib/get-session";
 import { queryClient, trpc } from "@/utils/trpc";
 import { TeamInvite } from "./accept-invite";
 
@@ -13,11 +14,7 @@ type Props = {
 export default async function Page({ params }: Props) {
 	const { inviteId } = await params;
 
-	const { data: session } = await authClient.getSession({
-		fetchOptions: {
-			headers: await headers(),
-		},
-	});
+	const session = await getSession();
 
 	if (!session?.user) {
 		return redirect(`/sign-in?callbackUrl=/invites/${inviteId}`);
