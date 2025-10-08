@@ -36,6 +36,11 @@ export const auth = betterAuth<BetterAuthOptions>({
 			secure: true,
 			httpOnly: true,
 		},
+		useSecureCookies: true,
+		crossSubDomainCookies: {
+			enabled: true,
+			domain: process.env.BETTER_AUTH_DOMAIN || "localhost",
+		},
 	},
 	plugins: [],
 });
