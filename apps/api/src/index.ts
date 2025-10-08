@@ -15,8 +15,6 @@ import { appRouter } from "./trpc/routers/index";
 
 const app = new OpenAPIHono<Context>();
 
-console.log(process.env.ALLOWED_API_ORIGINS);
-
 app.use(logger());
 app.use(secureHeaders());
 app.use(
@@ -29,6 +27,7 @@ app.use(
 			"Content-Type",
 			"accept-language",
 			"user-agent",
+			"cookie",
 			"x-team-id",
 			"x-user-locale",
 			"x-user-timezone",
