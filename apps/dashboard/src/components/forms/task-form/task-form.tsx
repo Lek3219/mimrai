@@ -1,10 +1,18 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { format } from "date-fns";
+import * as chrono from "chrono-node";
+import { format, formatRelative } from "date-fns";
+import { ChevronDownIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useDebounceValue } from "usehooks-ts";
 import z from "zod";
 import { PriorityBadge } from "@/components/kanban/priority";
+import { Calendar } from "@/components/ui/calendar";
+import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from "@/components/ui/popover";
 import { useTaskParams } from "@/hooks/use-task-params";
 import { useZodForm } from "@/hooks/use-zod-form";
 import { trpc } from "@/utils/trpc";
@@ -41,7 +49,7 @@ export const taskFormSchema = z.object({
 	assigneeId: z.string().optional(),
 	columnId: z.string(),
 	teamId: z.string(),
-	dueDate: z.string().optional(),
+	dueDate: z.date().optional(),
 	labels: z.array(z.string()).optional(),
 	priority: z.enum(["low", "medium", "high"]).optional(),
 	attachments: z.array(z.string()).optional(),
@@ -113,6 +121,7 @@ export const TaskForm = ({
 			updateTask({
 				id: values.id,
 				...values,
+				dueDate: values.dueDate?.toISOString(),
 			});
 			form.reset(values, { keepDirty: false });
 			setLastSavedDate(new Date());
@@ -125,6 +134,7 @@ export const TaskForm = ({
 			updateTask({
 				...data,
 				id: data.id,
+				dueDate: data.dueDate?.toISOString(),
 			});
 			setParams(null);
 		} else {
@@ -132,6 +142,7 @@ export const TaskForm = ({
 			createTask({
 				...data,
 				teamId: "default",
+				dueDate: data.dueDate?.toISOString(),
 			});
 		}
 	};
@@ -256,6 +267,45 @@ export const TaskForm = ({
 												renderItem={(item) => <Assignee {...item} />}
 											/>
 										</FormControl>
+									</FormItem>
+								)}
+							/>
+
+							<FormField
+								name="dueDate"
+								control={form.control}
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Due date</FormLabel>
+										<FormControl>
+											<Popover>
+												<PopoverTrigger asChild>
+													<Button
+														variant="ghost"
+														className="w-full justify-between font-normal"
+													>
+														{field.value
+															? formatRelative(field.value, new Date())
+															: "Select date"}
+														<ChevronDownIcon />
+													</Button>
+												</PopoverTrigger>
+												<PopoverContent
+													className="w-auto overflow-hidden p-0"
+													align="start"
+												>
+													<Calendar
+														mode="single"
+														selected={field.value}
+														captionLayout="dropdown"
+														onSelect={(date) => {
+															field.onChange(date);
+														}}
+													/>
+												</PopoverContent>
+											</Popover>
+										</FormControl>
+										<FormMessage />
 									</FormItem>
 								)}
 							/>

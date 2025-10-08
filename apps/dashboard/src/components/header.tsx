@@ -12,6 +12,7 @@ import { usePathname } from "next/navigation";
 import { useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { useChatContainer } from "./chat/chat-container";
+import { Logo } from "./logo";
 import { ModeToggle } from "./mode-toggle";
 import { TeamSwitcher } from "./team-switcher";
 import { Button } from "./ui/button";
@@ -22,6 +23,7 @@ const links: {
 	label: string;
 	active?: boolean;
 }[] = [
+	{ to: "/dashboard/my-tasks", label: "My Tasks" },
 	{ to: "/dashboard", label: "Board" },
 	{ to: "/dashboard/settings/general", label: "Settings" },
 ] as const;
@@ -41,7 +43,11 @@ export default function Header() {
 		<header className="">
 			<div className="flex h-full flex-col items-start border-b px-8 pt-4">
 				<div className="flex w-full items-center justify-between">
-					<div className="flex gap-2">
+					<div className="flex items-center gap-2">
+						<div className="flex items-center gap-2 font-bold">
+							<Logo className="size-6 rounded-full" />
+						</div>
+						<span className="text-muted-foreground text-xl">/</span>
 						<div>
 							<TeamSwitcher />
 						</div>
