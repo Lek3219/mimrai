@@ -41,6 +41,8 @@ export default function SignInForm() {
 				password: data.password,
 			},
 			{
+				credentials: "include",
+				mode: "cors",
 				onSuccess: () => {
 					const callbackUrl =
 						localStorage.getItem("callbackUrl") ?? "/dashboard";
