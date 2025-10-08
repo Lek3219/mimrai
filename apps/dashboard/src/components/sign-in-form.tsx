@@ -35,48 +35,26 @@ export default function SignInForm() {
 	});
 
 	const handleSubmit = async (data: z.infer<typeof schema>) => {
-		// await authClient.signIn.email(
-		// 	{
-		// 		email: data.email,
-		// 		password: data.password,
-		// 	},
-		// 	{
-		// 		credentials: "include",
-		// 		mode: "cors",
-		// 		onSuccess: () => {
-		// 			const callbackUrl =
-		// 				localStorage.getItem("callbackUrl") ?? "/dashboard";
-		// 			localStorage.removeItem("callbackUrl");
-		// 			toast.success("Sign in successful");
-		// 			window.location.href = callbackUrl;
-		// 		},
-		// 		onError: (error) => {
-		// 			toast.error(error.error.message || error.error.statusText);
-		// 		},
-		// 	},
-		// );
-		const response = await fetch(
-			`${process.env.NEXT_PUBLIC_SERVER_URL}/api/auth/sign-in/email`,
+		await authClient.signIn.email(
+			{
+				email: data.email,
+				password: data.password,
+			},
 			{
 				credentials: "include",
-				headers: {
-					"content-type": "application/json",
-				},
-				body: JSON.stringify({
-					email: data.email,
-					password: data.password,
-				}),
-				method: "POST",
 				mode: "cors",
+				onSuccess: () => {
+					const callbackUrl =
+						localStorage.getItem("callbackUrl") ?? "/dashboard";
+					localStorage.removeItem("callbackUrl");
+					toast.success("Sign in successful");
+					window.location.href = callbackUrl;
+				},
+				onError: (error) => {
+					toast.error(error.error.message || error.error.statusText);
+				},
 			},
 		);
-
-		if (response.ok) {
-			const callbackUrl = localStorage.getItem("callbackUrl") ?? "/dashboard";
-			localStorage.removeItem("callbackUrl");
-			toast.success("Sign in successful");
-			// window.location.href = callbackUrl;
-		}
 	};
 
 	if (isPending) {
