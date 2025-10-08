@@ -1,13 +1,20 @@
-import type {
-	CreateTaskInput,
-	DeleteTaskInput,
-	UpdateTaskInput,
-} from "@api/schemas/tasks";
+import type { DeleteTaskInput } from "@api/schemas/tasks";
 import { subDays } from "date-fns";
 import { and, eq, gte, ilike, inArray, or, type SQL, sql } from "drizzle-orm";
 import { db } from "..";
 import { columns, labels, labelsOnTasks, tasks, users } from "../schema";
 import { createActivity } from "./activities";
+
+export const getNextTaskSequence = async (teamId?: string) => {
+	const teamIdSlug = teamId ? teamId.replace(/-/g, "_") : "default";
+	const sequenceName = `task_sequence_${teamIdSlug}`;
+	await db.execute(`CREATE SEQUENCE IF NOT EXISTS ${sequenceName} START 1`);
+	const nextSequenceResult = await db.execute<{ nextval: number }>(
+		sql`SELECT nextval(${sequenceName}) as nextval`,
+	);
+	const nextSequenceValue = nextSequenceResult.rows[0]?.nextval;
+	return nextSequenceValue;
+};
 
 export const getTasks = async ({
 	pageSize = 20,
@@ -52,6 +59,7 @@ export const getTasks = async ({
 			title: tasks.title,
 			description: tasks.description,
 			assigneeId: tasks.assigneeId,
+			sequence: tasks.sequence,
 			assignee: {
 				id: users.id,
 				name: users.name,
@@ -137,6 +145,7 @@ export const createTask = async ({
 		.insert(tasks)
 		.values({
 			...input,
+			sequence: await getNextTaskSequence(input.teamId),
 		})
 		.returning();
 
@@ -266,6 +275,7 @@ export const getTaskById = async (id: string, teamId?: string) => {
 			title: tasks.title,
 			description: tasks.description,
 			assigneeId: tasks.assigneeId,
+			sequence: tasks.sequence,
 			assignee: {
 				id: users.id,
 				name: users.name,

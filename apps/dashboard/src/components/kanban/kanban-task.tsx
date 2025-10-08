@@ -3,7 +3,7 @@ import { format } from "date-fns";
 import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 import { LabelBadge } from "../ui/label-badge";
-import { Assignee, AssigneeAvatar } from "./asignee";
+import { AssigneeAvatar } from "./asignee";
 import { Priority } from "./priority";
 
 type Task = RouterOutputs["tasks"]["get"]["data"][number];
@@ -39,8 +39,15 @@ export const KanbanTask = ({
 		>
 			<div className="flex h-full grow-1 flex-col justify-between gap-2">
 				<div className="flex items-center justify-between gap-2">
-					<span className="font-medium text-sm">{task.title}</span>
-					<AssigneeAvatar {...task.assignee} />
+					<span className="font-medium text-sm">
+						{task.sequence && (
+							<span className="mr-2 text-muted-foreground">
+								{task.sequence}
+							</span>
+						)}
+						{task.title}
+					</span>
+					{task.assignee && <AssigneeAvatar {...task.assignee} />}
 				</div>
 				{task.labels?.length > 0 && (
 					<div className="mb-2 flex flex-wrap gap-1">

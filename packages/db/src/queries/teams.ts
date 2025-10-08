@@ -1,5 +1,5 @@
 import { stripeClient } from "@api/lib/payments";
-import { and, eq, ilike, ne, type SQL } from "drizzle-orm";
+import { and, eq, ilike, ne, type SQL, sql } from "drizzle-orm";
 import { db } from "..";
 import { type plansEnum, teams, users, usersOnTeams } from "../schema";
 import { createDefaultColumns } from "./columns";

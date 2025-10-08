@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import type { UIChatMessage } from "@api/ai/types";
 import type { IntegrationConfig, IntegrationName } from "@integration/registry";
 import { randomColor } from "@mimir/utils/random";
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import {
 	boolean,
 	foreignKey,
@@ -10,8 +10,10 @@ import {
 	integer,
 	jsonb,
 	pgEnum,
+	pgSequence,
 	pgTable,
 	primaryKey,
+	serial,
 	text,
 	timestamp,
 	unique,
@@ -180,6 +182,7 @@ export const tasks = pgTable(
 			.primaryKey()
 			.notNull(),
 		title: text("title").notNull(),
+		sequence: integer("sequence"),
 		description: text("description"),
 		priority: priorityEnum("priority").default("medium").notNull(),
 		assigneeId: text("assignee_id"),
