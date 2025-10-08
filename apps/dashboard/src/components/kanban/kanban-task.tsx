@@ -3,7 +3,7 @@ import { format } from "date-fns";
 import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 import { LabelBadge } from "../ui/label-badge";
-import { Assignee } from "./asignee";
+import { Assignee, AssigneeAvatar } from "./asignee";
 import { Priority } from "./priority";
 
 type Task = RouterOutputs["tasks"]["get"]["data"][number];
@@ -40,6 +40,7 @@ export const KanbanTask = ({
 			<div className="flex h-full grow-1 flex-col justify-between gap-2">
 				<div className="flex items-center justify-between gap-2">
 					<span className="font-medium text-sm">{task.title}</span>
+					<AssigneeAvatar {...task.assignee} />
 				</div>
 				{task.labels?.length > 0 && (
 					<div className="mb-2 flex flex-wrap gap-1">
@@ -49,13 +50,14 @@ export const KanbanTask = ({
 					</div>
 				)}
 				<div className="flex items-center justify-between text-muted-foreground text-xs">
-					<Assignee {...task.assignee} />
+					<div className="flex items-center gap-2">
+						{task.dueDate && (
+							<time className="text-[10px] tabular-nums">
+								{format(new Date(task.dueDate), "PP")}
+							</time>
+						)}
+					</div>
 					{task.priority ? <Priority value={task.priority} /> : <div />}
-					{task.dueDate && (
-						<time className="text-[10px] tabular-nums">
-							{format(new Date(task.dueDate), "h:mm a, MMM d")}
-						</time>
-					)}
 				</div>
 			</div>
 		</motion.div>

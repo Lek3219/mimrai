@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 import { motion } from "motion/react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { useChatContainer } from "./chat/chat-container";
@@ -29,6 +29,7 @@ const links: {
 ] as const;
 
 export default function Header() {
+	const router = useRouter();
 	const { show, toggle } = useChatContainer();
 	const pathname = usePathname();
 
@@ -67,7 +68,10 @@ export default function Header() {
 								"opacity-100": show,
 							},
 						)}
-						onClick={toggle}
+						onClick={() => {
+							toggle();
+							router.push("/dashboard");
+						}}
 					>
 						{show ? (
 							<PanelLeftCloseIcon className="size-4" />

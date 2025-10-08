@@ -39,7 +39,7 @@ export const TaskUpdateSheet = () => {
 							columnId: task.columnId,
 							teamId: task.teamId,
 							priority: task.priority || "medium",
-							dueDate: task.dueDate || undefined,
+							dueDate: task.dueDate ? new Date(task.dueDate) : undefined,
 							labels: task.labels?.map((label) => label.id) || [],
 							attachments: task.attachments || [],
 						}}
