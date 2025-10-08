@@ -172,7 +172,8 @@ export const initMattermostSingle = async (
 				const senderName = typedData.sender_name;
 
 				//temporary only response if its me
-				if (senderName !== "@alain") return;
+				if (process.env.NODE_ENV === "development" && senderName !== "@alain")
+					return;
 
 				if (isDirect || isMentioned) {
 					const associetedUser = await getLinkedUserByExternalId({
