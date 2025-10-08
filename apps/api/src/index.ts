@@ -16,7 +16,11 @@ import { appRouter } from "./trpc/routers/index";
 const app = new OpenAPIHono<Context>();
 
 app.use(logger());
-app.use(secureHeaders());
+app.use(
+	secureHeaders({
+		crossOriginResourcePolicy: "cross-origin",
+	}),
+);
 app.use(
 	"*",
 	cors({
