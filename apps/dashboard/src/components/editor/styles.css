@@ -1,0 +1,74 @@
+@reference "../../index.css";
+
+.ProseMirror-focused {
+	@apply outline-none;
+}
+
+.tiptap {
+	@apply text-sm leading-relaxed;
+}
+
+.tiptap h1 {
+	@apply text-lg;
+	@apply font-sans;
+	margin-bottom: 0.5rem;
+}
+
+.tiptap h2 {
+	@apply text-base;
+	@apply font-sans;
+	margin-bottom: 0.5rem;
+}
+
+.tiptap a {
+	@apply underline;
+}
+
+.tiptap .bubble-menu {
+	@apply flex gap-2;
+}
+
+.tiptap p.is-empty::before {
+	color: #404040;
+	content: attr(data-placeholder);
+	float: left;
+	height: 0;
+	pointer-events: none;
+}
+
+.tiptap ul {
+	list-style: disc;
+	margin-left: 1rem;
+}
+
+.tiptap ol {
+	list-style: decimal;
+	margin-left: 1rem;
+}
+
+.tiptap {
+	pre {
+		@apply bg-accent;
+		@apply p-2;
+		@apply my-2;
+		@apply rounded;
+
+		code {
+			background: none;
+			color: inherit;
+			font-size: 0.8rem;
+			padding: 0;
+		}
+	}
+
+	img {
+		display: block;
+		height: auto;
+		margin: 1.5rem 0;
+		max-width: 100%;
+
+		&.ProseMirror-selectednode {
+			outline: 3px solid var(--purple);
+		}
+	}
+}

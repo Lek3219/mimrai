@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useDebounceValue } from "usehooks-ts";
 import z from "zod";
+import { Editor } from "@/components/editor";
 import { PriorityBadge } from "@/components/kanban/priority";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -45,7 +46,7 @@ import { LabelInput } from "./label-input";
 export const taskFormSchema = z.object({
 	id: z.string().optional(),
 	title: z.string().min(1).max(255),
-	description: z.string().max(5000).optional(),
+	description: z.string().max(50_000).optional(),
 	assigneeId: z.string().optional(),
 	columnId: z.string(),
 	teamId: z.string(),
@@ -195,11 +196,18 @@ export const TaskForm = ({
 								render={({ field }) => (
 									<FormItem>
 										<FormControl>
-											<MarkdownInput
+											{/* <MarkdownInput
 												className="min-h-[160px]"
 												contentEditableClassName="min-h-[160px] hover:bg-muted focus:bg-transparent transition-colors"
 												placeholder="Add description..."
 												markdown={field.value ?? ""}
+												onChange={(value) => field.onChange(value)}
+											/> */}
+
+											<Editor
+												className="px-4 [&_div]:min-h-[160px]"
+												placeholder="Add description..."
+												value={field.value ?? ""}
 												onChange={(value) => field.onChange(value)}
 											/>
 										</FormControl>

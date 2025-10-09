@@ -120,13 +120,13 @@ export const createDefaultLabels = async (teamId: string) => {
 	const defaultLabels = [
 		{
 			name: "Feature",
-			color: "#2e6dcc",
+			color: "#ebebeb",
 			description: "New feature or request",
 		},
-		{ name: "Bug", color: "#e74c3c", description: "Something isn't working" },
+		{ name: "Bug", color: "#523130", description: "Something isn't working" },
 		{
 			name: "Improvement",
-			color: "#418328",
+			color: "#3a4737",
 			description: "Enhancement to existing feature",
 		},
 	];

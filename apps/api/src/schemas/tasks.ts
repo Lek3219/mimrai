@@ -14,7 +14,7 @@ export type GetTasksInput = z.infer<typeof getTasksSchema>;
 
 export const createTaskSchema = z.object({
 	title: z.string().min(1).max(255),
-	description: z.string().max(5000).optional(),
+	description: z.string().max(50_000).optional(),
 	assigneeId: z.string().optional(),
 	columnId: z.string(),
 	teamId: z.string(),
@@ -29,7 +29,7 @@ export const updateTaskSchema = z.object({
 	id: z.string(),
 	teamId: z.string().optional(),
 	title: z.string().min(1).max(255).optional(),
-	description: z.string().max(5000).optional(),
+	description: z.string().max(50_000).optional(),
 	assigneeId: z.string().optional(),
 	priority: z.enum(priorityEnum.enumValues).optional(),
 	dueDate: z.string().optional(),
