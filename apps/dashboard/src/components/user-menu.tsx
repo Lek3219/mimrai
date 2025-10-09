@@ -41,6 +41,7 @@ export default function UserMenu() {
 					<Button
 						variant="destructive"
 						className="w-full"
+						size={"sm"}
 						onClick={() => {
 							authClient.signOut({
 								fetchOptions: {

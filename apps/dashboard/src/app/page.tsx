@@ -1,6 +1,5 @@
 "use client";
 import { useQuery } from "@tanstack/react-query";
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { trpc } from "@/utils/trpc";
 
@@ -19,7 +18,7 @@ export default function Home() {
 			</p>
 
 			<div className="mt-4">
-				<a href="/dashboard">
+				<a href="/redirect">
 					<Button variant={"outline"}>Get Started</Button>
 				</a>
 			</div>

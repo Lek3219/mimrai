@@ -48,6 +48,8 @@ const ActivityItem = ({
 }: {
 	activity: RouterOutputs["activities"]["get"]["data"][number];
 }) => {
+	if (!activity.user) return null;
+
 	switch (activity.type) {
 		case "task_created":
 			return (

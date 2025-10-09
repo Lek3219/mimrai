@@ -24,17 +24,16 @@ export function KanbanBoard() {
 	const { ...filters } = useTasksFilterParams();
 	const { data: columns } = useQuery(trpc.columns.get.queryOptions());
 
+	const queryKey = {
+		assigneeId: filters.assigneeId ?? undefined,
+		search: filters.search ?? undefined,
+		labels: filters.labels ?? undefined,
+	};
+
 	const { data: tasks } = useQuery(
-		trpc.tasks.get.queryOptions(
-			{
-				assigneeId: filters.assigneeId ?? undefined,
-				search: filters.search ?? undefined,
-				labels: filters.labels ?? undefined,
-			},
-			{
-				placeholderData: (prev) => prev,
-			},
-		),
+		trpc.tasks.get.queryOptions(queryKey, {
+			placeholderData: (prev) => prev,
+		}),
 	);
 
 	const { mutateAsync: updateTask } = useMutation(
@@ -46,7 +45,7 @@ export function KanbanBoard() {
 	);
 
 	const columnsData = React.useMemo(() => {
-		if (!tasks || !columns) return {};
+		if (!tasks?.data || !columns?.data) return {};
 		const sortedColumns = [...columns.data].sort((a, b) => a.order - b.order);
 		const sortedTasks = [...tasks.data].sort((a, b) => a.order - b.order);
 
@@ -59,7 +58,7 @@ export function KanbanBoard() {
 			},
 			{} as Record<string, RouterOutputs["tasks"]["get"]["data"]>,
 		);
-	}, [tasks, columns]);
+	}, [tasks?.data, columns?.data]);
 
 	return (
 		<div className="h-full grow-1">
@@ -111,27 +110,46 @@ export function KanbanBoard() {
 						const overItem = tasks.data.find((task) => task.id === over?.id);
 
 						if (activeItem && overItem) {
-							activeItem.columnId = overItem.columnId;
-							const tempOrder = activeItem.order;
-							activeItem.order = overItem.order;
-							if (tempOrder <= overItem.order) {
-								// Moving down
-								overItem.order--;
+							const newActiveItem = { ...activeItem };
+							const newOverItem = { ...overItem };
+
+							newActiveItem.columnId = overItem.columnId;
+							newActiveItem.order = overItem.order;
+							if (activeItem.order < overItem.order) {
+								newOverItem.order = overItem.order - 1;
 							} else {
-								// Moving up
-								overItem.order++;
+								newOverItem.order = overItem.order + 1;
 							}
 
-							await updateTask({
-								id: activeItem.id,
-								columnId: activeItem.columnId,
-								order: activeItem.order,
-							});
-							await updateTask({
-								id: overItem.id,
-								order: overItem.order,
-							});
-							queryClient.invalidateQueries(trpc.tasks.get.queryOptions());
+							queryClient.setQueryData(
+								trpc.tasks.get.queryKey(queryKey),
+								(old) => {
+									if (!old) return old;
+									const newData = {
+										...old,
+										data: [...old.data]
+											.map((task) => {
+												if (task.id === activeItem.id) return newActiveItem;
+												if (task.id === overItem.id) return newOverItem;
+												return task;
+											})
+											.sort((a, b) => a.order - b.order),
+									};
+									return newData;
+								},
+							);
+							await Promise.all([
+								updateTask({
+									id: newActiveItem.id,
+									columnId: newActiveItem.columnId,
+									order: newActiveItem.order,
+								}),
+								updateTask({
+									id: newOverItem.id,
+									order: newOverItem.order,
+								}),
+							]);
+							// queryClient.invalidateQueries(trpc.tasks.get.queryOptions());
 						} else if (activeItem && !overItem) {
 							// Moving to empty column
 							const overColumnId = columns?.data.find(
@@ -139,15 +157,33 @@ export function KanbanBoard() {
 							)?.id;
 
 							if (!overColumnId) return;
-							activeItem.columnId = overColumnId;
-							activeItem.order = 0;
+							const newActiveItem = { ...activeItem };
+							newActiveItem.columnId = overColumnId;
+							newActiveItem.order = 50;
+
+							queryClient.setQueryData(
+								trpc.tasks.get.queryKey(queryKey),
+								(old) => {
+									if (!old) return undefined;
+									const newData = {
+										...old,
+										data: [...old.data]
+											.map((task) => {
+												if (task.id === activeItem.id) return newActiveItem;
+												return task;
+											})
+											.sort((a, b) => a.order - b.order),
+									};
+									return newData;
+								},
+							);
 
 							await updateTask({
-								id: activeItem.id,
-								columnId: activeItem.columnId,
-								order: activeItem.order,
+								id: newActiveItem.id,
+								columnId: newActiveItem.columnId,
+								order: newActiveItem.order,
 							});
-							queryClient.invalidateQueries(trpc.tasks.get.queryOptions());
+							// queryClient.invalidateQueries(trpc.tasks.get.queryOptions());
 						}
 					}
 				}}

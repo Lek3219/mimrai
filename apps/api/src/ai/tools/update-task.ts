@@ -7,7 +7,7 @@ import { getContext } from "../context";
 export const updateTaskToolSchema = z.object({
 	id: z
 		.string()
-		.describe("ID of the task to update, get it from getTasks tool"),
+		.describe("ID (uuid) of the task to update, get it from getTasks tool"),
 	title: z
 		.string()
 		.min(1)

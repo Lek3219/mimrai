@@ -45,7 +45,8 @@ export default function SignInForm() {
 				mode: "cors",
 				onSuccess: () => {
 					const callbackUrl =
-						localStorage.getItem("callbackUrl") ?? "/dashboard";
+						localStorage.getItem("callbackUrl") ?? "/redirect";
+
 					localStorage.removeItem("callbackUrl");
 					toast.success("Sign in successful");
 					window.location.href = callbackUrl;

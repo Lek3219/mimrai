@@ -23,7 +23,6 @@ export default function RootLayout({
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
-	console.log("Rendering RootLayout"); // --- IGNORE ---
 	return (
 		<html lang="en" suppressHydrationWarning>
 			<body

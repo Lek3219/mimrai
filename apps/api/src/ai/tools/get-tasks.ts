@@ -76,7 +76,6 @@ export const getTasksTool = tool({
 				link: `${getAppUrl()}/dashboard`,
 				status: "success",
 				data: mappedData,
-				forceStop: artifactSupport,
 			};
 		} catch (error) {
 			console.error("Error in getTasksTool:", error);

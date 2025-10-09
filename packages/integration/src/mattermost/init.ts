@@ -110,276 +110,288 @@ export const initMattermostSingle = async (
 		"runnerId:",
 		runnerId,
 	);
-	const client = new Client4();
-	client.setUrl(integration.config.url);
-	client.setToken(integration.config.token);
 
-	const me = await client.getMe();
+	try {
+		const client = new Client4();
+		client.setUrl(integration.config.url);
+		client.setToken(integration.config.token);
 
-	wsClients[integration.id] = new WebSocket(
-		`${integration.config.url.replace("http", "ws")}/api/v4/websocket`,
-		{
-			headers: {
-				Authorization: `Bearer ${integration.config.token}`,
+		const me = await client.getMe();
+
+		console.log("Logged in as:", me.username, me.id);
+
+		wsClients[integration.id] = new WebSocket(
+			`${integration.config.url.replace("http", "ws")}/api/v4/websocket`,
+			{
+				headers: {
+					Authorization: `Bearer ${integration.config.token}`,
+				},
 			},
-		},
-	);
-	const wsClient = wsClients[integration.id]!;
-
-	wsClient.on("close", (code, reason) => {
-		// try to reconnect in 10 seconds if not stopped
-		console.log(
-			`Mattermost WebSocket closed for integration ${integration.id}. Code: ${code}, Reason: ${reason.toString()}`,
 		);
-		setTimeout(async () => {
-			const isRunning = await integrationsCache.isRunning(integration.id);
-			if (isRunning) {
-				console.log(
-					`Mattermost integration ${integration.id} reconnecting WebSocket...`,
-				);
-				delete wsClients[integration.id];
-				await unregister();
-				await initMattermostSingle(integration);
-			} else {
-				console.log(
-					`Mattermost integration ${integration.id} is not running, not reconnecting.`,
-				);
-			}
-		}, 10_000);
-	});
+		const wsClient = wsClients[integration.id]!;
 
-	wsClient.on("message", async (data) => {
-		const parsedData = JSON.parse(data.toString()) as WebSocketMessage;
-		switch (parsedData.event) {
-			case "posted": {
-				const typedData = {
-					...parsedData.data,
-					mentions: JSON.parse(parsedData.data.mentions ?? "[]"),
-					post: JSON.parse(parsedData.data.post),
-				} as {
-					channel_display_name: string;
-					channel_name: string;
-					channel_type: "D";
-					sender_name: string;
-					mentions: string[];
-					post: {
-						id: string;
-						create_at: number;
-						update_at: number;
-						edit_at: number;
-						delete_at: number;
-						is_pinned: boolean;
-						user_id: string;
-						channel_id: string;
-						root_id: string;
-						original_id: string;
-						message: string;
-						type: string;
-						props: Record<string, unknown>;
-						hashtags: string;
+		wsClient.on("close", (code, reason) => {
+			// try to reconnect in 10 seconds if not stopped
+			console.log(
+				`Mattermost WebSocket closed for integration ${integration.id}. Code: ${code}, Reason: ${reason.toString()}`,
+			);
+			setTimeout(async () => {
+				const isRunning = await integrationsCache.isRunning(integration.id);
+				if (isRunning) {
+					console.log(
+						`Mattermost integration ${integration.id} reconnecting WebSocket...`,
+					);
+					delete wsClients[integration.id];
+					await unregister();
+					await initMattermostSingle(integration);
+				} else {
+					console.log(
+						`Mattermost integration ${integration.id} is not running, not reconnecting.`,
+					);
+				}
+			}, 10_000);
+		});
+
+		wsClient.on("message", async (data) => {
+			const parsedData = JSON.parse(data.toString()) as WebSocketMessage;
+			switch (parsedData.event) {
+				case "posted": {
+					const typedData = {
+						...parsedData.data,
+						mentions: JSON.parse(parsedData.data.mentions ?? "[]"),
+						post: JSON.parse(parsedData.data.post),
+					} as {
+						channel_display_name: string;
+						channel_name: string;
+						channel_type: "D";
+						sender_name: string;
+						mentions: string[];
+						post: {
+							id: string;
+							create_at: number;
+							update_at: number;
+							edit_at: number;
+							delete_at: number;
+							is_pinned: boolean;
+							user_id: string;
+							channel_id: string;
+							root_id: string;
+							original_id: string;
+							message: string;
+							type: string;
+							props: Record<string, unknown>;
+							hashtags: string;
+						};
 					};
-				};
 
-				// Check if the post is from a bot to avoid loops
-				if (typedData.post.user_id === me.id) return;
+					// Check if the post is from a bot to avoid loops
+					if (typedData.post.user_id === me.id) return;
 
-				console.log("New post event:", typedData);
+					console.log("New post event:", typedData);
 
-				const threadId = typedData.post.root_id;
-				const isDirect =
-					typedData.channel_type === "D" &&
-					typedData.channel_name.includes(me.id);
-				const isMentioned = typedData.mentions.includes(me.id);
-				const senderId = typedData.post.user_id;
-				const senderName = typedData.sender_name;
+					const threadId = typedData.post.root_id;
+					const isDirect =
+						typedData.channel_type === "D" &&
+						typedData.channel_name.includes(me.id);
+					const isMentioned = typedData.mentions.includes(me.id);
+					const senderId = typedData.post.user_id;
+					const senderName = typedData.sender_name;
 
-				//temporary only response if its me
-				if (process.env.NODE_ENV === "development" && senderName !== "@alain")
-					return;
+					//temporary only response if its me
+					if (process.env.NODE_ENV === "development" && senderName !== "@alain")
+						return;
 
-				if (isDirect || isMentioned) {
-					const associetedUser = await getLinkedUserByExternalId({
-						externalUserId: senderId,
-						integrationId: integration.id,
-					});
-
-					if (!associetedUser) {
-						// associate the user
-
-						// send the association linking message
-						const url = `${process.env.API_URL}/api/integrations/mattermost/associate?integrationId=${integration.id}&mattermostUserId=${senderId}&mattermostUserName=${encodeURIComponent(
-							senderName,
-						)}`;
-						await client.createPost({
-							channel_id: typedData.post.channel_id,
-							message: `To link your Mattermost account with Mimir, please click the following link: ${url}`,
-						});
-					} else {
-						// handle the message
-
-						// get user context
-						const userContext = await getUserContext({
-							userId: associetedUser.userId,
-							teamId: integration.teamId,
+					if (isDirect || isMentioned) {
+						const associetedUser = await getLinkedUserByExternalId({
+							externalUserId: senderId,
+							integrationId: integration.id,
 						});
 
-						const systemPrompt = generateSystemPrompt(userContext);
+						if (!associetedUser) {
+							// associate the user
 
-						const relevantMessages: UIMessage[] = [];
-						if (threadId) {
-							const posts = await client.getPostThread(threadId, true);
-							const postsArray = Object.values(posts.posts);
-
-							// Sort posts by creation time
-							postsArray.sort((a, b) => a.create_at - b.create_at);
-
-							for (const post of postsArray) {
-								const files = post.metadata.files;
-
-								const message: UIMessage = {
-									id: post.id,
-									role: post.user_id === me.id ? "assistant" : "user",
-									parts: [],
-								};
-
-								// Attach files if any
-								if (files && files.length > 0) {
-									for (const file of files) {
-										const fileRemoteUrl = client.getFileUrl(
-											file.id,
-											file.create_at,
-										);
-										const fileResponse = await fetch(fileRemoteUrl, {
-											headers: {
-												Authorization: `Bearer ${integration.config.token}`,
-											},
-										});
-										const fileBlob = await fileResponse.blob();
-
-										const supabase = await createAdminClient();
-										const storageFile = await supabase.storage
-											.from("vault")
-											.upload(
-												`${associetedUser.userId}/${file.id}-${file.name}`,
-												fileBlob,
-												{
-													upsert: true,
-												},
-											);
-										const fullPath = `${process.env.SUPABASE_URL}/storage/v1/object/public/${storageFile.data?.fullPath}`;
-
-										console.log("Attaching file to message:", fullPath);
-
-										if (fullPath) {
-											message.parts.push({
-												type: "text",
-												text: `Save the next url as an attachment: ${fullPath}`,
-											});
-										}
-									}
-								}
-
-								// Simple heuristic: include messages that are not too long
-								if (post.message.split(" ").length < 100) {
-									message.parts.push({
-										text: safeMessage(post.message),
-										type: "text",
-									});
-								}
-
-								if (message.parts.length > 0) relevantMessages.push(message);
-							}
+							// send the association linking message
+							const url = `${process.env.API_URL}/api/integrations/mattermost/associate?integrationId=${integration.id}&mattermostUserId=${senderId}&mattermostUserName=${encodeURIComponent(
+								senderName,
+							)}`;
+							await client.createPost({
+								channel_id: typedData.post.channel_id,
+								message: `To link your Mattermost account with Mimir, please click the following link: ${url}`,
+							});
 						} else {
-							const latestPostInChannel = await client.getPosts(
-								typedData.post.channel_id,
-								0,
-								20,
-							);
-							const postArray = Object.values(latestPostInChannel.posts);
-							// Sort posts by creation time
-							postArray.sort((a, b) => a.create_at - b.create_at);
+							// handle the message
 
-							for (const post of postArray) {
-								// Simple heuristic: include messages that are not too long
-								if (post.message.split(" ").length < 100) {
-									relevantMessages.push({
+							// get user context
+							const userContext = await getUserContext({
+								userId: associetedUser.userId,
+								teamId: integration.teamId,
+							});
+
+							const systemPrompt = generateSystemPrompt(userContext);
+
+							const relevantMessages: UIMessage[] = [];
+							if (threadId) {
+								const posts = await client.getPostThread(threadId, true);
+								const postsArray = Object.values(posts.posts);
+
+								// Sort posts by creation time
+								postsArray.sort((a, b) => a.create_at - b.create_at);
+
+								for (const post of postsArray) {
+									const files = post.metadata.files;
+
+									const message: UIMessage = {
 										id: post.id,
 										role: post.user_id === me.id ? "assistant" : "user",
-										parts: [
-											{
-												text: safeMessage(post.message),
-												type: "text",
-											},
-										],
-									});
-								}
-							}
-						}
+										parts: [],
+									};
 
-						if (isMentioned) {
-							// fetch thread messages and populate relevantMessages
+									// Attach files if any
+									if (files && files.length > 0) {
+										for (const file of files) {
+											const fileRemoteUrl = client.getFileUrl(
+												file.id,
+												file.create_at,
+											);
+											const fileResponse = await fetch(fileRemoteUrl, {
+												headers: {
+													Authorization: `Bearer ${integration.config.token}`,
+												},
+											});
+											const fileBlob = await fileResponse.blob();
 
-							setContext({
-								db,
-								user: userContext,
-								//@ts-expect-error
-								writer: undefined,
-								artifactSupport: false,
-							});
+											const supabase = await createAdminClient();
+											const storageFile = await supabase.storage
+												.from("vault")
+												.upload(
+													`${associetedUser.userId}/${file.id}-${file.name}`,
+													fileBlob,
+													{
+														upsert: true,
+													},
+												);
+											const fullPath = `${process.env.SUPABASE_URL}/storage/v1/object/public/${storageFile.data?.fullPath}`;
 
-							console.log(`genering response for thread ${threadId}`);
+											console.log("Attaching file to message:", fullPath);
 
-							const thinkingPost = await client.createPost({
-								channel_id: typedData.post.channel_id,
-								message: "_Generating response..._",
-								root_id: threadId ?? typedData.post.id,
-							});
-
-							const text = await generateText({
-								model: "openai/gpt-4o",
-								system: systemPrompt,
-								messages: convertToModelMessages(relevantMessages),
-								temperature: 0.7,
-								// @ts-expect-error
-								tools: createToolRegistry(),
-								stopWhen: (step) => {
-									// Stop if we've reached 10 steps (original condition)
-									if (stepCountIs(10)(step)) {
-										return true;
+											if (fullPath) {
+												message.parts.push({
+													type: "text",
+													text: `Save the next url as an attachment: ${fullPath}`,
+												});
+											}
+										}
 									}
 
-									// Force stop if any tool has completed its full streaming response
-									return shouldForceStop(step);
-								},
-							});
+									// Simple heuristic: include messages that are not too long
+									if (post.message.split(" ").length < 100) {
+										message.parts.push({
+											text: safeMessage(post.message),
+											type: "text",
+										});
+									}
 
-							log(
-								integration.id,
-								"info",
-								`Response: ${text.text.slice(0, 80)}...`,
-								{
-									outputTokens: text.usage.outputTokens,
-									inputTokens: text.usage.outputTokens,
+									if (message.parts.length > 0) relevantMessages.push(message);
+								}
+							} else {
+								const latestPostInChannel = await client.getPosts(
+									typedData.post.channel_id,
+									0,
+									20,
+								);
+								const postArray = Object.values(latestPostInChannel.posts);
+								// Sort posts by creation time
+								postArray.sort((a, b) => a.create_at - b.create_at);
+
+								for (const post of postArray) {
+									// Simple heuristic: include messages that are not too long
+									if (post.message.split(" ").length < 100) {
+										relevantMessages.push({
+											id: post.id,
+											role: post.user_id === me.id ? "assistant" : "user",
+											parts: [
+												{
+													text: safeMessage(post.message),
+													type: "text",
+												},
+											],
+										});
+									}
+								}
+							}
+
+							if (isMentioned) {
+								// fetch thread messages and populate relevantMessages
+
+								setContext({
+									db,
+									user: userContext,
+									//@ts-expect-error
+									writer: undefined,
+									artifactSupport: false,
+								});
+
+								console.log(`genering response for thread ${threadId}`);
+
+								const thinkingPost = await client.createPost({
+									channel_id: typedData.post.channel_id,
+									message: "_Generating response..._",
+									root_id: threadId ?? typedData.post.id,
+								});
+
+								const text = await generateText({
+									model: "openai/gpt-4o",
+									system: systemPrompt,
+									messages: convertToModelMessages(relevantMessages),
+									temperature: 0.7,
+									// @ts-expect-error
+									tools: createToolRegistry(),
+									stopWhen: (step) => {
+										// Stop if we've reached 10 steps (original condition)
+										if (stepCountIs(10)(step)) {
+											return true;
+										}
+
+										// Force stop if any tool has completed its full streaming response
+										return shouldForceStop(step);
+									},
+								});
+
+								log(
+									integration.id,
+									"info",
+									`Response: ${text.text.slice(0, 80)}...`,
+									{
+										outputTokens: text.usage.outputTokens,
+										inputTokens: text.usage.outputTokens,
+										message: text.text,
+									},
+								);
+
+								// Post the response back to the thread
+								await client.updatePost({
+									...thinkingPost,
 									message: text.text,
-								},
-							);
-
-							// Post the response back to the thread
-							await client.updatePost({
-								...thinkingPost,
-								message: text.text,
-							});
+								});
+							}
 						}
 					}
-				}
 
-				break;
+					break;
+				}
+				// Handle other events as needed
+				default:
+					break;
 			}
-			// Handle other events as needed
-			default:
-				break;
-		}
-	});
+		});
+	} catch (error) {
+		const typedError = error as { message?: string };
+		console.error(
+			"Error initializing Mattermost integration:",
+			integration.id,
+			typedError.message,
+		);
+	}
 
 	// wsClient.addMessageListener((message) => {
 	// 	switch (message.event) {

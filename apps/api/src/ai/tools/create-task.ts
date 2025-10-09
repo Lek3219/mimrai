@@ -1,3 +1,4 @@
+import { createTask } from "@db/queries/tasks";
 import { labelsOnTasks, tasks } from "@db/schema";
 import { tool } from "ai";
 import z from "zod";
@@ -61,35 +62,23 @@ export const createTaskTool = tool({
 			const { db, user, artifactSupport } = getContext();
 
 			yield { text: `Creating task: ${input.title}` };
-			const [newTask] = await db
-				.insert(tasks)
-				.values({
-					title: input.title,
-					description: input.description,
-					dueDate: input.dueDate
-						? new Date(input.dueDate).toISOString()
-						: undefined,
-					columnId: input.columnId,
-					assigneeId: input.assigneeId,
-					priority: input.priority || "medium",
-					teamId: user.teamId,
-					attachments: input.attachments || [],
-				})
-				.returning();
-
-			if (input.labels && input.labels.length > 0) {
-				// Then, insert new labels
-				const labelInserts = input.labels.map((labelId) => ({
-					taskId: newTask.id,
-					labelId,
-				}));
-				await db.insert(labelsOnTasks).values(labelInserts);
-			}
+			const newTask = await createTask({
+				title: input.title,
+				description: input.description,
+				columnId: input.columnId,
+				assigneeId: input.assigneeId,
+				dueDate: input.dueDate
+					? new Date(input.dueDate).toISOString()
+					: undefined,
+				priority: input.priority || "medium",
+				teamId: user.teamId,
+				attachments: input.attachments || [],
+				labels: input.labels || [],
+			});
 
 			yield {
 				type: "text",
 				text: `Task created: ${newTask.title}`,
-				forceStop: artifactSupport,
 			};
 		} catch (error) {
 			console.error("Error creating task:", error);

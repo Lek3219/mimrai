@@ -47,7 +47,7 @@ export default function SignUpForm() {
 			{
 				onSuccess: () => {
 					const callbackUrl =
-						localStorage.getItem("callbackUrl") ?? "/dashboard";
+						localStorage.getItem("callbackUrl") ?? "/redirect";
 					localStorage.removeItem("callbackUrl");
 					toast.success("Sign up successful");
 					window.location.href = callbackUrl;
