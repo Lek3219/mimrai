@@ -1,11 +1,7 @@
 "use client";
-import { BotIcon, BotOffIcon } from "lucide-react";
-import { useEffect } from "react";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
-import { useChatParams } from "@/hooks/use-chat-params";
 import { cn } from "@/lib/utils";
-import { Button } from "../ui/button";
 import { ChatInterface } from "./chat-interface";
 
 export type ChatContainerState = {

@@ -1,11 +1,12 @@
+"use client";
+import { useQuery } from "@tanstack/react-query";
 import { TeamForm } from "@/components/forms/team-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { queryClient, trpc } from "@/utils/trpc";
+import { Skeleton } from "@/components/ui/skeleton";
+import { trpc } from "@/utils/trpc";
 
-export const TeamSettings = async () => {
-	const team = await queryClient.fetchQuery(
-		trpc.teams.getCurrent.queryOptions(),
-	);
+export const TeamSettings = () => {
+	const { data: team } = useQuery(trpc.teams.getCurrent.queryOptions());
 
 	return (
 		<Card>
@@ -13,15 +14,19 @@ export const TeamSettings = async () => {
 				<CardTitle>Team Settings</CardTitle>
 			</CardHeader>
 			<CardContent>
-				<TeamForm
-					scrollarea={false}
-					defaultValues={{
-						description: team?.description || undefined,
-						name: team?.name || undefined,
-						email: team?.email || undefined,
-						id: team?.id || undefined,
-					}}
-				/>
+				{team ? (
+					<TeamForm
+						scrollarea={false}
+						defaultValues={{
+							description: team?.description || undefined,
+							name: team?.name || undefined,
+							email: team?.email || undefined,
+							id: team?.id || undefined,
+						}}
+					/>
+				) : (
+					<Skeleton className="h-10 w-full" />
+				)}
 			</CardContent>
 		</Card>
 	);

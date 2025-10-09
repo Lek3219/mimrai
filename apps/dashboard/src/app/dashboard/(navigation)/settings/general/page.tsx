@@ -1,9 +1,12 @@
+import { Suspense } from "react";
 import { TeamSettings } from "./team-settings";
 
 export default function Page() {
 	return (
 		<div>
-			<TeamSettings />
+			<Suspense>
+				<TeamSettings />
+			</Suspense>
 		</div>
 	);
 }
