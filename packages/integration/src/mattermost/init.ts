@@ -140,6 +140,7 @@ export const initMattermostSingle = async (
 				wsClient.ping();
 			} else {
 				// socket is not open, try to reconnect
+				wsClient.close();
 				wsClient = await initializeSocket();
 				console.log("Reconnecting Mattermost websocket...");
 			}
