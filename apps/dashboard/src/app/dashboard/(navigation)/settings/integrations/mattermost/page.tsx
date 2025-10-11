@@ -10,7 +10,7 @@ import {
 import { queryClient, trpc } from "@/utils/trpc";
 import { LogsList } from "../logs-list";
 import { LinkedUsersList } from "./linked-users-list";
-
+export const revalidate = 0;
 export default async function Page() {
 	const integrationInfo = await queryClient.fetchQuery(
 		trpc.integrations.getByType.queryOptions({
