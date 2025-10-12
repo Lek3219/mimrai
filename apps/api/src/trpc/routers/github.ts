@@ -77,6 +77,9 @@ export const githubRouter = router({
 					},
 					owner,
 					repo,
+					query: new URLSearchParams({
+						per_page: "200",
+					}).toString(),
 				},
 			);
 
