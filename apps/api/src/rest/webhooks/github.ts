@@ -118,7 +118,7 @@ app.post(validateGithubWebhook, async (c) => {
 			}));
 
 			const response = await generateObject({
-				model: "openai/gpt-4o",
+				model: "openai/gpt-4o-mini",
 				schema: z.object({
 					updates: z.array(
 						z.object({

@@ -184,7 +184,7 @@ app.post("/", async (c) => {
 				}
 
 				const result = streamText({
-					model: "openai/gpt-4o",
+					model: "openai/gpt-5-mini",
 					system: generateSystemPrompt(
 						userContext,
 						isToolCallMessage,
