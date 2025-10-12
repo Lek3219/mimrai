@@ -1,6 +1,6 @@
 import { and, eq, type SQL } from "drizzle-orm";
 import { db } from "..";
-import { githubRepositoryConnected } from "../schema";
+import { githubRepositoryConnected, pullRequestPlan } from "../schema";
 
 export const getConnectedRepositories = async ({
 	teamId,
@@ -140,5 +140,108 @@ export const getConnectedRepositoryByInstallationId = async ({
 				eq(githubRepositoryConnected.repositoryId, repoId),
 			),
 		);
+	return record;
+};
+
+export const upsertPullRequestPlan = async ({
+	prNumber,
+	teamId,
+	repoId,
+	commentId,
+	headCommitSha,
+	plan,
+}: {
+	prNumber: number;
+	teamId: string;
+	repoId: number;
+	commentId?: number;
+	headCommitSha: string;
+	plan: {
+		taskId: string;
+		columnId: string;
+	}[];
+}) => {
+	const [existing] = await db
+		.select()
+		.from(pullRequestPlan)
+		.where(
+			and(
+				eq(pullRequestPlan.teamId, teamId),
+				eq(pullRequestPlan.repoId, repoId),
+				eq(pullRequestPlan.prNumber, prNumber),
+			),
+		);
+
+	if (existing) {
+		const [record] = await db
+			.update(pullRequestPlan)
+			.set({
+				plan,
+				headCommitSha,
+				commentId: commentId || existing.commentId,
+			})
+			.where(eq(pullRequestPlan.id, existing.id))
+			.returning();
+
+		return record;
+	}
+
+	const [record] = await db
+		.insert(pullRequestPlan)
+		.values({
+			teamId,
+			repoId,
+			prNumber,
+			commentId,
+			headCommitSha,
+			plan,
+		})
+		.returning();
+
+	return record;
+};
+
+export const getPullRequestPlanByHead = async ({
+	headCommitSha,
+	teamId,
+	repoId,
+}: {
+	headCommitSha: string;
+	teamId: string;
+	repoId: number;
+}) => {
+	const [record] = await db
+		.select()
+		.from(pullRequestPlan)
+		.where(
+			and(
+				eq(pullRequestPlan.teamId, teamId),
+				eq(pullRequestPlan.repoId, repoId),
+				eq(pullRequestPlan.headCommitSha, headCommitSha),
+			),
+		);
+	return record;
+};
+
+export const getPullRequestPlanByPrId = async ({
+	prNumber,
+	teamId,
+	repoId,
+}: {
+	prNumber: number;
+	teamId: string;
+	repoId: number;
+}) => {
+	const [record] = await db
+		.select()
+		.from(pullRequestPlan)
+		.where(
+			and(
+				eq(pullRequestPlan.teamId, teamId),
+				eq(pullRequestPlan.repoId, repoId),
+				eq(pullRequestPlan.prNumber, prNumber),
+			),
+		)
+		.limit(1);
 	return record;
 };

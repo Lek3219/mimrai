@@ -367,7 +367,7 @@ export const initMattermostSingle = async (
 										model: "openai/gpt-5-mini",
 										system: systemPrompt,
 										messages: convertToModelMessages(relevantMessages),
-										temperature: 0.7,
+										// temperature: 0.7,
 										tools: createToolRegistry(),
 										stopWhen: (step) => {
 											// Stop if we've reached 10 steps (original condition)

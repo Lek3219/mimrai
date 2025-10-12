@@ -1,25 +1,29 @@
-import { db } from "@db/index";
 import { getColumns } from "@db/queries/columns";
 import {
 	getConnectedRepositoryByInstallationId,
-	getConnectedRepositoryByRepoId,
+	getPullRequestPlanByHead,
+	getPullRequestPlanByPrId,
+	upsertPullRequestPlan,
 } from "@db/queries/github";
-import { installIntegration } from "@db/queries/integrations";
+import {
+	getIntegrationById,
+	installIntegration,
+} from "@db/queries/integrations";
 import { getTasks, updateTask } from "@db/queries/tasks";
-import { tasks } from "@db/schema";
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { log } from "@mimir/integration/logger";
 import { getAppUrl } from "@mimir/utils/envs";
 import type {
-	IssuesOpenedEvent,
+	Commit,
+	PullRequest,
+	PullRequestEvent,
 	PushEvent,
-	WebhookEvent,
 	WebhookEventName,
 } from "@octokit/webhooks-types";
 import { generateObject } from "ai";
 import crypto from "crypto";
-import { and, eq } from "drizzle-orm";
 import type { MiddlewareHandler } from "hono";
+import { Octokit } from "octokit";
 import z from "zod";
 import { protectedMiddleware } from "../middleware";
 import type { Context } from "../types";
@@ -56,20 +60,18 @@ app.post(validateGithubWebhook, async (c) => {
 	const body = await c.req.json();
 	switch (event) {
 		case "push": {
-			// Handle push event
 			const payload = body as PushEvent;
 			const repositoryId = payload.repository.id;
-			const branchRef = payload.ref; // refs/heads/main
-			const branchName = branchRef.replace("refs/heads/", "");
-			const intallationId = payload.installation?.id;
+			const installationId = payload.installation?.id;
+			console.log("Received push event for repository:", repositoryId);
 
-			if (!intallationId) {
+			if (!installationId) {
 				console.log("No installation ID found in the payload");
 				break;
 			}
 
 			const connectedRepository = await getConnectedRepositoryByInstallationId({
-				installationId: intallationId,
+				installationId: installationId,
 				repoId: repositoryId,
 			});
 
@@ -77,59 +79,176 @@ app.post(validateGithubWebhook, async (c) => {
 				console.log("Repository not connected");
 				break;
 			}
+			const teamId = connectedRepository.teamId;
 
-			const branches = connectedRepository.branches || [];
-			if (!branches.includes(branchName)) {
-				console.log("Branch is connected");
+			const pushHead =
+				payload.commits[payload.commits.length - 2]?.id || payload.after;
+
+			const prPlan = await getPullRequestPlanByHead({
+				repoId: repositoryId,
+				headCommitSha: pushHead,
+				teamId: teamId,
+			});
+			if (!prPlan) {
+				console.log("No plan found for the push event");
 				break;
 			}
 
-			//Handle the logic for the push event on the connected branch
-			console.log(`Push event on connected branch: ${branchName}`);
+			// Execute the plan: move tasks to their new columns
+			for (const item of prPlan.plan) {
+				try {
+					await updateTask({
+						id: item.taskId,
+						teamId: teamId,
+						columnId: item.columnId,
+					});
+				} catch (error) {
+					log(
+						connectedRepository.integrationId,
+						"error",
+						`Error updating task ${item.taskId} to column ${item.columnId} for team ${teamId}`,
+						{
+							taskId: item.taskId,
+							columnId: item.columnId,
+						},
+					);
+					console.error("Error updating task:", error);
+				}
+			}
 
+			console.log(
+				`Executed plan for push event on repository ${payload.repository.full_name}`,
+			);
+
+			break;
+		}
+
+		case "pull_request": {
+			const payload = body as PullRequestEvent;
+			const action = payload.action;
+			const repositoryId = payload.repository.id;
+			const installationId = payload.installation?.id;
+			console.log("Received pull_request event:", action, repositoryId);
+
+			const allowedActions: (typeof payload.action)[] = [
+				"opened",
+				"reopened",
+				"synchronize",
+			];
+			if (!allowedActions.includes(action)) {
+				console.log(`Ignoring pull_request action: ${action}`);
+				break;
+			}
+
+			const pr = payload.pull_request as PullRequest;
+
+			const title = pr.title;
+			const prBody = pr.body || "";
+			const targetBranchName = pr.base.ref.split("/").pop() || "";
+
+			if (!installationId) {
+				console.log("No installation ID found in the payload");
+				break;
+			}
+
+			const connectedRepository = await getConnectedRepositoryByInstallationId({
+				installationId: installationId,
+				repoId: repositoryId,
+			});
+
+			if (!connectedRepository) {
+				console.log("Repository not connected");
+				break;
+			}
 			const teamId = connectedRepository.teamId;
-			const messages = payload.commits.map((commit) => commit.message);
-			const allMessages = messages.join("\n");
 
-			const columns = (
-				await getColumns({
-					teamId,
-					pageSize: 20,
-				})
-			).data.map((column) => ({
-				id: column.id,
-				name: column.name,
-				description: column.description,
-				isFinalState: column.isFinalState,
-			}));
+			const branches = connectedRepository.branches || [];
+			if (!branches.includes(targetBranchName)) {
+				console.log("Branch is not connected");
+				break;
+			}
 
-			const taskTitles = (
-				await getTasks({
-					pageSize: 20,
-					teamId,
-					columnId: columns
-						.filter((col) => !col.isFinalState)
-						.map((col) => col.id),
-				})
-			).data.map((task) => ({
-				id: task.id,
-				title: task.title,
-				columnId: task.columnId,
-			}));
+			const integration = await getIntegrationById({
+				id: connectedRepository.integrationId,
+			});
+			if (!integration) {
+				console.log("Integration not found for the connected repository");
+				break;
+			}
 
-			const response = await generateObject({
-				model: "openai/gpt-4o-mini",
-				schema: z.object({
-					updates: z.array(
-						z.object({
-							taskId: z.string().describe("ID of the task to move"),
-							columnId: z
-								.string()
-								.describe("ID of the column to move the task to"),
-						}),
-					),
-				}),
-				prompt: `You are an AI assistant that helps update tasks in a project management system based on commit messages from a git repository.
+			const octokit = new Octokit({
+				auth: integration.config.token,
+			});
+
+			console.log(`Received pull_request event with action: ${action}`);
+			if (
+				action === "opened" ||
+				action === "reopened" ||
+				action === "synchronize"
+			) {
+				const commitsResponse = await fetch(pr._links.commits.href, {
+					headers: {
+						Accept: "application/vnd.github.v3+json",
+						Authorization: `Bearer ${integration.config.token}`,
+					},
+				});
+				const commits = (await commitsResponse.json()) as Array<Commit>;
+
+				const columns = (
+					await getColumns({
+						teamId,
+						pageSize: 20,
+					})
+				).data.map((column) => ({
+					id: column.id,
+					name: column.name,
+					description: column.description,
+					isFinalState: column.isFinalState,
+				}));
+
+				const taskTitles = (
+					await getTasks({
+						pageSize: 20,
+						teamId,
+						columnId: columns
+							.filter((col) => !col.isFinalState)
+							.map((col) => col.id),
+					})
+				).data.map((task) => ({
+					id: task.id,
+					title: task.title,
+					columnId: task.columnId,
+				}));
+
+				const messages = commits.map((commit) => commit.message);
+				const allMessages = messages.join("\n");
+
+				const response = await generateObject({
+					model: "openai/gpt-4o",
+					schema: z.object({
+						message: z.string().describe("Summary of the plan of action"),
+						updates: z.array(
+							z.object({
+								taskTitle: z.string().describe("Title of the task to move"),
+								taskId: z.string().describe("ID of the task to move"),
+								currentTaskColumnName: z
+									.string()
+									.describe("Current column name of the task"),
+								columnId: z
+									.string()
+									.describe("ID of the column to move the task to"),
+								columnName: z
+									.string()
+									.describe("Name of the column to move the task to"),
+								reason: z
+									.string()
+									.describe(
+										"Brief reason explaining why the task is being moved",
+									),
+							}),
+						),
+					}),
+					prompt: `You are an AI assistant that helps update tasks in a project management system based on commit messages from a git repository.
 				You have a list of tasks with their IDs, titles, and current column IDs:
 				${JSON.stringify(taskTitles, null, 2)}
 
@@ -140,37 +259,92 @@ app.post(validateGithubWebhook, async (c) => {
 				Commit Messages:
 				${allMessages}
 
+				Keep in mind the title and body of the pull request are:
+				Title: ${title}
+				Body: ${prBody}
+
 				For each commit message, if it clearly relates to a task title, create an update object with the taskId and the columnId to move it to.
 				If a commit message does not relate to any task, do not create an update for it.
 				Only include updates for tasks that need to be moved.
 				Keep in mind the descriptions of the columns to determine the most appropriate column for each task. But almost all updates should go to the final state column.
 
-				Return the updates as an array of objects with taskId and columnId.`,
-				temperature: 0.2,
-			});
-
-			const updates = response.object.updates;
-			console.log("Task updates to perform:", updates);
-
-			for (const update of updates) {
-				await updateTask({
-					id: update.taskId,
-					columnId: update.columnId,
+				Return the updates as an array of objects`,
 				});
+
+				console.log(`New PR opened on connected branch: ${targetBranchName}`);
+
+				console.log("Task updates to perform:", response.object.updates);
+
+				const existingPlan = await getPullRequestPlanByPrId({
+					prNumber: pr.number,
+					repoId: repositoryId,
+					teamId,
+				});
+
+				if (existingPlan) {
+					// delete existing comment
+					await octokit.rest.issues.deleteComment({
+						comment_id: existingPlan.commentId!,
+						owner: payload.repository.owner.login,
+						repo: payload.repository.name,
+					});
+				}
+
+				const comment = await octokit.rest.issues.createComment({
+					issue_number: pr.number,
+					body: `<p>${response.object.message}</p>
+
+<table>
+<thead>
+<tr>
+<th>Task Title</th>\
+<th>Reason</th>
+<th>Current Column</th>
+<th>Suggested Column</th>
+</tr>
+</thead>
+<tbody>
+${response.object.updates
+	.map(
+		(update) => `<tr>
+<td>${update.taskTitle}</td>
+<td>${update.reason}</td>
+<td>${update.currentTaskColumnName}</td>
+<td>${update.columnName}</td>
+</tr>`,
+	)
+	.join("")}
+</tbody>
+</table>
+					`,
+					owner: payload.repository.owner.login,
+					repo: payload.repository.name,
+				});
+
+				await upsertPullRequestPlan({
+					prNumber: pr.number,
+					teamId,
+					repoId: repositoryId,
+					commentId: comment.data.id,
+					headCommitSha: pr.head.sha,
+					plan: response.object.updates.map((update) => ({
+						taskId: update.taskId,
+						columnId: update.columnId,
+					})),
+				});
+
+				log(
+					integration.id,
+					"info",
+					`Created/Updated plan for PR #${pr.number} in repository ${payload.repository.full_name}`,
+					{
+						prNumber: pr.number,
+						repoId: repositoryId,
+					},
+					response.usage.inputTokens,
+					response.usage.outputTokens,
+				);
 			}
-
-			console.log(response.usage);
-			log(
-				connectedRepository.integrationId,
-				"info",
-				`Processed push event on ${branchName} with ${updates.length} task updates`,
-				{
-					repository: payload.repository.full_name,
-				},
-				response.usage.inputTokens,
-				response.usage.outputTokens,
-			);
-
 			break;
 		}
 

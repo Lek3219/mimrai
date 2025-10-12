@@ -4,6 +4,7 @@ import type { IntegrationConfig, IntegrationName } from "@integration/registry";
 import { randomColor } from "@mimir/utils/random";
 import { relations, sql } from "drizzle-orm";
 import {
+	bigint,
 	boolean,
 	foreignKey,
 	index,
@@ -542,3 +543,33 @@ export const githubRepositoryConnected = pgTable(
 			.onUpdate("cascade"),
 	],
 );
+
+export const pullRequestPlanStatus = pgEnum("pull_request_plan_status", [
+	"pending",
+	"completed",
+	"error",
+]);
+
+export const pullRequestPlan = pgTable("pull_request_plans", {
+	id: text("id")
+		.$defaultFn(() => randomUUID())
+		.primaryKey()
+		.notNull(),
+	teamId: text("team_id").notNull(),
+	prNumber: bigint({
+		mode: "number",
+	}).notNull(),
+	repoId: bigint({
+		mode: "number",
+	}).notNull(),
+	plan: jsonb("plan").$type<{ taskId: string; columnId: string }[]>().notNull(),
+	commentId: bigint({
+		mode: "number",
+	}),
+	headCommitSha: text("head_commit_sha").notNull(),
+	status: pullRequestPlanStatus("status").default("pending").notNull(),
+	createdAt: timestamp("created_at", {
+		withTimezone: true,
+		mode: "string",
+	}).defaultNow(),
+});
