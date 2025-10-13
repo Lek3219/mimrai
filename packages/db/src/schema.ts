@@ -547,6 +547,7 @@ export const githubRepositoryConnected = pgTable(
 export const pullRequestPlanStatus = pgEnum("pull_request_plan_status", [
 	"pending",
 	"completed",
+	"canceled",
 	"error",
 ]);
 

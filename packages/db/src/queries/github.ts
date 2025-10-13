@@ -1,6 +1,10 @@
 import { and, eq, type SQL } from "drizzle-orm";
 import { db } from "..";
-import { githubRepositoryConnected, pullRequestPlan } from "../schema";
+import {
+	githubRepositoryConnected,
+	pullRequestPlan,
+	type pullRequestPlanStatus,
+} from "../schema";
 
 export const getConnectedRepositories = async ({
 	teamId,
@@ -147,6 +151,7 @@ export const upsertPullRequestPlan = async ({
 	prNumber,
 	teamId,
 	repoId,
+	status,
 	commentId,
 	headCommitSha,
 	plan,
@@ -155,6 +160,7 @@ export const upsertPullRequestPlan = async ({
 	teamId: string;
 	repoId: number;
 	commentId?: number;
+	status?: (typeof pullRequestPlanStatus.enumValues)[number];
 	headCommitSha: string;
 	plan: {
 		taskId: string;
@@ -179,6 +185,7 @@ export const upsertPullRequestPlan = async ({
 				plan,
 				headCommitSha,
 				commentId: commentId || existing.commentId,
+				status: status || existing.status,
 			})
 			.where(eq(pullRequestPlan.id, existing.id))
 			.returning();
@@ -194,6 +201,7 @@ export const upsertPullRequestPlan = async ({
 			prNumber,
 			commentId,
 			headCommitSha,
+			status: status || "pending",
 			plan,
 		})
 		.returning();
@@ -243,5 +251,66 @@ export const getPullRequestPlanByPrId = async ({
 			),
 		)
 		.limit(1);
+	return record;
+};
+
+export const getPullRequestPlanById = async ({
+	id,
+	teamId,
+}: {
+	id: string;
+	teamId?: string;
+}) => {
+	const whereClause: SQL[] = [eq(pullRequestPlan.id, id)];
+	if (teamId) {
+		whereClause.push(eq(pullRequestPlan.teamId, teamId));
+	}
+
+	const [record] = await db
+		.select()
+		.from(pullRequestPlan)
+		.where(and(...whereClause))
+		.limit(1);
+	return record;
+};
+
+export const updatePullRequestPlanCommentId = async ({
+	id,
+	commentId,
+}: {
+	id: string;
+	commentId: number;
+}) => {
+	const [record] = await db
+		.update(pullRequestPlan)
+		.set({
+			commentId,
+		})
+		.where(eq(pullRequestPlan.id, id))
+		.returning();
+
+	return record;
+};
+
+export const cancelPullRequestPlan = async ({
+	id,
+	teamId,
+}: {
+	id: string;
+	teamId?: string;
+}) => {
+	const whereClause: SQL[] = [eq(pullRequestPlan.id, id)];
+	if (teamId) {
+		whereClause.push(eq(pullRequestPlan.teamId, teamId));
+	}
+
+	const [record] = await db
+		.update(pullRequestPlan)
+		.set({
+			status: "canceled",
+		})
+		.where(and(...whereClause))
+		.returning();
+
 	return record;
 };
