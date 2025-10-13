@@ -4,6 +4,7 @@ import {
 	githubRepositoryConnected,
 	pullRequestPlan,
 	type pullRequestPlanStatus,
+	tasks,
 } from "../schema";
 
 export const getConnectedRepositories = async ({
@@ -152,6 +153,8 @@ export const upsertPullRequestPlan = async ({
 	teamId,
 	repoId,
 	status,
+	prUrl,
+	prTitle,
 	commentId,
 	headCommitSha,
 	plan,
@@ -160,6 +163,8 @@ export const upsertPullRequestPlan = async ({
 	teamId: string;
 	repoId: number;
 	commentId?: number;
+	prUrl?: string;
+	prTitle?: string;
 	status?: (typeof pullRequestPlanStatus.enumValues)[number];
 	headCommitSha: string;
 	plan: {
@@ -167,6 +172,8 @@ export const upsertPullRequestPlan = async ({
 		columnId: string;
 	}[];
 }) => {
+	const shouldUpdateTasks = plan.length > 0;
+
 	const [existing] = await db
 		.select()
 		.from(pullRequestPlan)
@@ -179,6 +186,15 @@ export const upsertPullRequestPlan = async ({
 		);
 
 	if (existing) {
+		//remove associeted tasks pullRequestPlanId
+		if (shouldUpdateTasks)
+			await db
+				.update(tasks)
+				.set({
+					pullRequestPlanId: null,
+				})
+				.where(eq(tasks.pullRequestPlanId, existing.id));
+
 		const [record] = await db
 			.update(pullRequestPlan)
 			.set({
@@ -186,9 +202,31 @@ export const upsertPullRequestPlan = async ({
 				headCommitSha,
 				commentId: commentId || existing.commentId,
 				status: status || existing.status,
+				prUrl: prUrl || existing.prUrl,
+				prTitle: prTitle || existing.prTitle,
 			})
 			.where(eq(pullRequestPlan.id, existing.id))
 			.returning();
+
+		if (!record) {
+			throw new Error("Failed to update pull request plan");
+		}
+
+		// Re-associate tasks with the updated pull request plan
+		if (shouldUpdateTasks) {
+			const batch = [];
+			for (const item of plan) {
+				batch.push(
+					db
+						.update(tasks)
+						.set({
+							pullRequestPlanId: record.id,
+						})
+						.where(eq(tasks.id, item.taskId)),
+				);
+			}
+			await Promise.all(batch);
+		}
 
 		return record;
 	}
@@ -201,10 +239,29 @@ export const upsertPullRequestPlan = async ({
 			prNumber,
 			commentId,
 			headCommitSha,
+			prUrl,
+			prTitle,
 			status: status || "pending",
 			plan,
 		})
 		.returning();
+
+	if (!record) {
+		throw new Error("Failed to create pull request plan");
+	}
+
+	const batch = [];
+	for (const item of plan) {
+		batch.push(
+			db
+				.update(tasks)
+				.set({
+					pullRequestPlanId: record.id,
+				})
+				.where(eq(tasks.id, item.taskId)),
+		);
+	}
+	await Promise.all(batch);
 
 	return record;
 };

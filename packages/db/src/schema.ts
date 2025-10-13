@@ -191,6 +191,7 @@ export const tasks = pgTable(
 		order: integer("order").default(0).notNull(),
 		columnId: text("column_id").notNull(),
 		attachments: jsonb("attachments").$type<string[]>().default([]),
+		pullRequestPlanId: text("pull_request_plan_id"),
 		dueDate: timestamp("due_date", {
 			withTimezone: true,
 			mode: "string",
@@ -567,6 +568,8 @@ export const pullRequestPlan = pgTable("pull_request_plans", {
 	commentId: bigint({
 		mode: "number",
 	}),
+	prUrl: text("url"),
+	prTitle: text("title"),
 	headCommitSha: text("head_commit_sha").notNull(),
 	status: pullRequestPlanStatus("status").default("pending").notNull(),
 	createdAt: timestamp("created_at", {

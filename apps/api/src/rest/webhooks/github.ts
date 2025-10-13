@@ -3,6 +3,7 @@ import {
 	getConnectedRepositoryByInstallationId,
 	getPullRequestPlanByHead,
 	getPullRequestPlanByPrId,
+	updatePullRequestPlanCommentId,
 	upsertPullRequestPlan,
 } from "@db/queries/github";
 import {
@@ -12,7 +13,7 @@ import {
 import { getTasks, updateTask } from "@db/queries/tasks";
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { log } from "@mimir/integration/logger";
-import { getAppUrl } from "@mimir/utils/envs";
+import { getApiUrl, getAppUrl } from "@mimir/utils/envs";
 import type {
 	Commit,
 	PullRequest,
@@ -91,6 +92,11 @@ app.post(validateGithubWebhook, async (c) => {
 			});
 			if (!prPlan) {
 				console.log("No plan found for the push event");
+				break;
+			}
+
+			if (prPlan.status === "canceled") {
+				console.log("Plan has been canceled, skipping execution");
 				break;
 			}
 
@@ -192,7 +198,9 @@ app.post(validateGithubWebhook, async (c) => {
 						Authorization: `Bearer ${integration.config.token}`,
 					},
 				});
-				const commits = (await commitsResponse.json()) as Array<Commit>;
+				const commits = (await commitsResponse.json()) as Array<{
+					commit: Commit;
+				}>;
 
 				const columns = (
 					await getColumns({
@@ -220,8 +228,7 @@ app.post(validateGithubWebhook, async (c) => {
 					columnId: task.columnId,
 				}));
 
-				const messages = commits.map((commit) => commit.message);
-				const allMessages = messages.join("\n");
+				const messages = commits.map((commit) => commit.commit.message);
 
 				const response = await generateObject({
 					model: "openai/gpt-4o",
@@ -249,6 +256,7 @@ app.post(validateGithubWebhook, async (c) => {
 						),
 					}),
 					prompt: `You are an AI assistant that helps update tasks in a project management system based on commit messages from a git repository.
+				
 				You have a list of tasks with their IDs, titles, and current column IDs:
 				${JSON.stringify(taskTitles, null, 2)}
 
@@ -257,18 +265,23 @@ app.post(validateGithubWebhook, async (c) => {
 
 				Based on the following commit messages of a push from repository ${payload.repository.full_name}, determine which tasks need to be moved to which columns.
 				Commit Messages:
-				${allMessages}
+				${JSON.stringify(messages, null, 2)}
 
 				Keep in mind the title and body of the pull request are:
 				Title: ${title}
 				Body: ${prBody}
 
-				For each commit message, if it clearly relates to a task title, create an update object with the taskId and the columnId to move it to.
-				If a commit message does not relate to any task, do not create an update for it.
-				Only include updates for tasks that need to be moved.
-				Keep in mind the descriptions of the columns to determine the most appropriate column for each task. But almost all updates should go to the final state column.
-
-				Return the updates as an array of objects`,
+				HOW DETERMINE UPDATES:
+				- If a commit message references a task title (exact or partial match), that task should be considered for an update.
+				- If the PR title or body references a task title (exact or partial match), that task should be considered for an update.
+				- Use the entire context of the commit messages, PR title, and PR body to determine the most appropriate column for each task.
+        - If a commit message, PR title, or PR body suggests a specific column for a task, that column should be considered for the update.
+				
+				EXAMPLE OF MATCHING REFERENCE:
+				- Commit message: "fix: login issue" could match a task titled "The users cannot login".
+				- PR title: "feature: improve user profiles" could match a task titled "Improve user profiles by adding more fields".
+				- PR body: "This PR fixes the issue with the dashboard subscriptions" could match a task titled "Cannot see subscriptions in dashboard".
+				`,
 				});
 
 				console.log(`New PR opened on connected branch: ${targetBranchName}`);
@@ -289,6 +302,20 @@ app.post(validateGithubWebhook, async (c) => {
 						repo: payload.repository.name,
 					});
 				}
+
+				const newPlan = await upsertPullRequestPlan({
+					prNumber: pr.number,
+					teamId,
+					repoId: repositoryId,
+					headCommitSha: pr.head.sha,
+					prUrl: pr.html_url,
+					prTitle: pr.title,
+					status: "pending",
+					plan: response.object.updates.map((update) => ({
+						taskId: update.taskId,
+						columnId: update.columnId,
+					})),
+				});
 
 				const comment = await octokit.rest.issues.createComment({
 					issue_number: pr.number,
@@ -316,21 +343,16 @@ ${response.object.updates
 	.join("")}
 </tbody>
 </table>
+
+[Cancel this plan](${getApiUrl()}/api/github/plans/${newPlan.id}/cancel?integrationId=${connectedRepository.integrationId})
 					`,
 					owner: payload.repository.owner.login,
 					repo: payload.repository.name,
 				});
 
-				await upsertPullRequestPlan({
-					prNumber: pr.number,
-					teamId,
-					repoId: repositoryId,
+				await updatePullRequestPlanCommentId({
 					commentId: comment.data.id,
-					headCommitSha: pr.head.sha,
-					plan: response.object.updates.map((update) => ({
-						taskId: update.taskId,
-						columnId: update.columnId,
-					})),
+					id: newPlan.id,
 				});
 
 				log(

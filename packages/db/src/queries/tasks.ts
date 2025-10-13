@@ -2,7 +2,14 @@ import type { DeleteTaskInput } from "@api/schemas/tasks";
 import { subDays } from "date-fns";
 import { and, eq, gte, ilike, inArray, or, type SQL, sql } from "drizzle-orm";
 import { db } from "..";
-import { columns, labels, labelsOnTasks, tasks, users } from "../schema";
+import {
+	columns,
+	labels,
+	labelsOnTasks,
+	pullRequestPlan,
+	tasks,
+	users,
+} from "../schema";
 import { createActivity } from "./activities";
 
 export const getNextTaskSequence = async (teamId?: string) => {
@@ -75,6 +82,11 @@ export const getTasks = async ({
 			updatedAt: tasks.updatedAt,
 			teamId: tasks.teamId,
 			attachments: tasks.attachments,
+			pullRequestPlan: {
+				id: pullRequestPlan.id,
+				prUrl: pullRequestPlan.prUrl,
+				prTitle: pullRequestPlan.prTitle,
+			},
 			column: {
 				id: columns.id,
 				name: columns.name,
@@ -98,7 +110,8 @@ export const getTasks = async ({
 		.leftJoin(labelsOnTasks, eq(labelsOnTasks.taskId, tasks.id))
 		.leftJoin(labels, eq(labels.id, labelsOnTasks.labelId))
 		.leftJoin(users, eq(tasks.assigneeId, users.id))
-		.groupBy(tasks.id, users.id, columns.id)
+		.leftJoin(pullRequestPlan, eq(tasks.pullRequestPlanId, pullRequestPlan.id))
+		.groupBy(tasks.id, users.id, columns.id, pullRequestPlan.id)
 		.orderBy(tasks.order);
 
 	// Apply pagination

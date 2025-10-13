@@ -1,6 +1,8 @@
 import type { RouterOutputs } from "@mimir/api/trpc";
 import { format } from "date-fns";
+import { GitPullRequest, GitPullRequestIcon } from "lucide-react";
 import { motion } from "motion/react";
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { LabelBadge } from "../ui/label-badge";
 import { AssigneeAvatar } from "./asignee";
@@ -65,6 +67,19 @@ export const KanbanTask = ({
 						)}
 					</div>
 					{task.priority ? <Priority value={task.priority} /> : <div />}
+				</div>
+				<div className="flex items-center">
+					{task.pullRequestPlan?.prUrl && (
+						<Link
+							href={task.pullRequestPlan.prUrl}
+							target="_blank"
+							className="flex items-center text-primary text-sm hover:text-primary/80"
+							onClick={(e) => e.stopPropagation()}
+						>
+							<GitPullRequestIcon className="mr-1 inline size-3" />
+							{task.pullRequestPlan.prTitle}
+						</Link>
+					)}
 				</div>
 			</div>
 		</motion.div>
