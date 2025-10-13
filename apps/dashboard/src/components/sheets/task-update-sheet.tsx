@@ -31,6 +31,7 @@ export const TaskUpdateSheet = () => {
 			<DialogContent showCloseButton={false} className="pt-0 sm:min-w-[1000px]">
 				{task ? (
 					<TaskForm
+						pullRequestPlan={task.pullRequestPlan}
 						defaultValues={{
 							id: task.id,
 							title: task.title,

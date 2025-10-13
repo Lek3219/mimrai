@@ -7,6 +7,8 @@
 	--font-sans:
 		"Geist", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
 		"Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+
+	--font-runic: "Noto Sans Runic", cursive;
 }
 
 html,
@@ -132,4 +134,10 @@ body {
 	body {
 		@apply bg-background text-foreground;
 	}
+}
+
+.border-draw {
+	border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+	border-width: 3px;
+	border-style: solid;
 }

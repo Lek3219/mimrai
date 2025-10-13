@@ -1,7 +1,8 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import * as chrono from "chrono-node";
 import { format, formatRelative } from "date-fns";
-import { ChevronDownIcon } from "lucide-react";
+import { ChevronDownIcon, GitPullRequestIcon } from "lucide-react";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useDebounceValue } from "usehooks-ts";
@@ -61,8 +62,14 @@ export type TaskFormValues = z.infer<typeof taskFormSchema>;
 
 export const TaskForm = ({
 	defaultValues,
+	pullRequestPlan,
 }: {
 	defaultValues?: Partial<z.infer<typeof taskFormSchema>>;
+	pullRequestPlan?: {
+		id: string;
+		prTitle: string | null;
+		prUrl: string | null;
+	} | null;
 }) => {
 	const [lastSavedDate, setLastSavedDate] = useState<Date>(new Date());
 	const { setParams } = useTaskParams();
@@ -222,6 +229,7 @@ export const TaskForm = ({
 								</Button>
 							</div>
 						</div>
+
 						<div className="mx-4 grid grid-cols-[1fr_300px] gap-4">
 							<div className="space-y-4 pb-4">
 								<FormField
@@ -381,6 +389,22 @@ export const TaskForm = ({
 										</FormItem>
 									)}
 								/>
+
+								{pullRequestPlan?.prUrl && (
+									<div className="mb-4">
+										<FormLabel>Linked Pull Request</FormLabel>
+										<Link
+											href={pullRequestPlan.prUrl}
+											target="_blank"
+											className="mx-3 mt-2 flex items-center text-primary text-sm hover:text-primary/80"
+											onClick={(e) => e.stopPropagation()}
+										>
+											<GitPullRequestIcon className="mr-1 inline size-3" />
+											{pullRequestPlan.prTitle}
+										</Link>
+									</div>
+								)}
+
 								<ColumnSelect />
 							</div>
 						</div>

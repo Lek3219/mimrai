@@ -304,6 +304,11 @@ export const getTaskById = async (id: string, teamId?: string) => {
 			updatedAt: tasks.updatedAt,
 			teamId: tasks.teamId,
 			attachments: tasks.attachments,
+			pullRequestPlan: {
+				id: pullRequestPlan.id,
+				prUrl: pullRequestPlan.prUrl,
+				prTitle: pullRequestPlan.prTitle,
+			},
 			column: {
 				id: columns.id,
 				name: columns.name,
@@ -327,7 +332,8 @@ export const getTaskById = async (id: string, teamId?: string) => {
 		.leftJoin(labelsOnTasks, eq(labelsOnTasks.taskId, tasks.id))
 		.leftJoin(labels, eq(labels.id, labelsOnTasks.labelId))
 		.leftJoin(users, eq(tasks.assigneeId, users.id))
-		.groupBy(tasks.id, users.id, columns.id)
+		.leftJoin(pullRequestPlan, eq(tasks.pullRequestPlanId, pullRequestPlan.id))
+		.groupBy(tasks.id, users.id, columns.id, pullRequestPlan.id)
 		.limit(1);
 
 	return task;

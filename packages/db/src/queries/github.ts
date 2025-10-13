@@ -369,5 +369,13 @@ export const cancelPullRequestPlan = async ({
 		.where(and(...whereClause))
 		.returning();
 
+	// Disassociate tasks from the canceled pull request plan
+	await db
+		.update(tasks)
+		.set({
+			pullRequestPlanId: null,
+		})
+		.where(eq(tasks.pullRequestPlanId, id));
+
 	return record;
 };
