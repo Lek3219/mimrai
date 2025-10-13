@@ -1,6 +1,8 @@
 import z from "zod";
 
-export const getRemoteRepositoriesSchema = z.object({});
+export const getRemoteRepositoriesSchema = z.object({
+	query: z.string().optional(),
+});
 
 export const connectRepositorySchema = z.object({
 	repositoryId: z.number(),
@@ -14,4 +16,5 @@ export const disconnectRepositorySchema = z.object({
 
 export const getRemoteRepositoryBranchesSchema = z.object({
 	repositoryId: z.number(),
+	query: z.string().optional(),
 });

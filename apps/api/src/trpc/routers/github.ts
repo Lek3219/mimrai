@@ -35,13 +35,11 @@ export const githubRouter = router({
 			}
 			const token = integration[0].config.token;
 			const octokit = new Octokit({ auth: token });
-			const repos = await octokit.request("GET /user/repos", {
-				headers: {
-					"X-GitHub-Api-Version": "2022-11-28",
-				},
-			});
+			const repos = await octokit.paginate(
+				octokit.rest.repos.listForAuthenticatedUser,
+			);
 
-			return repos.data;
+			return repos;
 		}),
 
 	getRemoteRepositoryBranches: protectedProcedure
@@ -69,21 +67,12 @@ export const githubRouter = router({
 			const owner = connectedRepository.repositoryName.split("/")[0];
 			const repo = connectedRepository.repositoryName.split("/")[1];
 
-			const branches = await octokit.request(
-				"GET /repos/{owner}/{repo}/branches",
-				{
-					headers: {
-						"X-GitHub-Api-Version": "2022-11-28",
-					},
-					owner,
-					repo,
-					query: new URLSearchParams({
-						per_page: "200",
-					}).toString(),
-				},
-			);
+			const branches = await octokit.paginate(octokit.rest.repos.listBranches, {
+				owner,
+				repo,
+			});
 
-			return branches.data;
+			return branches;
 		}),
 
 	getConnectedRepositories: protectedProcedure
