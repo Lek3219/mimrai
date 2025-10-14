@@ -8,9 +8,6 @@
 		"module": "esnext",
 		"moduleResolution": "bundler",
 
-		"paths": {
-			"@api/*": ["../../apps/api/src/*"],
-			"@integration/*": ["../integration/src/*"]
-		}
+		"paths": {}
 	}
 }

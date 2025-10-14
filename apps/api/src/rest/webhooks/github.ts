@@ -267,7 +267,7 @@ app.post(validateGithubWebhook, async (c) => {
 				Commit Messages:
 				${JSON.stringify(messages, null, 2)}
 
-				Keep in mind the title and body of the pull request are:
+				Keep in mind that this is Pull Request to branch ${targetBranchName} with the following details:
 				Title: ${title}
 				Body: ${prBody}
 
@@ -276,6 +276,7 @@ app.post(validateGithubWebhook, async (c) => {
 				- If the PR title or body references a task title (exact or partial match), that task should be considered for an update.
 				- Use the entire context of the commit messages, PR title, and PR body to determine the most appropriate column for each task.
         - If a commit message, PR title, or PR body suggests a specific column for a task, that column should be considered for the update.
+				- If the context suggests that the task is completed, move it to the "done" column.
 				
 				EXAMPLE OF MATCHING REFERENCE:
 				- Commit message: "fix: login issue" could match a task titled "The users cannot login".

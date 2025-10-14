@@ -91,3 +91,7 @@ export const smartCompleteResponseSchema = z.object({
 		.optional()
 		.describe("ID of the user to assign the task to"),
 });
+
+export const getDuplicatedTasksSchema = z.object({
+	title: z.string().min(1).max(255),
+});

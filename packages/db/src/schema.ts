@@ -18,6 +18,7 @@ import {
 	text,
 	timestamp,
 	unique,
+	vector,
 } from "drizzle-orm/pg-core";
 
 export const session = pgTable("session", {
@@ -196,6 +197,7 @@ export const tasks = pgTable(
 			withTimezone: true,
 			mode: "string",
 		}),
+
 		createdAt: timestamp("created_at", {
 			withTimezone: true,
 			mode: "string",
@@ -221,6 +223,30 @@ export const tasks = pgTable(
 			foreignColumns: [columns.id],
 			name: "tasks_column_id_fkey",
 		}),
+	],
+);
+
+export const taskEmbeddings = pgTable(
+	"task_embeddings",
+	{
+		id: text("id")
+			.$defaultFn(() => randomUUID())
+			.primaryKey()
+			.notNull(),
+		taskId: text("task_id")
+			.notNull()
+			.references(() => tasks.id, { onDelete: "cascade" }),
+		teamId: text("team_id")
+			.notNull()
+			.references(() => teams.id, { onDelete: "cascade" }),
+		embedding: vector("embedding", { dimensions: 768 }).notNull(),
+		model: text("model").notNull().default("google/gemini-embedding-001"),
+	},
+	(table) => [
+		index("document_tag_embeddings_idx")
+			.using("hnsw", table.embedding.asc().nullsLast().op("vector_cosine_ops"))
+			.with({ m: "16", ef_construction: "64" }),
+		unique("unique_task_embedding_per_team").on(table.taskId, table.teamId),
 	],
 );
 

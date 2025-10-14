@@ -1,12 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import * as chrono from "chrono-node";
 import { format, formatRelative } from "date-fns";
-import {
-	ChevronDownIcon,
-	GitPullRequestIcon,
-	TrashIcon,
-	XIcon,
-} from "lucide-react";
+import { ChevronDownIcon, GitPullRequestIcon, XIcon } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -35,8 +29,6 @@ import {
 	FormMessage,
 } from "../../ui/form";
 import { Input } from "../../ui/input";
-import { MarkdownInput } from "../../ui/markdown-input";
-import { ScrollArea } from "../../ui/scroll-area";
 import {
 	Select,
 	SelectContent,
@@ -49,6 +41,7 @@ import { ColumnSelect } from "./column-select";
 import { CommentInput } from "./comment-input";
 import { LabelInput } from "./label-input";
 import { SmartInput } from "./smart-input";
+import { TaskDuplicated } from "./task-duplicated";
 
 export const taskFormSchema = z.object({
 	id: z.string().optional(),
@@ -239,6 +232,9 @@ export const TaskForm = ({
 										? `Last saved at ${format(lastSavedDate, "pp")}`
 										: "Create Task"}
 								</Button>
+							</div>
+							<div className="px-8">
+								<TaskDuplicated title={debouncedValue.title} />
 							</div>
 						</div>
 

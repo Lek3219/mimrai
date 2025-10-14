@@ -1,4 +1,4 @@
-import type { DeleteTaskInput, TaskView } from "@api/schemas/tasks";
+import type { DeleteTaskInput } from "@api/schemas/tasks";
 import { subDays } from "date-fns";
 import {
 	and,
@@ -21,17 +21,9 @@ import {
 	users,
 } from "../schema";
 import { createActivity } from "./activities";
+import { upsertTaskEmbedding } from "./tasks-embeddings";
 
 export const getNextTaskSequence = async (teamId: string) => {
-	// const teamIdSlug = teamId ? teamId.replace(/-/g, "_") : "default";
-	// const sequenceName = `task_sequence_${teamIdSlug}`;
-	// await db.execute(`CREATE SEQUENCE IF NOT EXISTS ${sequenceName} START 1`);
-	// const nextSequenceResult = await db.execute<{ nextval: number }>(
-	// 	sql`SELECT nextval(${sequenceName}) as nextval`,
-	// );
-	// const nextSequenceValue = nextSequenceResult.rows[0]?.nextval;
-	// return nextSequenceValue;
-
 	const [result] = await db
 		.select({ maxSequence: sql<number>`MAX(${tasks.sequence})` })
 		.from(tasks)
@@ -208,6 +200,11 @@ export const createTask = async ({
 		groupId: task.id,
 	});
 
+	await upsertTaskEmbedding({
+		task,
+		teamId: task.teamId,
+	});
+
 	return task;
 };
 
@@ -297,6 +294,11 @@ export const updateTask = async ({
 		teamId: task.teamId,
 		type: "task_updated",
 		groupId: task.id,
+	});
+
+	await upsertTaskEmbedding({
+		task,
+		teamId: task.teamId,
 	});
 
 	return task;

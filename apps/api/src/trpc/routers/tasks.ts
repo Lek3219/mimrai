@@ -4,13 +4,13 @@ import {
 	commentTaskSchema,
 	createTaskSchema,
 	deleteTaskSchema,
+	getDuplicatedTasksSchema,
 	getTasksSchema,
 	smartCompleteResponseSchema,
 	smartCompleteSchema,
 	updateTaskSchema,
 } from "@api/schemas/tasks";
 import { protectedProcedure, router } from "@api/trpc/init";
-import { getColumns } from "@db/queries/columns";
 import { getLabels } from "@db/queries/labels";
 import { getMembers } from "@db/queries/teams";
 import {
@@ -21,6 +21,7 @@ import {
 	getTasks,
 	updateTask,
 } from "@mimir/db/queries/tasks";
+import { getDuplicateTaskEmbedding } from "@mimir/db/queries/tasks-embeddings";
 import { generateObject } from "ai";
 
 export const tasksRouter = router({
@@ -76,6 +77,15 @@ export const tasksRouter = router({
 			});
 		}),
 
+	getDuplicates: protectedProcedure
+		.input(getDuplicatedTasksSchema)
+		.query(async ({ ctx, input }) => {
+			return getDuplicateTaskEmbedding({
+				task: input,
+				teamId: ctx.user.teamId!,
+			});
+		}),
+
 	smartComplete: protectedProcedure
 		.input(smartCompleteSchema)
 		.mutation(async ({ input, ctx }) => {
@@ -83,16 +93,6 @@ export const tasksRouter = router({
 				userId: ctx.user.id,
 				teamId: ctx.user.teamId!,
 			});
-			const columns = (
-				await getColumns({
-					teamId: ctx.user.teamId!,
-					pageSize: 20,
-				})
-			).data.map((column) => ({
-				id: column.id,
-				name: column.name,
-				description: column.description,
-			}));
 			const labels = (
 				await getLabels({
 					teamId: ctx.user.teamId!,

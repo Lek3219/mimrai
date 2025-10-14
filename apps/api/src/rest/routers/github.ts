@@ -1,7 +1,6 @@
 import {
 	cancelPullRequestPlan,
 	getConnectedRepositoryByRepoId,
-	getPullRequestPlanByHead,
 	getPullRequestPlanById,
 } from "@db/queries/github";
 import { getIntegrationById } from "@db/queries/integrations";

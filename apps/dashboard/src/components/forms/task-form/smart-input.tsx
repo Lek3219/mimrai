@@ -1,17 +1,20 @@
 import type { RouterOutputs } from "@api/trpc/routers";
 import { useMutation } from "@tanstack/react-query";
 import { ArrowUpIcon, Loader2Icon } from "lucide-react";
-import { useRef } from "react";
+import { useRef, useState } from "react";
+import { useDebounceValue } from "usehooks-ts";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { trpc } from "@/utils/trpc";
+import { TaskDuplicated } from "./task-duplicated";
 
 export const SmartInput = ({
 	onFinish,
 }: {
 	onFinish: (data: RouterOutputs["tasks"]["smartComplete"]) => void;
 }) => {
+	const [value, setValue] = useState("");
 	const inputRef = useRef<HTMLTextAreaElement>(null);
 	const { mutate, isPending } = useMutation(
 		trpc.tasks.smartComplete.mutationOptions({
@@ -42,6 +45,8 @@ export const SmartInput = ({
 					"text-base placeholder:text-lg md:text-lg",
 				)}
 				placeholder="Describe what you want to do..."
+				value={value}
+				onChange={(e) => setValue(e.target.value)}
 				disabled={isPending}
 				onKeyDown={(e) => {
 					if (e.key === "Enter" && !e.shiftKey) {
@@ -50,31 +55,36 @@ export const SmartInput = ({
 					}
 				}}
 			/>
-			<div className="flex justify-end space-x-2">
-				<Button
-					type="button"
-					size={"sm"}
-					variant={"ghost"}
-					onClick={handleCancel}
-					disabled={isPending}
-				>
-					use form
-				</Button>
-				<Button
-					type="button"
-					size={"sm"}
-					disabled={isPending}
-					onClick={handleSubmit}
-				>
-					{isPending ? (
-						<>
-							<Loader2Icon className="mr-2 size-4 animate-spin" />
-							Generating...
-						</>
-					) : (
-						<ArrowUpIcon />
-					)}
-				</Button>
+			<div className="flex justify-between">
+				<div>
+					<TaskDuplicated title={value} />
+				</div>
+				<div className="flex items-center space-x-2">
+					<Button
+						type="button"
+						size={"sm"}
+						variant={"ghost"}
+						onClick={handleCancel}
+						disabled={isPending}
+					>
+						use form
+					</Button>
+					<Button
+						type="button"
+						size={"sm"}
+						disabled={isPending}
+						onClick={handleSubmit}
+					>
+						{isPending ? (
+							<>
+								<Loader2Icon className="mr-2 size-4 animate-spin" />
+								Generating...
+							</>
+						) : (
+							<ArrowUpIcon />
+						)}
+					</Button>
+				</div>
 			</div>
 		</div>
 	);

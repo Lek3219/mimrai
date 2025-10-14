@@ -1,5 +1,5 @@
 {
-  "name": "@mimir/db",
+  "name": "@mimir/embedding",
   "private": true,
   "scripts": {
     "clean": "rm -rf .turbo node_modules",
@@ -9,26 +9,20 @@
     "db:push": "drizzle-kit push"
   },
   "exports": {
-    "./client": "./src/index.ts",
-    "./queries/*": "./src/queries/*.ts",
-    "./schema": "./src/schema.ts"
+    "./embeddings/*": "./src/embeddings/*.ts",
+    "./constants": "./src/constants.ts"
   },
   "dependencies": {
     "@date-fns/utc": "^2.1.1",
     "date-fns": "^4.1.0",
+    "@mimir/db": "workspace:*",
+    "ai": "^5.0.56",
     "@mimir/logger": "workspace:*",
     "@mimir/utils": "workspace:*",
-    "@mimir/cache": "workspace:*",
-    "@mimir/embedding": "workspace:*",
-    "@types/pg": "^8.15.5",
-    "camelcase-keys": "^10.0.0",
-    "drizzle-orm": "^0.44.5",
-    "pg": "^8.16.3",
-    "snakecase-keys": "^9.0.2"
+    "@mimir/cache": "workspace:*"
   },
   "devDependencies": {
     "@mimir/tsconfig": "workspace:*",
-    "drizzle-kit": "^0.31.4",
     "@types/bun": "latest"
   }
 }

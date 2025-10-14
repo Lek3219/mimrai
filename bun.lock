@@ -157,6 +157,7 @@
       "dependencies": {
         "@date-fns/utc": "^2.1.1",
         "@mimir/cache": "workspace:*",
+        "@mimir/embedding": "workspace:*",
         "@mimir/logger": "workspace:*",
         "@mimir/utils": "workspace:*",
         "@types/pg": "^8.15.5",
@@ -193,6 +194,22 @@
         "react": "19.1.1",
         "react-dom": "19.1.1",
         "typescript": "^5.9.2",
+      },
+    },
+    "packages/embedding": {
+      "name": "@mimir/embedding",
+      "dependencies": {
+        "@date-fns/utc": "^2.1.1",
+        "@mimir/cache": "workspace:*",
+        "@mimir/db": "workspace:*",
+        "@mimir/logger": "workspace:*",
+        "@mimir/utils": "workspace:*",
+        "ai": "^5.0.56",
+        "date-fns": "^4.1.0",
+      },
+      "devDependencies": {
+        "@mimir/tsconfig": "workspace:*",
+        "@types/bun": "latest",
       },
     },
     "packages/integration": {
@@ -702,6 +719,8 @@
     "@mimir/db": ["@mimir/db@workspace:packages/db"],
 
     "@mimir/email": ["@mimir/email@workspace:packages/email"],
+
+    "@mimir/embedding": ["@mimir/embedding@workspace:packages/embedding"],
 
     "@mimir/integration": ["@mimir/integration@workspace:packages/integration"],
 
