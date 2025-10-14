@@ -74,7 +74,7 @@ export const getTasks = async ({
 			or(
 				eq(columns.type, "normal"),
 				and(
-					eq(columns.type, "finished"),
+					eq(columns.type, "done"),
 					gte(tasks.updatedAt, subDays(new Date(), 3).toISOString()),
 				),
 			),

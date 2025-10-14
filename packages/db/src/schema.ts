@@ -238,7 +238,7 @@ export const teamsWithTasksRelations = relations(teams, ({ many }) => ({
 }));
 
 export const columnTypeEnum = pgEnum("column_type", [
-	"finished",
+	"done",
 	"backlog",
 	"normal",
 ]);

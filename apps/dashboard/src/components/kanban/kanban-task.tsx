@@ -29,7 +29,7 @@ export const KanbanTask = ({
 			className={cn(
 				"flex min-h-24 cursor-pointer flex-col rounded-xs border bg-card p-3",
 				{
-					"opacity-50!": task.column?.type === "finished",
+					"opacity-50!": task.column?.type === "done",
 				},
 				className,
 			)}

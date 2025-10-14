@@ -164,7 +164,7 @@ export const createDefaultColumns = async (teamId: string) => {
 			name: "Done",
 			description: "Completed tasks",
 			order: 3,
-			type: "finished" as const,
+			type: "done" as const,
 		},
 	];
 

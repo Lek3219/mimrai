@@ -99,7 +99,7 @@ export const TaskContextMenu = ({
 										columnId: column.id,
 									})}
 								>
-									{column.type === "finished" && <FlagIcon />}
+									{column.type === "done" && <FlagIcon />}
 									{column.name}
 								</ContextMenuItem>
 							))}

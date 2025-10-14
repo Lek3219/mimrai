@@ -24,7 +24,7 @@ export function KanbanBoard() {
 	const { ...filters } = useTasksFilterParams();
 	const { data: columns } = useQuery(
 		trpc.columns.get.queryOptions({
-			type: ["normal", "finished"],
+			type: ["normal", "done"],
 		}),
 	);
 
@@ -214,7 +214,7 @@ export function KanbanBoard() {
 												variant="outline"
 												className="pointer-events-none rounded-sm"
 											>
-												{column.type === "finished" && (
+												{column.type === "done" && (
 													<FlagIcon className="size-4" />
 												)}
 												{tasks.length}
