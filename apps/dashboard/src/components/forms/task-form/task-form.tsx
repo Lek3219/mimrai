@@ -107,6 +107,7 @@ export const TaskForm = ({
 		trpc.tasks.create.mutationOptions({
 			onSuccess: (task) => {
 				queryClient.invalidateQueries(trpc.tasks.get.queryOptions());
+				queryClient.invalidateQueries(trpc.tasks.get.infiniteQueryOptions());
 				setParams(null);
 			},
 			onError: (error) => {
@@ -119,6 +120,7 @@ export const TaskForm = ({
 		trpc.tasks.update.mutationOptions({
 			onSuccess: (task) => {
 				queryClient.invalidateQueries(trpc.tasks.get.queryOptions());
+				queryClient.invalidateQueries(trpc.tasks.get.infiniteQueryOptions());
 				queryClient.invalidateQueries(
 					trpc.activities.get.queryOptions({
 						groupId: task.id,

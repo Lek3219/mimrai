@@ -1,6 +1,16 @@
-import type { DeleteTaskInput } from "@api/schemas/tasks";
+import type { DeleteTaskInput, TaskView } from "@api/schemas/tasks";
 import { subDays } from "date-fns";
-import { and, eq, gte, ilike, inArray, or, type SQL, sql } from "drizzle-orm";
+import {
+	and,
+	desc,
+	eq,
+	gte,
+	ilike,
+	inArray,
+	or,
+	type SQL,
+	sql,
+} from "drizzle-orm";
 import { db } from "..";
 import {
 	columns,
@@ -12,15 +22,23 @@ import {
 } from "../schema";
 import { createActivity } from "./activities";
 
-export const getNextTaskSequence = async (teamId?: string) => {
-	const teamIdSlug = teamId ? teamId.replace(/-/g, "_") : "default";
-	const sequenceName = `task_sequence_${teamIdSlug}`;
-	await db.execute(`CREATE SEQUENCE IF NOT EXISTS ${sequenceName} START 1`);
-	const nextSequenceResult = await db.execute<{ nextval: number }>(
-		sql`SELECT nextval(${sequenceName}) as nextval`,
-	);
-	const nextSequenceValue = nextSequenceResult.rows[0]?.nextval;
-	return nextSequenceValue;
+export const getNextTaskSequence = async (teamId: string) => {
+	// const teamIdSlug = teamId ? teamId.replace(/-/g, "_") : "default";
+	// const sequenceName = `task_sequence_${teamIdSlug}`;
+	// await db.execute(`CREATE SEQUENCE IF NOT EXISTS ${sequenceName} START 1`);
+	// const nextSequenceResult = await db.execute<{ nextval: number }>(
+	// 	sql`SELECT nextval(${sequenceName}) as nextval`,
+	// );
+	// const nextSequenceValue = nextSequenceResult.rows[0]?.nextval;
+	// return nextSequenceValue;
+
+	const [result] = await db
+		.select({ maxSequence: sql<number>`MAX(${tasks.sequence})` })
+		.from(tasks)
+		.where(eq(tasks.teamId, teamId))
+		.limit(1);
+
+	return (result?.maxSequence ?? 0) + 1;
 };
 
 export const getTasks = async ({
@@ -35,6 +53,7 @@ export const getTasks = async ({
 	labels?: string[];
 	teamId?: string;
 	search?: string;
+	view?: "board" | "backlog";
 }) => {
 	const whereConditions: (SQL | undefined)[] = [];
 
@@ -50,15 +69,17 @@ export const getTasks = async ({
 		whereConditions.push(inArray(labelsOnTasks.labelId, input.labels));
 
 	// exlude done tasks with more than 3 days
-	whereConditions.push(
-		or(
-			eq(columns.isFinalState, false),
-			and(
-				eq(columns.isFinalState, true),
-				gte(tasks.updatedAt, subDays(new Date(), 3).toISOString()),
+	if (input.view === "board") {
+		whereConditions.push(
+			or(
+				eq(columns.type, "normal"),
+				and(
+					eq(columns.type, "finished"),
+					gte(tasks.updatedAt, subDays(new Date(), 3).toISOString()),
+				),
 			),
-		),
-	);
+		);
+	}
 
 	const query = db
 		.select({
@@ -92,7 +113,7 @@ export const getTasks = async ({
 				name: columns.name,
 				description: columns.description,
 				order: columns.order,
-				isFinalState: columns.isFinalState,
+				type: columns.type,
 			},
 			labels: sql<
 				{
@@ -111,8 +132,13 @@ export const getTasks = async ({
 		.leftJoin(labels, eq(labels.id, labelsOnTasks.labelId))
 		.leftJoin(users, eq(tasks.assigneeId, users.id))
 		.leftJoin(pullRequestPlan, eq(tasks.pullRequestPlanId, pullRequestPlan.id))
-		.groupBy(tasks.id, users.id, columns.id, pullRequestPlan.id)
-		.orderBy(tasks.order);
+		.groupBy(tasks.id, users.id, columns.id, pullRequestPlan.id);
+
+	if (input.view === "board") {
+		query.orderBy(tasks.order);
+	} else {
+		query.orderBy(desc(tasks.createdAt));
+	}
 
 	// Apply pagination
 	const offset = cursor ? Number.parseInt(cursor, 10) : 0;
@@ -314,7 +340,7 @@ export const getTaskById = async (id: string, teamId?: string) => {
 				name: columns.name,
 				description: columns.description,
 				order: columns.order,
-				isFinalState: columns.isFinalState,
+				type: columns.type,
 			},
 			labels: sql<
 				{

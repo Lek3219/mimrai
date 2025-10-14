@@ -9,6 +9,7 @@ import { protectedProcedure, router } from "@api/trpc/init";
 import {
 	createColumn,
 	deleteColumn,
+	getBacklogColumn,
 	getColumnById,
 	getColumns,
 	updateColumn,
@@ -24,6 +25,11 @@ export const columnsRouter = router({
 				teamId: ctx.user.teamId!,
 			});
 		}),
+	getBacklogColumn: protectedProcedure.query(({ ctx }) => {
+		return getBacklogColumn({
+			teamId: ctx.user.teamId!,
+		});
+	}),
 	getById: protectedProcedure
 		.input(getColumnByIdSchema)
 		.query(({ ctx, input }) => {

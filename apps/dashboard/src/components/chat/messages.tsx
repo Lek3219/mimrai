@@ -1,11 +1,13 @@
 import { useChatMessages } from "@ai-sdk-tools/store";
 import type { UIChatMessage } from "@mimir/api/ai/types";
 import { Fragment } from "react";
+import { useUser } from "@/hooks/use-user";
 import { Conversation, ConversationContent } from "../ai-elements/conversation";
 import { Message, MessageAvatar, MessageContent } from "../ai-elements/message";
 import { Response } from "../ai-elements/response";
 
 export const Messages = () => {
+	const user = useUser();
 	const messages = useChatMessages<UIChatMessage>();
 
 	return (
@@ -23,7 +25,8 @@ export const Messages = () => {
 											</MessageContent>
 											{message.role === "user" && (
 												<MessageAvatar
-													src="https://avatars.githubusercontent.com/u/40124537?s=40&v=4"
+													src={""}
+													name={user?.name ?? "User"}
 													className="size-9"
 												/>
 											)}

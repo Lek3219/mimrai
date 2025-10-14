@@ -22,12 +22,17 @@ export function KanbanBoard() {
 	const { setParams } = useTaskParams();
 	const { setParams: setColumnParams } = useColumnParams();
 	const { ...filters } = useTasksFilterParams();
-	const { data: columns } = useQuery(trpc.columns.get.queryOptions());
+	const { data: columns } = useQuery(
+		trpc.columns.get.queryOptions({
+			type: ["normal", "finished"],
+		}),
+	);
 
 	const queryKey = {
 		assigneeId: filters.assigneeId ?? undefined,
 		search: filters.search ?? undefined,
 		labels: filters.labels ?? undefined,
+		view: "board" as const,
 	};
 
 	const { data: tasks } = useQuery(
@@ -209,7 +214,9 @@ export function KanbanBoard() {
 												variant="outline"
 												className="pointer-events-none rounded-sm"
 											>
-												{column.isFinalState && <FlagIcon className="size-4" />}
+												{column.type === "finished" && (
+													<FlagIcon className="size-4" />
+												)}
 												{tasks.length}
 											</Badge>
 											<span className="font-medium text-sm">{columnValue}</span>

@@ -31,7 +31,7 @@ export const ColumnUpdateSheet = () => {
 						id: column?.id,
 						name: column?.name || "",
 						description: column?.description || "",
-						isFinalState: column?.isFinalState || false,
+						type: column?.type || "normal",
 					}}
 				/>
 			</SheetContent>

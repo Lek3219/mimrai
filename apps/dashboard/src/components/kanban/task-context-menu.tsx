@@ -1,12 +1,18 @@
 import type { RouterOutputs } from "@mimir/api/trpc";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { ArrowUpNarrowWideIcon, TrashIcon, UserIcon } from "lucide-react";
+import {
+	ArrowUpNarrowWideIcon,
+	FlagIcon,
+	TrashIcon,
+	UserIcon,
+} from "lucide-react";
 import { queryClient, trpc } from "@/utils/trpc";
 import { Checkbox } from "../ui/checkbox";
 import {
 	ContextMenu,
 	ContextMenuContent,
 	ContextMenuItem,
+	ContextMenuSeparator,
 	ContextMenuSub,
 	ContextMenuSubContent,
 	ContextMenuSubTrigger,
@@ -26,25 +32,50 @@ export const TaskContextMenu = ({
 	const { mutateAsync: deleteTask } = useMutation(
 		trpc.tasks.delete.mutationOptions(),
 	);
-	const { mutateAsync: updateTask } = useMutation(
-		trpc.tasks.update.mutationOptions(),
+	const { mutate: updateTask } = useMutation(
+		trpc.tasks.update.mutationOptions({
+			onSuccess: () => {
+				queryClient.invalidateQueries(trpc.tasks.get.queryOptions());
+				queryClient.invalidateQueries(trpc.tasks.get.infiniteQueryOptions());
+			},
+		}),
 	);
 
-	const { data } = useQuery(trpc.teams.getMembers.queryOptions());
-	const { data: labels } = useQuery(trpc.labels.get.queryOptions({}));
+	const { data: members } = useQuery(
+		trpc.teams.getMembers.queryOptions(undefined, {
+			refetchOnMount: false,
+		}),
+	);
+	const { data: columns } = useQuery(
+		trpc.columns.get.queryOptions(
+			{},
+			{
+				refetchOnMount: false,
+			},
+		),
+	);
+	const { data: labels } = useQuery(
+		trpc.labels.get.queryOptions(
+			{},
+			{
+				refetchOnMount: false,
+			},
+		),
+	);
 
 	const handleDeleteTask = async (taskId: string) => {
 		await deleteTask({ id: taskId });
 		queryClient.invalidateQueries(trpc.tasks.get.queryOptions());
+		queryClient.invalidateQueries(trpc.tasks.get.infiniteQueryOptions());
 	};
 
 	const handleUpdateTask = async (data: {
 		priority?: "low" | "medium" | "high";
 		labels?: string[];
 		assigneeId?: string;
+		columnId?: string;
 	}) => {
-		await updateTask({ id: task.id, ...data });
-		queryClient.invalidateQueries(trpc.tasks.get.queryOptions());
+		updateTask({ id: task.id, ...data });
 	};
 
 	return (
@@ -54,6 +85,28 @@ export const TaskContextMenu = ({
 				{/* <ContextMenuLabel>
 					<div className="line-clamp-1">{task.title}</div>
 				</ContextMenuLabel> */}
+				<ContextMenuSub>
+					<ContextMenuSubTrigger className="flex items-center gap-2">
+						Move to
+					</ContextMenuSubTrigger>
+					<ContextMenuSubContent className="w-32">
+						{columns?.data
+							?.filter((column) => column.id !== task.columnId)
+							.map((column) => (
+								<ContextMenuItem
+									key={column.id}
+									onClick={handleUpdateTask.bind(null, {
+										columnId: column.id,
+									})}
+								>
+									{column.type === "finished" && <FlagIcon />}
+									{column.name}
+								</ContextMenuItem>
+							))}
+					</ContextMenuSubContent>
+				</ContextMenuSub>
+
+				<ContextMenuSeparator />
 				<ContextMenuSub>
 					<ContextMenuSubTrigger className="flex items-center gap-2">
 						Labels
@@ -90,7 +143,6 @@ export const TaskContextMenu = ({
 				</ContextMenuSub>
 				<ContextMenuSub>
 					<ContextMenuSubTrigger className="flex items-center gap-2">
-						<ArrowUpNarrowWideIcon />
 						Priority
 					</ContextMenuSubTrigger>
 					<ContextMenuSubContent className="w-32">
@@ -108,11 +160,10 @@ export const TaskContextMenu = ({
 				</ContextMenuSub>
 				<ContextMenuSub>
 					<ContextMenuSubTrigger className="flex items-center gap-2">
-						<UserIcon />
 						Assign to
 					</ContextMenuSubTrigger>
 					<ContextMenuSubContent className="w-48">
-						{data?.map((member) => (
+						{members?.map((member) => (
 							<ContextMenuItem
 								key={member.id}
 								onClick={handleUpdateTask.bind(null, { assigneeId: member.id })}
@@ -126,7 +177,6 @@ export const TaskContextMenu = ({
 					variant="destructive"
 					onClick={handleDeleteTask.bind(null, task.id)}
 				>
-					<TrashIcon />
 					Eliminar
 				</ContextMenuItem>
 			</ContextMenuContent>

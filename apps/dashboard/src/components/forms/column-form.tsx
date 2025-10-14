@@ -4,23 +4,22 @@ import { useColumnParams } from "@/hooks/use-column-params";
 import { useZodForm } from "@/hooks/use-zod-form";
 import { trpc } from "@/utils/trpc";
 import { Button } from "../ui/button";
-import { Checkbox } from "../ui/checkbox";
-import {
-	Form,
-	FormControl,
-	FormDescription,
-	FormField,
-	FormItem,
-	FormLabel,
-} from "../ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel } from "../ui/form";
 import { Input } from "../ui/input";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "../ui/select";
 import { Textarea } from "../ui/textarea";
 
 const schema = z.object({
 	id: z.string().optional(),
 	name: z.string().min(1).max(255),
 	description: z.string().max(5000).optional(),
-	isFinalState: z.boolean().optional(),
+	type: z.enum(["board", "backlog", "normal"]).optional(),
 });
 
 export const ColumnForm = ({
@@ -34,6 +33,7 @@ export const ColumnForm = ({
 		defaultValues: {
 			name: "",
 			description: "",
+			type: "normal",
 			...defaultValues,
 		},
 	});
@@ -113,24 +113,27 @@ export const ColumnForm = ({
 					/>
 					<FormField
 						control={form.control}
-						name="isFinalState"
+						name="type"
 						render={({ field }) => (
 							<FormItem>
-								<div className="flex items-center space-x-2">
-									<FormControl>
-										<Checkbox
-											checked={field.value}
-											onCheckedChange={field.onChange}
-										/>
-									</FormControl>
-									<FormLabel>Is Final State?</FormLabel>
-								</div>
-								{field.value && (
-									<FormDescription>
-										Tasks moved to this column will be considered completed or
-										archived.
-									</FormDescription>
-								)}
+								<FormLabel>Is Final State?</FormLabel>
+								<FormControl>
+									<Select onValueChange={field.onChange} value={field.value}>
+										<SelectTrigger className="w-full">
+											<SelectValue
+												placeholder="Select column type"
+												className="w-full"
+											/>
+										</SelectTrigger>
+										<SelectContent>
+											{["normal", "finished"].map((type) => (
+												<SelectItem key={type} value={type}>
+													{type}
+												</SelectItem>
+											))}
+										</SelectContent>
+									</Select>
+								</FormControl>
 							</FormItem>
 						)}
 					/>

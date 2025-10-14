@@ -211,7 +211,7 @@ app.post(validateGithubWebhook, async (c) => {
 					id: column.id,
 					name: column.name,
 					description: column.description,
-					isFinalState: column.isFinalState,
+					type: column.type,
 				}));
 
 				const taskTitles = (
@@ -219,7 +219,7 @@ app.post(validateGithubWebhook, async (c) => {
 						pageSize: 20,
 						teamId,
 						columnId: columns
-							.filter((col) => !col.isFinalState)
+							.filter((col) => col.type !== "finished")
 							.map((col) => col.id),
 					})
 				).data.map((task) => ({

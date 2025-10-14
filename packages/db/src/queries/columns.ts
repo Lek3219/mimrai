@@ -1,19 +1,23 @@
-import { and, eq, type SQL } from "drizzle-orm";
+import { and, eq, inArray, type SQL } from "drizzle-orm";
 import { db } from "..";
-import { columns } from "../schema";
+import { columns, type columnTypeEnum } from "../schema";
 
 export const getColumns = async ({
 	pageSize,
 	cursor,
 	teamId,
+	type,
 }: {
 	pageSize: number;
 	cursor?: string;
 	teamId?: string;
+	type?: Array<(typeof columnTypeEnum.enumValues)[number]>;
 }) => {
 	const whereConditions: SQL[] = [];
 
 	if (teamId) whereConditions.push(eq(columns.teamId, teamId));
+	if (type && type.length > 0)
+		whereConditions.push(inArray(columns.type, type));
 
 	const query = db
 		.select({
@@ -21,7 +25,7 @@ export const getColumns = async ({
 			name: columns.name,
 			description: columns.description,
 			order: columns.order,
-			isFinalState: columns.isFinalState,
+			type: columns.type,
 		})
 		.from(columns)
 		.where(and(...whereConditions))
@@ -54,7 +58,7 @@ export const createColumn = async (input: {
 	name: string;
 	description?: string;
 	order?: number;
-	isFinalState?: boolean;
+	type?: (typeof columnTypeEnum.enumValues)[number];
 	teamId: string;
 }) => {
 	const [column] = await db
@@ -89,7 +93,7 @@ export const updateColumn = async (input: {
 	name?: string;
 	description?: string;
 	order?: number;
-	isFinalState?: boolean;
+	type?: (typeof columnTypeEnum.enumValues)[number];
 	teamId: string;
 }) => {
 	const [column] = await db
@@ -123,7 +127,7 @@ export const getColumnById = async ({
 			name: columns.name,
 			description: columns.description,
 			order: columns.order,
-			isFinalState: columns.isFinalState,
+			type: columns.type,
 		})
 		.from(columns)
 		.where(and(...whereClause))
@@ -139,22 +143,28 @@ export const getColumnById = async ({
 export const createDefaultColumns = async (teamId: string) => {
 	const defaultColumns = [
 		{
+			name: "Backlog",
+			description: "Tasks to be prioritized",
+			order: 0,
+			type: "backlog" as const,
+		},
+		{
 			name: "To Do",
 			description: "Tasks to be done",
 			order: 1,
-			isFinalState: false,
+			type: "normal" as const,
 		},
 		{
 			name: "In Progress",
 			description: "Tasks in progress",
 			order: 2,
-			isFinalState: false,
+			type: "normal" as const,
 		},
 		{
 			name: "Done",
 			description: "Completed tasks",
 			order: 3,
-			isFinalState: true,
+			type: "finished" as const,
 		},
 	];
 
@@ -169,4 +179,33 @@ export const createDefaultColumns = async (teamId: string) => {
 		.returning();
 
 	return data;
+};
+
+export const getBacklogColumn = async ({ teamId }: { teamId: string }) => {
+	const [existing] = await db
+		.select()
+		.from(columns)
+		.where(and(eq(columns.teamId, teamId), eq(columns.type, "backlog")))
+		.limit(1);
+
+	if (existing) {
+		return existing;
+	}
+
+	const [column] = await db
+		.insert(columns)
+		.values({
+			name: "Backlog",
+			description: "Not yet prioritized tasks",
+			order: 0,
+			type: "backlog",
+			teamId,
+		})
+		.returning();
+
+	if (!column) {
+		throw new Error("Failed to create backlog column");
+	}
+
+	return column;
 };

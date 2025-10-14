@@ -37,7 +37,9 @@ export const LabelInput = ({
 							))}
 						</div>
 					)}
-					<span className="text-muted-foreground">{placeholder}</span>
+					<span className="font-normal text-muted-foreground">
+						{placeholder}
+					</span>
 				</Button>
 			</PopoverTrigger>
 			<PopoverContent>

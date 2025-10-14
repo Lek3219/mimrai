@@ -1,9 +1,11 @@
 import type { RouterOutputs } from "@mimir/api/trpc";
 import { format } from "date-fns";
-import { GitPullRequest, GitPullRequestIcon } from "lucide-react";
+import { GitPullRequestIcon } from "lucide-react";
 import { motion } from "motion/react";
 import Link from "next/link";
+import { useTaskParams } from "@/hooks/use-task-params";
 import { cn } from "@/lib/utils";
+import { queryClient, trpc } from "@/utils/trpc";
 import { LabelBadge } from "../ui/label-badge";
 import { AssigneeAvatar } from "./asignee";
 import { Priority } from "./priority";
@@ -20,23 +22,32 @@ export const KanbanTask = ({
 	task: Task;
 	ref?: React.Ref<HTMLDivElement>;
 }) => {
+	const { setParams } = useTaskParams();
+
 	return (
 		<motion.div
 			className={cn(
-				"flex min-h-24 flex-col rounded-xs border bg-card p-3",
+				"flex min-h-24 cursor-pointer flex-col rounded-xs border bg-card p-3",
 				{
-					"opacity-50!": task.column?.isFinalState,
+					"opacity-50!": task.column?.type === "finished",
 				},
 				className,
 			)}
 			ref={ref}
-			animate={{ opacity: 1, y: 0 }}
+			animate={{ opacity: 1, y: 0, backgroundColor: "var(--card)" }}
 			initial={{ opacity: 0, y: 20 }}
-			whileHover={{ scale: 1.02 }}
-			exit={{ opacity: 0, y: -20 }}
+			whileHover={{ backgroundColor: "var(--muted)" }}
+			exit={{ opacity: 0, y: 20 }}
 			transition={{ duration: 0.2 }}
 			layout
 			layoutId={`task-${task.id}`}
+			onClick={(e) => {
+				queryClient.setQueryData(
+					trpc.tasks.getById.queryKey({ id: task.id }),
+					task,
+				);
+				setParams({ taskId: task.id });
+			}}
 			{...props}
 		>
 			<div className="flex h-full grow-1 flex-col justify-between gap-2">

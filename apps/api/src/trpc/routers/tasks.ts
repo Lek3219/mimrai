@@ -113,13 +113,33 @@ export const tasksRouter = router({
 			}));
 
 			const response = await generateObject({
-				system: generateSystemPrompt(userContext),
+				system: `You are an AI assistant that helps users manage their tasks effectively and efficiently.
+				You can create tasks based on user prompts, ensuring they are well-defined and actionable.
+				
+				TASK CREATION GUIDELINES:
+				- Focus on usability and clarity
+				- Do not include unnecessary details
+				- Ensure tasks are specific and achievable
+				
+				TASK DESCRIPTION STANDARDS:
+				- Provide a concise summary of the task's purpose
+				- Do not include implementation details or technical jargon
+				- Use clear and straightforward language
+				- Do  not include unnecessary details not provided by context, for example sections like: requirements, acceptance criteria, unit test, etc.
+
+				TASK ASSIGNMENT RULES:
+				- When assigning, choose the most relevant member based on the task description
+				- If no suitable member is found, leave the task unassigned
+				
+				User locale: ${userContext.locale} (IMPORTANT:ALWAYS respond in this language no matter what)
+				`,
 				model: "openai/gpt-4o",
 				schema: smartCompleteResponseSchema,
 				prompt: `Generate a task using the following context, you not need to use tools to complete this task.
-					Columns: ${JSON.stringify(columns)}
-					Labels: ${JSON.stringify(labels)}
-					Members: ${JSON.stringify(members)}
+					Labels: 
+						${JSON.stringify(labels, null, 2)}
+					Members: 
+						${JSON.stringify(members, null, 2)}
 
 					Task prompt: ${input.prompt}
 				`,

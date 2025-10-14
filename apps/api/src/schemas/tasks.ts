@@ -2,6 +2,12 @@ import { priorityEnum } from "@db/schema";
 import z from "zod";
 import { paginationSchema } from "./base";
 
+export enum TaskView {
+	board = "board",
+	backlog = "backlog",
+}
+export const taskViewEnum = z.enum([...Object.values(TaskView)]);
+
 export const getTasksSchema = z.object({
 	...paginationSchema.shape,
 	assigneeId: z.array(z.string()).optional(),
@@ -9,6 +15,7 @@ export const getTasksSchema = z.object({
 	teamId: z.string().optional(),
 	search: z.string().optional(),
 	labels: z.array(z.string()).optional(),
+	view: z.enum(["board", "backlog"]).optional(),
 });
 export type GetTasksInput = z.infer<typeof getTasksSchema>;
 

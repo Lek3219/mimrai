@@ -10,7 +10,11 @@ import { DataSelectInput } from "../ui/data-select-input";
 import { Input } from "../ui/input";
 import { Assignee, AssigneeAvatar } from "./asignee";
 
-export const TasksFilters = () => {
+export const TasksFilters = ({
+	showAssigneeFilter = true,
+}: {
+	showAssigneeFilter?: boolean;
+}) => {
 	const { setParams, ...params } = useTasksFilterParams();
 	const [filter, setFilter] = useState<Partial<typeof params>>(params);
 	const debouncedSetParams = useDebounceCallback(setParams, 500);
@@ -46,33 +50,35 @@ export const TasksFilters = () => {
 				onChange={(e) => setFilter({ ...filter, search: e.target.value })}
 			/>
 
-			<DataSelectInput
-				queryOptions={trpc.teams.getMembers.queryOptions()}
-				value={filter.assigneeId}
-				multiple
-				onChange={(value) => setFilter({ ...filter, assigneeId: value })}
-				getValue={(item) => item.id}
-				getLabel={(item) => item?.name || item?.email || "Unassigned"}
-				variant={"ghost"}
-				placeholder="Filter by assignee"
-				showChevron={false}
-				className="w-52"
-				renderMultiple={(items) => (
-					<div className="relative flex gap-1">
-						{items.map((item, index) => (
-							<div
-								key={item.id}
-								style={{
-									transform: `translateX(-${index * 12}px)`,
-								}}
-							>
-								<AssigneeAvatar {...item} className="size-6 shadow-sm" />
-							</div>
-						))}
-					</div>
-				)}
-				renderItem={(item) => <Assignee {...item} />}
-			/>
+			{showAssigneeFilter && (
+				<DataSelectInput
+					queryOptions={trpc.teams.getMembers.queryOptions()}
+					value={filter.assigneeId}
+					multiple
+					onChange={(value) => setFilter({ ...filter, assigneeId: value })}
+					getValue={(item) => item.id}
+					getLabel={(item) => item?.name || item?.email || "Unassigned"}
+					variant={"ghost"}
+					placeholder="Filter by assignee"
+					showChevron={false}
+					className="w-52"
+					renderMultiple={(items) => (
+						<div className="relative flex gap-1">
+							{items.map((item, index) => (
+								<div
+									key={item.id}
+									style={{
+										transform: `translateX(-${index * 12}px)`,
+									}}
+								>
+									<AssigneeAvatar {...item} className="size-6 shadow-sm" />
+								</div>
+							))}
+						</div>
+					)}
+					renderItem={(item) => <Assignee {...item} />}
+				/>
+			)}
 
 			<LabelInput
 				value={filter.labels || []}
