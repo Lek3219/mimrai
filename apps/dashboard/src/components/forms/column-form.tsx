@@ -4,7 +4,14 @@ import { useColumnParams } from "@/hooks/use-column-params";
 import { useZodForm } from "@/hooks/use-zod-form";
 import { trpc } from "@/utils/trpc";
 import { Button } from "../ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel } from "../ui/form";
+import {
+	Form,
+	FormControl,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
+} from "../ui/form";
 import { Input } from "../ui/input";
 import {
 	Select,
@@ -19,7 +26,7 @@ const schema = z.object({
 	id: z.string().optional(),
 	name: z.string().min(1).max(255),
 	description: z.string().max(5000).optional(),
-	type: z.enum(["board", "backlog", "normal"]).optional(),
+	type: z.enum(["finished", "backlog", "normal"]).optional(),
 });
 
 export const ColumnForm = ({
@@ -116,24 +123,26 @@ export const ColumnForm = ({
 						name="type"
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>Is Final State?</FormLabel>
+								<FormLabel>Type</FormLabel>
 								<FormControl>
 									<Select onValueChange={field.onChange} value={field.value}>
-										<SelectTrigger className="w-full">
-											<SelectValue
-												placeholder="Select column type"
-												className="w-full"
-											/>
+										<SelectTrigger className="w-full capitalize">
+											<SelectValue placeholder="Select column type" />
 										</SelectTrigger>
 										<SelectContent>
 											{["normal", "finished"].map((type) => (
-												<SelectItem key={type} value={type}>
+												<SelectItem
+													key={type}
+													value={type}
+													className="capitalize"
+												>
 													{type}
 												</SelectItem>
 											))}
 										</SelectContent>
 									</Select>
 								</FormControl>
+								<FormMessage />
 							</FormItem>
 						)}
 					/>
