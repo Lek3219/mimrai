@@ -1,9 +1,10 @@
 "use client";
 import { useMutation } from "@tanstack/react-query";
+import { Loader2Icon } from "lucide-react";
 import { toast } from "sonner";
 import z from "zod";
 import { useZodForm } from "@/hooks/use-zod-form";
-import { trpc } from "@/utils/trpc";
+import { queryClient, trpc } from "@/utils/trpc";
 import { Button } from "../ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "../ui/form";
 import { Input } from "../ui/input";
@@ -19,14 +20,19 @@ export const MemberInviteForm = () => {
 		},
 	});
 
-	const { mutateAsync: inviteMember } = useMutation(
-		trpc.teams.invite.mutationOptions(),
+	const { mutate: inviteMember, isPending } = useMutation(
+		trpc.teams.invite.mutationOptions({
+			onSuccess: () => {
+				queryClient.invalidateQueries(trpc.teams.getInvites.queryOptions());
+				form.reset();
+				toast.success("Invite sent successfully!");
+			},
+		}),
 	);
 
 	const handleSubmit = async (data: z.infer<typeof schema>) => {
 		try {
-			await inviteMember({ email: data.email });
-			form.reset();
+			inviteMember({ email: data.email });
 		} catch (error) {
 			toast.error("Failed to send invite.");
 		}
@@ -49,7 +55,10 @@ export const MemberInviteForm = () => {
 				/>
 
 				<div className="flex justify-end">
-					<Button type="submit">Invite</Button>
+					<Button type="submit" disabled={isPending}>
+						{isPending && <Loader2Icon className="animate-spin" />}
+						Invite
+					</Button>
 				</div>
 			</form>
 		</Form>

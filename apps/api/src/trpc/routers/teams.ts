@@ -4,6 +4,7 @@ import {
 	acceptTeamInviteSchema,
 	createTeamInviteSchema,
 	createTeamSchema,
+	deleteTeamInviteSchema,
 	getMemberByIdSchema,
 	getTeamInviteByIdSchema,
 	getTeamInvitesSchema,
@@ -27,6 +28,7 @@ import {
 import {
 	acceptTeamInvite,
 	createTeamInvite,
+	deleteTeamInvite,
 	getTeamInviteById,
 	getTeamInvites,
 } from "@mimir/db/queries/user-invites";
@@ -217,6 +219,16 @@ export const teamsRouter = router({
 			return await changeOwner({
 				teamId: ctx.user.teamId!,
 				userId: input.userId,
+			});
+		}),
+
+	deleteInvite: protectedProcedure
+		.meta({ scopes: ["team:write"] })
+		.input(deleteTeamInviteSchema)
+		.mutation(async ({ ctx, input }) => {
+			return deleteTeamInvite({
+				inviteId: input.inviteId,
+				teamId: ctx.user.teamId!,
 			});
 		}),
 });

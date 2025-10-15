@@ -11,8 +11,6 @@ import * as XLSX from "xlsx";
 import * as cptable from "xlsx/dist/cpexcel.full.mjs";
 import { z } from "zod";
 
-XLSX.set_cptable(cptable);
-
 export const tasksImportJob = schemaTask({
 	id: "tasks-import",
 	maxDuration: 15 * 60,
@@ -44,6 +42,7 @@ export const tasksImportJob = schemaTask({
 		});
 	},
 	run: async (payload, ctx) => {
+		XLSX.set_cptable(cptable);
 		const { importId } = payload;
 		const importJob = await getImportById({ id: importId });
 

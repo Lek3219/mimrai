@@ -161,3 +161,21 @@ export const getTeamInvites = async ({
 		data,
 	};
 };
+
+export const deleteTeamInvite = async ({
+	inviteId,
+	teamId,
+}: {
+	inviteId: string;
+	teamId?: string;
+}) => {
+	const whereClause: SQL[] = [eq(userInvites.id, inviteId)];
+	if (teamId) whereClause.push(eq(userInvites.teamId, teamId));
+
+	const [record] = await db
+		.delete(userInvites)
+		.where(and(...whereClause))
+		.returning();
+
+	return record;
+};

@@ -47,3 +47,7 @@ export const updateMemberSchema = z.object({
 export const getMemberByIdSchema = z.object({
 	userId: z.string(),
 });
+
+export const deleteTeamInviteSchema = z.object({
+	inviteId: z.string(),
+});

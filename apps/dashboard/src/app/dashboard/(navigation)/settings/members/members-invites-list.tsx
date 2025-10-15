@@ -1,9 +1,9 @@
 "use client";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useScopes } from "@/hooks/use-user";
-import { trpc } from "@/utils/trpc";
+import { queryClient, trpc } from "@/utils/trpc";
 
 export const MembersInvitesList = () => {
 	const canWriteTeam = useScopes(["team:write"]);
@@ -14,6 +14,14 @@ export const MembersInvitesList = () => {
 				enabled: canWriteTeam,
 			},
 		),
+	);
+
+	const { mutate: deleteInvite } = useMutation(
+		trpc.teams.deleteInvite.mutationOptions({
+			onSuccess: () => {
+				queryClient.invalidateQueries(trpc.teams.getInvites.queryOptions());
+			},
+		}),
 	);
 
 	if (!canWriteTeam) return null;
