@@ -61,6 +61,7 @@
         "@hookform/resolvers": "^5.2.2",
         "@mdxeditor/editor": "^3.46.1",
         "@mimir/api": "workspace:*",
+        "@mimir/locale": "workspace:*",
         "@mimir/tsconfig": "workspace:*",
         "@mimir/utils": "workspace:*",
         "@radix-ui/react-avatar": "^1.1.10",
@@ -230,6 +231,17 @@
         "@types/bun": "latest",
         "@types/redis": "^4.0.11",
         "@types/ws": "^8.18.1",
+      },
+    },
+    "packages/locale": {
+      "name": "@mimir/locale",
+      "version": "1.0.0",
+      "dependencies": {
+        "date-fns": "^4.1.0",
+      },
+      "devDependencies": {
+        "@mimir/tsconfig": "workspace:*",
+        "typescript": "^5.9.2",
       },
     },
     "packages/logger": {
@@ -722,6 +734,8 @@
     "@mimir/embedding": ["@mimir/embedding@workspace:packages/embedding"],
 
     "@mimir/integration": ["@mimir/integration@workspace:packages/integration"],
+
+    "@mimir/locale": ["@mimir/locale@workspace:packages/locale"],
 
     "@mimir/logger": ["@mimir/logger@workspace:packages/logger"],
 

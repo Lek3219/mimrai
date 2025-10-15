@@ -37,7 +37,7 @@ export const getTasksTool = tool({
 
 			yield { text: "Fetching tasks...", status: "loading" };
 
-			if (artifactSupport) {
+			if (artifactSupport && [search, assigneeId].filter(Boolean).length > 0) {
 				const taskFilters = taskFiltersArtifact.stream({
 					search,
 					assigneeId,
@@ -48,6 +48,7 @@ export const getTasksTool = tool({
 			const result = await getTasks({
 				teamId: user.teamId,
 				assigneeId: assigneeId,
+				view: "board",
 				cursor,
 				pageSize,
 				search,

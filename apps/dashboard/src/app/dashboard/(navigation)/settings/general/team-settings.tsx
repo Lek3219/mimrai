@@ -21,6 +21,7 @@ export const TeamSettings = () => {
 							description: team?.description || undefined,
 							name: team?.name || undefined,
 							email: team?.email || undefined,
+							locale: team?.locale || undefined,
 							id: team?.id || undefined,
 						}}
 					/>

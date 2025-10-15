@@ -11,6 +11,7 @@ export const updateTeamSchema = z.object({
 	name: z.string().min(1).max(100).optional(),
 	email: z.email("Invalid email address").optional(),
 	description: z.string().max(500).optional(),
+	locale: z.string().optional(),
 });
 
 export const getTeamInviteByIdSchema = z.object({

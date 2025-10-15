@@ -1,5 +1,6 @@
 import { useChatMessages } from "@ai-sdk-tools/store";
 import type { UIChatMessage } from "@mimir/api/ai/types";
+import { ToolCaseIcon } from "lucide-react";
 import { Fragment } from "react";
 import { useUser } from "@/hooks/use-user";
 import { Conversation, ConversationContent } from "../ai-elements/conversation";
@@ -39,9 +40,10 @@ export const Messages = () => {
 										return (
 											<Fragment key={`${message.id}-${index}`}>
 												<Message from={message.role}>
-													<MessageContent>
+													<div className="flex items-start gap-2 text-muted-foreground text-sm italic">
+														<ToolCaseIcon className="size-4" />
 														<Response>{(part as any)?.output?.text}</Response>
-													</MessageContent>
+													</div>
 												</Message>
 											</Fragment>
 										);

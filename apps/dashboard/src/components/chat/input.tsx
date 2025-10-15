@@ -1,14 +1,8 @@
 "use client";
-import {
-	useChatActions,
-	useChatId,
-	useChatStatus,
-	useChatStore,
-} from "@ai-sdk-tools/store";
+import { useChatActions, useChatId, useChatStatus } from "@ai-sdk-tools/store";
 import { ArrowUp, Square } from "lucide-react";
 import { useState } from "react";
 import { useChatParams } from "@/hooks/use-chat-params";
-import { TeamSwitcher } from "../team-switcher";
 import { Button } from "../ui/button";
 import {
 	PromptInput,

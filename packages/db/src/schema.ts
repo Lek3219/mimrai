@@ -71,6 +71,7 @@ export const teams = pgTable("teams", {
 	description: text("description"),
 	email: text("email").notNull(),
 	plan: plansEnum("plan"),
+	locale: text("locale").default("en-US").notNull(),
 	customerId: text("customer_id"),
 	canceledAt: timestamp("canceled_at"),
 	createdAt: timestamp("created_at").defaultNow().notNull(),

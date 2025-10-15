@@ -27,7 +27,7 @@ export const KanbanTask = ({
 	return (
 		<motion.div
 			className={cn(
-				"flex min-h-24 cursor-pointer flex-col rounded-xs border bg-card p-3",
+				"flex min-h-26 cursor-pointer flex-col rounded-xs border bg-card p-3",
 				{
 					"opacity-50!": task.column?.type === "done",
 				},

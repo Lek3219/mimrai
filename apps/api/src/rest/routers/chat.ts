@@ -184,7 +184,7 @@ app.post("/", async (c) => {
 				}
 
 				const result = streamText({
-					model: "openai/gpt-5-mini",
+					model: "openai/gpt-4o",
 					system: generateSystemPrompt(
 						userContext,
 						isToolCallMessage,
@@ -210,7 +210,10 @@ app.post("/", async (c) => {
 							userId,
 							teamId,
 							chatId: id,
-							error: error instanceof Error ? error.message : String(error),
+							error:
+								error instanceof Error
+									? error.message
+									: String(JSON.stringify(error)),
 						});
 					},
 				});

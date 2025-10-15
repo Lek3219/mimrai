@@ -1,5 +1,4 @@
 import { createTask } from "@db/queries/tasks";
-import { labelsOnTasks, tasks } from "@db/schema";
 import { tool } from "ai";
 import z from "zod";
 import { getContext } from "../context";

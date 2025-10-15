@@ -55,7 +55,7 @@ export const TasksList = () => {
 					<TasksFilters />
 				</div>
 				<Button
-					variant="outline"
+					variant="default"
 					onClick={() =>
 						setParams({ createTask: true, taskColumnId: backlogColumnId })
 					}

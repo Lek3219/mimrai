@@ -13,6 +13,7 @@ import { useTaskParams } from "@/hooks/use-task-params";
 import { useTasksFilterParams } from "@/hooks/use-tasks-filter-params";
 import { trpc } from "@/utils/trpc";
 import { ColumnContextMenu } from "./column-context-menu";
+import { TaskGrid } from "./grid";
 import { KanbanTask } from "./kanban-task";
 import { TaskContextMenu } from "./task-context-menu";
 import { TasksFilters } from "./tasks-filters";
@@ -263,7 +264,10 @@ export function KanbanBoard() {
 														setParams({ taskId: task.id });
 													}}
 												>
-													<KanbanTask task={task} />
+													<KanbanTask
+														task={task}
+														// className="border-b-0 last:border-b"
+													/>
 												</Kanban.Item>
 											</TaskContextMenu>
 										))}

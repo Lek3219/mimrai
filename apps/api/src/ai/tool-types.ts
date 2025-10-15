@@ -19,15 +19,15 @@ export const createToolRegistry = () => {
 		updateTask: updateTaskTool,
 		getUsers: getUsersTool,
 		getLabels: getLabelsTool,
-		web_search: openai.tools.webSearch({
-			searchContextSize: "medium",
-			userLocation: {
-				type: "approximate",
-				country: context.user.country ?? undefined,
-				city: context.user.city ?? undefined,
-				region: context.user.region ?? undefined,
-			},
-		}),
+		// web_search: openai.tools.webSearch({
+		// 	searchContextSize: "medium",
+		// 	userLocation: {
+		// 		type: "approximate",
+		// 		country: context.user.country ?? undefined,
+		// 		city: context.user.city ?? undefined,
+		// 		region: context.user.region ?? undefined,
+		// 	},
+		// }),
 	};
 };
 

@@ -90,11 +90,13 @@ export const updateTeam = async ({
 	name,
 	description,
 	email,
+	locale,
 	id,
 }: {
 	name?: string;
 	description?: string;
 	email?: string;
+	locale?: string;
 	id: string;
 }) => {
 	const [oldTeam] = await db
@@ -113,6 +115,7 @@ export const updateTeam = async ({
 			name,
 			email,
 			description,
+			locale,
 		})
 		.where(eq(teams.id, id))
 		.returning();

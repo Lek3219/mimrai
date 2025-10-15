@@ -1,6 +1,9 @@
 "use client";
+import { DEFAULT_LOCALE, LOCALES } from "@mimir/locale/constants";
 import { useMutation } from "@tanstack/react-query";
-import { use, useEffect } from "react";
+import { Loader2 } from "lucide-react";
+import { useEffect } from "react";
+import { toast } from "sonner";
 import z from "zod";
 import { useTeamParams } from "@/hooks/use-team-params";
 import { useScopes, useUser } from "@/hooks/use-user";
@@ -11,13 +14,20 @@ import { Button } from "../ui/button";
 import {
 	Form,
 	FormControl,
+	FormDescription,
 	FormField,
 	FormItem,
 	FormLabel,
 	FormMessage,
 } from "../ui/form";
 import { Input } from "../ui/input";
-import { ScrollArea } from "../ui/scroll-area";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "../ui/select";
 import { Textarea } from "../ui/textarea";
 
 export const teamFormSchema = z.object({
@@ -31,6 +41,7 @@ export const teamFormSchema = z.object({
 		.string()
 		.max(500, "Description must be at most 500 characters")
 		.optional(),
+	locale: z.string().optional(),
 });
 
 export const TeamForm = ({
@@ -48,6 +59,7 @@ export const TeamForm = ({
 			name: "",
 			email: user?.email || "",
 			description: "",
+			locale: DEFAULT_LOCALE,
 			...defaultValues,
 		},
 		disabled: !canWriteTeam,
@@ -71,11 +83,12 @@ export const TeamForm = ({
 		}),
 	);
 
-	const { mutateAsync: updateTeam } = useMutation(
+	const { mutateAsync: updateTeam, isPending: isUpdating } = useMutation(
 		trpc.teams.update.mutationOptions({
 			onSuccess: () => {
 				queryClient.invalidateQueries(trpc.teams.getCurrent.queryOptions());
 				queryClient.invalidateQueries(trpc.users.getCurrent.queryOptions());
+				toast.success("Team updated successfully");
 			},
 		}),
 	);
@@ -131,6 +144,35 @@ export const TeamForm = ({
 
 					<FormField
 						control={form.control}
+						name="locale"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>Locale</FormLabel>
+								<FormControl>
+									<Select value={field.value} onValueChange={field.onChange}>
+										<SelectTrigger className="w-full">
+											<SelectValue placeholder="Select a locale" {...field} />
+										</SelectTrigger>
+										<SelectContent>
+											{LOCALES.map((locale) => (
+												<SelectItem key={locale.code} value={locale.code}>
+													{locale.name}
+												</SelectItem>
+											))}
+										</SelectContent>
+									</Select>
+								</FormControl>
+								<FormDescription>
+									This sets the default locale for your team. Actually it only
+									changes the language of the AI agent responses.
+								</FormDescription>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+
+					<FormField
+						control={form.control}
 						name="description"
 						render={({ field }) => (
 							<FormItem>
@@ -150,7 +192,10 @@ export const TeamForm = ({
 				{/* </ScrollArea> */}
 				{canWriteTeam && (
 					<div className="flex items-center justify-end px-4">
-						<Button type="submit">Save</Button>
+						<Button type="submit" disabled={isUpdating}>
+							{isUpdating && <Loader2 className="animate-spin" />}
+							Save
+						</Button>
 					</div>
 				)}
 			</form>
