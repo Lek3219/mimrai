@@ -1,8 +1,7 @@
-import "dotenv/config";
 import { defineConfig } from "@trigger.dev/sdk";
 
 export default defineConfig({
-	project: process.env.TRIGGER_PROJECT_ID!,
+	project: "proj_dovxjtznhdazvmkdamri",
 	runtime: "node",
 	logLevel: "log",
 	maxDuration: 60,
