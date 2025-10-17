@@ -10,7 +10,9 @@
 
 		"paths": {
 			"@api/*": ["../../apps/api/src/*"],
-			"@integration/*": ["../integration/src/*"]
+			"@integration/*": ["../integration/src/*"],
+			"@notifications/*": ["../notifications/src/*"],
+			"@jobs/*": ["../jobs/src/*"]
 		}
 	}
 }
