@@ -322,3 +322,36 @@ export const getLinkedUserByExternalId = async ({
 
 	return link;
 };
+
+export const getLinkedUserByUserId = async ({
+	integrationId,
+	userId,
+	teamId,
+}: {
+	integrationId: string;
+	userId: string;
+	teamId?: string;
+}) => {
+	const whereClause: SQL[] = [
+		eq(integrationUserLink.integrationId, integrationId),
+		eq(integrationUserLink.userId, userId),
+	];
+
+	if (teamId) whereClause.push(eq(integrations.teamId, teamId));
+
+	const [link] = await db
+		.select({
+			id: integrationUserLink.id,
+			externalUserId: integrationUserLink.externalUserId,
+			externalUserName: integrationUserLink.externalUserName,
+		})
+		.from(integrationUserLink)
+		.where(and(...whereClause))
+		.innerJoin(
+			integrations,
+			eq(integrationUserLink.integrationId, integrations.id),
+		)
+		.limit(1);
+
+	return link;
+};

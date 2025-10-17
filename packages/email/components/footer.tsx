@@ -24,9 +24,6 @@ export function Footer() {
 				Run your business smarter.
 			</Text>
 
-			<br />
-			<br />
-
 			<Text
 				className={`text-xs ${themeClasses.secondaryText}`}
 				style={{ color: lightStyles.secondaryText.color }}

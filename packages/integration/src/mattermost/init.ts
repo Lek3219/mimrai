@@ -364,7 +364,7 @@ export const initMattermostSingle = async (
 									});
 
 									const text = await generateText({
-										model: "openai/gpt-5-mini",
+										model: "openai/gpt-4o",
 										system: systemPrompt,
 										messages: convertToModelMessages(relevantMessages),
 										// temperature: 0.7,

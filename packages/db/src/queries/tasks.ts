@@ -21,7 +21,7 @@ import {
 	tasks,
 	users,
 } from "../schema";
-import { createActivity } from "./activities";
+import { createActivity, createTaskUpdateActivity } from "./activities";
 import { upsertTaskEmbedding } from "./tasks-embeddings";
 
 export const getNextTaskSequence = async (teamId: string) => {
@@ -294,17 +294,16 @@ export const updateTask = async ({
 		throw new Error("Failed to update task");
 	}
 
-	// TODO: only create activity if something changed
-	await createActivity({
-		userId,
-		teamId: task.teamId,
-		type: "task_updated",
-		groupId: task.id,
-	});
-
 	await upsertTaskEmbedding({
 		task,
 		teamId: task.teamId,
+	});
+
+	createTaskUpdateActivity({
+		oldTask,
+		newTask: task,
+		teamId: task.teamId,
+		userId,
 	});
 
 	return task;

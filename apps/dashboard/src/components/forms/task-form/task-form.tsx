@@ -134,6 +134,7 @@ export const TaskForm = ({
 				const values = form.getValues();
 				if (!values.id) return;
 
+				console.log("Auto saving task...", values);
 				// Auto save for existing tasks
 				updateTask({
 					id: values.id,

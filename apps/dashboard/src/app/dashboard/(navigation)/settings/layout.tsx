@@ -6,10 +6,10 @@ type Props = {
 
 export default function Page({ children }: Props) {
 	return (
-		<div className="relative grid w-full flex-1 grid-cols-[200px_1fr]">
+		<div className="relative grid w-full flex-1 grid-cols-[250px_1fr] gap-8 px-12 py-10">
 			<SettingsSidebar />
 			<main className="flex w-full">
-				<div className="mx-auto w-full px-12 py-10">{children}</div>
+				<div className="w-full">{children}</div>
 			</main>
 		</div>
 	);

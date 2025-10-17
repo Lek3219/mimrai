@@ -529,6 +529,7 @@ export const activityTypeEnum = pgEnum("activity_type", [
 	"task_created",
 	"task_updated",
 	"task_comment",
+	"task_assigned",
 ]);
 
 export const activities = pgTable(
@@ -542,7 +543,7 @@ export const activities = pgTable(
 		teamId: text("team_id").notNull(),
 		groupId: text("group_id"),
 		type: activityTypeEnum("type").notNull(),
-		metadata: jsonb("metadata"),
+		metadata: jsonb("metadata").$type<Record<string, any>>(),
 		createdAt: timestamp("created_at", {
 			withTimezone: true,
 			mode: "string",
@@ -658,3 +659,47 @@ export const imports = pgTable("imports", {
 		mode: "string",
 	}).defaultNow(),
 });
+
+export const notificationSettings = pgTable(
+	"notification_settings",
+	{
+		id: text()
+			.$defaultFn(() => randomUUID())
+			.primaryKey()
+			.notNull(),
+		userId: text("user_id").notNull(),
+		teamId: text("team_id").notNull(),
+		notificationType: text("notification_type").notNull(),
+		channel: text("channel").notNull(), // 'in_app', 'email', 'push'
+		enabled: boolean().default(true).notNull(),
+		createdAt: timestamp("created_at", { withTimezone: true, mode: "string" })
+			.defaultNow()
+			.notNull(),
+		updatedAt: timestamp("updated_at", { withTimezone: true, mode: "string" })
+			.defaultNow()
+			.notNull(),
+	},
+	(table) => [
+		unique("notification_settings_user_team_type_channel_key").on(
+			table.userId,
+			table.teamId,
+			table.notificationType,
+			table.channel,
+		),
+		index("notification_settings_user_team_idx").on(table.userId, table.teamId),
+		index("notification_settings_type_channel_idx").on(
+			table.notificationType,
+			table.channel,
+		),
+		foreignKey({
+			columns: [table.userId],
+			foreignColumns: [users.id],
+			name: "notification_settings_user_id_fkey",
+		}).onDelete("cascade"),
+		foreignKey({
+			columns: [table.teamId],
+			foreignColumns: [teams.id],
+			name: "notification_settings_team_id_fkey",
+		}).onDelete("cascade"),
+	],
+);

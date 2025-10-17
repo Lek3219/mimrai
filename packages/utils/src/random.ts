@@ -20,7 +20,6 @@ export const getContrast = (hslColor: string) => {
 	const hslMatch = hslColor.match(
 		/hsla?\(\s*(\d+),\s*(\d+)%,\s*(\d+)%\s*(?:,\s*([0-9.]+)\s*)?\)/,
 	);
-	console.log("hslColor", hslColor, hslMatch);
 	if (!hslMatch) {
 		return getContrastHex(hslColor);
 	}

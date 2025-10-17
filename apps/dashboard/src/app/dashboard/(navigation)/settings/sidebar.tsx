@@ -11,6 +11,7 @@ export const settingsLinks: {
 	{ to: "/dashboard/settings/billing", label: "Billing" },
 	{ to: "/dashboard/settings/members", label: "Members" },
 	{ to: "/dashboard/settings/labels", label: "Labels" },
+	{ to: "/dashboard/settings/notifications", label: "Notifications" },
 	{ to: "/dashboard/settings/integrations", label: "Integrations" },
 	{ to: "/dashboard/settings/import", label: "Import" },
 ];
@@ -19,7 +20,7 @@ export const SettingsSidebar = () => {
 	const pathname = usePathname();
 
 	return (
-		<div className="sticky top-10 mx-4 mt-10 h-fit w-full border p-4">
+		<div className="sticky top-8 h-fit w-full border p-4">
 			<ul className="flex flex-col space-y-1 text-sm">
 				{settingsLinks.map(({ to, label }) => (
 					<Link

@@ -4,26 +4,32 @@ import {
 	Container,
 	Heading,
 	Preview,
+	Section,
 	Text,
 } from "@react-email/components";
 import { Footer } from "../components/footer";
-import { GetStarted } from "../components/get-started";
 import { Logo } from "../components/logo";
 import {
+	Button,
 	EmailThemeProvider,
 	getEmailInlineStyles,
 	getEmailThemeClasses,
 } from "../components/theme";
 
 interface Props {
-	fullName: string;
+	teamName: string;
+	title: string;
+	message: string;
+	ctaLink?: string;
 }
 
-const baseUrl = getEmailUrl();
-
-export const WelcomeEmail = ({ fullName = "" }: Props) => {
-	const firstName = fullName ? fullName.split(" ").at(0) : "";
-	const text = `${firstName ? `Hi ${firstName}, ` : ""}Welcome to Mimir! I'm Alain, the founder.`;
+export const NotificationEmail = ({
+	teamName = "Acme Inc.",
+	title = "New Task Assigned",
+	message = "You have been assigned a new task.",
+	ctaLink = "#",
+}: Props) => {
+	const text = `You've been invited to ${teamName}.`;
 	const themeClasses = getEmailThemeClasses();
 	const lightStyles = getEmailInlineStyles("light");
 
@@ -46,7 +52,7 @@ export const WelcomeEmail = ({ fullName = "" }: Props) => {
 						className={`mx-0 my-[30px] p-0 text-center font-normal text-[21px] ${themeClasses.heading}`}
 						style={{ color: lightStyles.text.color }}
 					>
-						Welcome to Mimir
+						{title}
 					</Heading>
 
 					<br />
@@ -55,32 +61,32 @@ export const WelcomeEmail = ({ fullName = "" }: Props) => {
 						className={`font-medium ${themeClasses.text}`}
 						style={{ color: lightStyles.text.color }}
 					>
-						{firstName ? `Hi ${firstName},` : "Hello,"}
+						{"Hello,"}
 					</span>
 					<Text
 						className={themeClasses.text}
 						style={{ color: lightStyles.text.color }}
 					>
-						Welcome to Mimir! I'm Alain, the founder.
-						<br />
-						<br />
-						If there's anything we can do to help, just reply. We're always one
-						message away.
+						{message}
 					</Text>
-
-					<br />
 
 					<Text
 						className={themeClasses.mutedText}
 						style={{ color: lightStyles.mutedText.color }}
 					>
-						Best regards, founder
+						This is an automated notification for the team {teamName}.
+						<br />
+						Do not reply to this email.
 					</Text>
 
 					<br />
-
-					<GetStarted />
-
+					{ctaLink && (
+						<Section className="text-center">
+							<Button href={`${ctaLink}`}>View Details</Button>
+						</Section>
+					)}
+					<br />
+					<br />
 					<br />
 
 					<Footer />
@@ -90,4 +96,4 @@ export const WelcomeEmail = ({ fullName = "" }: Props) => {
 	);
 };
 
-export default WelcomeEmail;
+export default NotificationEmail;

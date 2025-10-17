@@ -1,5 +1,5 @@
 {
-  "name": "@mimir/integration",
+  "name": "@mimir/notifications",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -9,21 +9,20 @@
     "typecheck": "tsc --noEmit"
   },
   "exports": {
-    "./init": "./src/init.ts",
-    "./validate": "./src/validate.ts",
-    "./registry": "./src/registry.ts",
-    "./logger": "./src/logger.ts",
-    "./mattermost": "./src/mattermost/index.ts"
+    "./types": "./src/notifications-types.ts",
+    ".": "./src/index.ts"
   },
   "dependencies": {
-    "redis": "^5.8.2",
     "@mimir/cache": "workspace:*",
     "@mimir/db": "workspace:*",
+    "@mimir/integration": "workspace:*",
+    "@mimir/email": "workspace:*",
     "ai": "^5.0.56",
     "drizzle-orm": "^0.44.5",
-    "zod": "^4.1.11",
+    "redis": "^5.8.2",
+    "snakecase-keys": "^9.0.2",
     "ws": "^8.18.3",
-    "@mattermost/client": "^10.12.0"
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/bun": "latest",

@@ -1,14 +1,34 @@
-import { and, desc, eq, inArray, type SQL } from "drizzle-orm";
+import { sendNotificationJob } from "@mimir/jobs/notifications/send-notification-job";
+import {
+	and,
+	desc,
+	eq,
+	type InferSelectModel,
+	inArray,
+	type SQL,
+} from "drizzle-orm";
 import { db } from "..";
-import { activities, type activityTypeEnum, users } from "../schema";
+import {
+	activities,
+	type activityTypeEnum,
+	type tasks,
+	users,
+} from "../schema";
+import {
+	notificationChannels,
+	shouldSendNotification,
+} from "./notification-settings";
 
-export const createActivity = async (input: {
+export type CreateActivityInput = {
 	userId?: string | null;
 	teamId: string;
 	groupId?: string;
 	type: (typeof activityTypeEnum.enumValues)[number];
 	metadata?: Record<string, any>;
-}) => {
+};
+
+export const createActivity = async (input: CreateActivityInput) => {
+	let metadataChanges = input.metadata?.changes;
 	if (input.groupId && input.userId) {
 		// Check if the last activity is the same type and from the same user
 		const [lastActivity] = await db
@@ -25,11 +45,12 @@ export const createActivity = async (input: {
 			.limit(1);
 
 		// Delete the last activity if it's the same type and from the same user
-		if (
-			lastActivity &&
-			JSON.stringify(lastActivity.metadata ?? {}) ===
-				JSON.stringify(input.metadata ?? {})
-		) {
+		if (lastActivity?.metadata?.changes && metadataChanges) {
+			// Merge the changes
+			metadataChanges = {
+				...lastActivity.metadata.changes,
+				...metadataChanges,
+			};
 			await db.delete(activities).where(eq(activities.id, lastActivity.id));
 		}
 	}
@@ -41,11 +62,94 @@ export const createActivity = async (input: {
 			teamId: input.teamId,
 			type: input.type,
 			groupId: input.groupId,
-			metadata: input.metadata,
+			metadata: {
+				...input.metadata,
+				changes: metadataChanges,
+			},
 		})
 		.returning();
 
+	if (input.userId && result) {
+		for (const channel of notificationChannels) {
+			const shouldSend = await shouldSendNotification(
+				input.userId,
+				input.teamId,
+				input.type,
+				channel,
+			);
+
+			if (shouldSend) {
+				await sendNotificationJob.trigger({
+					activityId: result.id,
+					channel,
+				});
+			}
+		}
+	}
+
 	return result;
+};
+
+export const createTaskUpdateActivity = async ({
+	oldTask,
+	newTask,
+	userId,
+	teamId,
+}: {
+	oldTask: InferSelectModel<typeof tasks>;
+	newTask: InferSelectModel<typeof tasks>;
+	userId?: string;
+	teamId: string;
+}) => {
+	const changeKeys = [
+		"title",
+		"description",
+		"columnId",
+		"dueDate",
+		"assigneeId",
+	] as const;
+	const changes: Partial<
+		Record<(typeof changeKeys)[number], { value: string | null }>
+	> = {};
+	if (oldTask.title !== newTask.title) changes.title = { value: newTask.title };
+	if (oldTask.description !== newTask.description)
+		changes.description = { value: newTask.description };
+	if (oldTask.columnId !== newTask.columnId)
+		changes.columnId = { value: newTask.columnId };
+	if (oldTask.dueDate !== newTask.dueDate)
+		changes.dueDate = { value: newTask.dueDate };
+	if (oldTask.assigneeId !== newTask.assigneeId)
+		changes.assigneeId = { value: newTask.assigneeId };
+
+	if (changes.assigneeId) {
+		await createActivity({
+			userId: changes.assigneeId.value,
+			teamId,
+			groupId: newTask.id,
+			type: "task_assigned",
+			metadata: {
+				title: newTask.title,
+			},
+		});
+		delete changes.assigneeId;
+	}
+
+	if (Object.keys(changes).length === 0) {
+		return null;
+	}
+
+	const activity = await createActivity({
+		userId,
+		teamId,
+		groupId: newTask.id,
+		type: "task_updated",
+		metadata: {
+			changes,
+			title: newTask.title,
+		},
+	});
+
+	return activity;
 };
 
 export const getActivities = async ({
@@ -107,4 +211,14 @@ export const getActivities = async ({
 		},
 		data,
 	};
+};
+
+export const getActivityById = async (id: string) => {
+	const [activity] = await db
+		.select()
+		.from(activities)
+		.where(eq(activities.id, id))
+		.limit(1);
+
+	return activity;
 };

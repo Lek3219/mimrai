@@ -8,6 +8,7 @@ import { githubRouter } from "./github";
 import { importsRouter } from "./imports";
 import { integrationsRouter } from "./integrations";
 import { labelsRouter } from "./labels";
+import { notificationSettingsRouter } from "./notification-settings";
 import { tasksRouter } from "./tasks";
 import { teamsRouter } from "./teams";
 import { usersRouter } from "./users";
@@ -33,6 +34,7 @@ export const appRouter = router({
 	activities: activitiesRouter,
 	github: githubRouter,
 	imports: importsRouter,
+	notificationSettings: notificationSettingsRouter,
 });
 export type AppRouter = typeof appRouter;
 export type RouterOutputs = inferRouterOutputs<AppRouter>;

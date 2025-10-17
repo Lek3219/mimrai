@@ -161,7 +161,9 @@
         "@date-fns/utc": "^2.1.1",
         "@mimir/cache": "workspace:*",
         "@mimir/embedding": "workspace:*",
+        "@mimir/jobs": "workspace:*",
         "@mimir/logger": "workspace:*",
+        "@mimir/notifications": "workspace:*",
         "@mimir/utils": "workspace:*",
         "@types/pg": "^8.15.5",
         "camelcase-keys": "^10.0.0",
@@ -284,6 +286,29 @@
       },
       "devDependencies": {
         "typescript": "^5.9.2",
+      },
+    },
+    "packages/notifications": {
+      "name": "@mimir/notifications",
+      "version": "0.0.1",
+      "dependencies": {
+        "@mimir/cache": "workspace:*",
+        "@mimir/db": "workspace:*",
+        "@mimir/email": "workspace:*",
+        "@mimir/integration": "workspace:*",
+        "ai": "^5.0.56",
+        "drizzle-orm": "^0.44.5",
+        "redis": "^5.8.2",
+        "snakecase-keys": "^9.0.2",
+        "ws": "^8.18.3",
+        "zod": "^3.23.8",
+      },
+      "devDependencies": {
+        "@mattermost/types": "^10.12.0",
+        "@mimir/tsconfig": "workspace:*",
+        "@types/bun": "latest",
+        "@types/redis": "^4.0.11",
+        "@types/ws": "^8.18.1",
       },
     },
     "packages/tsconfig": {
@@ -808,6 +833,8 @@
     "@mimir/locale": ["@mimir/locale@workspace:packages/locale"],
 
     "@mimir/logger": ["@mimir/logger@workspace:packages/logger"],
+
+    "@mimir/notifications": ["@mimir/notifications@workspace:packages/notifications"],
 
     "@mimir/tsconfig": ["@mimir/tsconfig@workspace:packages/tsconfig"],
 
@@ -3402,6 +3429,8 @@
     "@mimir/integration/zod": ["zod@4.1.11", "", {}, "sha512-WPsqwxITS2tzx1bzhIKsEs19ABD5vmCVa4xBo2tq/SrV4RNZtfws1EnCWQXM6yh8bD08a1idvkB5MZSBiZsjwg=="],
 
     "@mimir/jobs/zod": ["zod@3.25.76", "", {}, "sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ=="],
+
+    "@mimir/notifications/zod": ["zod@3.25.76", "", {}, "sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ=="],
 
     "@modelcontextprotocol/sdk/zod": ["zod@3.25.76", "", {}, "sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ=="],
 

@@ -61,16 +61,27 @@ const ActivityItem = ({
 					{formatRelative(new Date(activity.createdAt!), new Date())}
 				</div>
 			);
-		case "task_updated":
+		case "task_updated": {
+			const metadata = activity.metadata as {
+				changes: Record<string, { value: string }>;
+			};
+			let message = "updated the task";
+			if (metadata?.changes) {
+				const propertiesChanged = Object.keys(metadata.changes);
+				if (propertiesChanged.length > 0) {
+					message = `updated the ${propertiesChanged.join(", ")}`;
+				}
+			}
 			return (
 				<div className="flex items-center px-4 text-muted-foreground text-xs">
 					<AssigneeAvatar {...activity.user} className="mr-2 size-4 text-xs" />
 					<span className="mr-1 font-medium">{activity.user!.name}</span>
-					updated the task
+					{message}
 					<DotIcon />
 					{formatRelative(new Date(activity.createdAt!), new Date())}
 				</div>
 			);
+		}
 		case "task_comment": {
 			const metadata = activity.metadata as { comment: string };
 			return (
