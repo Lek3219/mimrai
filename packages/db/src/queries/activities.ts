@@ -120,17 +120,27 @@ export const createTaskUpdateActivity = async ({
     "assigneeId",
   ] as const;
   const changes: Partial<
-    Record<(typeof changeKeys)[number], { value: string | null }>
+    Record<
+      (typeof changeKeys)[number],
+      { value: string | null; oldValue: string | null }
+    >
   > = {};
-  if (oldTask.title !== newTask.title) changes.title = { value: newTask.title };
+  if (oldTask.title !== newTask.title)
+    changes.title = { value: newTask.title, oldValue: oldTask.title };
   if (oldTask.description !== newTask.description)
-    changes.description = { value: newTask.description };
+    changes.description = {
+      value: newTask.description,
+      oldValue: oldTask.description,
+    };
   if (oldTask.columnId !== newTask.columnId)
-    changes.columnId = { value: newTask.columnId };
+    changes.columnId = { value: newTask.columnId, oldValue: oldTask.columnId };
   if (oldTask.dueDate !== newTask.dueDate)
-    changes.dueDate = { value: newTask.dueDate };
+    changes.dueDate = { value: newTask.dueDate, oldValue: oldTask.dueDate };
   if (oldTask.assigneeId !== newTask.assigneeId)
-    changes.assigneeId = { value: newTask.assigneeId };
+    changes.assigneeId = {
+      value: newTask.assigneeId,
+      oldValue: oldTask.assigneeId,
+    };
 
   if (changes.assigneeId) {
     await createActivity({

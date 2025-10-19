@@ -1,53 +1,68 @@
 import { Client4 } from "@mattermost/client";
 import {
-	getIntegrationByType,
-	getLinkedUserByUserId,
+  getIntegrationByType,
+  getLinkedUserByUserId,
 } from "@mimir/db/queries/integrations";
 
 export const sendMattermostNotification = async ({
-	teamId,
-	userId,
-	message,
+  teamId,
+  userId,
+  message,
 }: {
-	teamId: string;
-	userId: string;
-	message: string;
+  teamId: string;
+  userId?: string;
+  message: string;
 }) => {
-	const [integration] = await getIntegrationByType({
-		type: "mattermost",
-		teamId: teamId,
-	});
-	if (!integration) {
-		throw new Error("No Mattermost integration found for team");
-	}
-	const token = integration.config.token;
-	const url = integration.config.url;
-	if (!token || !url) {
-		throw new Error("Invalid Mattermost integration configuration");
-	}
+  const [integration] = await getIntegrationByType({
+    type: "mattermost",
+    teamId: teamId,
+  });
+  if (!integration) {
+    throw new Error("No Mattermost integration found for team");
+  }
+  const token = integration.config.token;
+  const url = integration.config.url;
+  if (!token || !url) {
+    throw new Error("Invalid Mattermost integration configuration");
+  }
 
-	const linkedUser = await getLinkedUserByUserId({
-		integrationId: integration.id,
-		userId: userId,
-		teamId: teamId,
-	});
+  const client = new Client4();
+  client.setUrl(url);
+  client.setToken(token);
 
-	if (!linkedUser) {
-		throw new Error("No linked Mattermost user found");
-	}
+  const me = await client.getMe();
 
-	const externalId = linkedUser.externalUserId;
+  if (!userId) {
+    const teamChannelId = integration.config.teamNotificationChannelId;
+    if (!teamChannelId) {
+      throw new Error(
+        "No userId provided and no team notification channel configured"
+      );
+    }
+    await client.createPost({
+      channel_id: teamChannelId,
+      message: message,
+    });
+    return;
+  }
 
-	const client = new Client4();
-	client.setUrl(url);
-	client.setToken(token);
+  const linkedUser = await getLinkedUserByUserId({
+    integrationId: integration.id,
+    userId: userId,
+    teamId: teamId,
+  });
 
-	const me = await client.getMe();
-	const channel = await client.createDirectChannel([externalId, me.id]);
-	await client.createPost({
-		channel_id: channel.id,
-		message: message,
-	});
+  if (!linkedUser) {
+    throw new Error(`No linked Mattermost user found for user ${userId}`);
+  }
 
-	return true;
+  const externalId = linkedUser.externalUserId;
+
+  const channel = await client.createDirectChannel([externalId, me.id]);
+  await client.createPost({
+    channel_id: channel.id,
+    message: message,
+  });
+
+  return true;
 };

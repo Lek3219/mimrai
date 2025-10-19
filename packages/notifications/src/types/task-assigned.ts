@@ -7,6 +7,7 @@ export const taskAssigned: NotificationHandler = {
     return {
       title: "Task Assigned",
       message: `You have been assigned a new task **${data.metadata?.title}**.`,
+      type: "customer",
     };
   },
   createEmail: (data, user, team) => {

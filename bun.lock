@@ -253,6 +253,7 @@
         "ai": "^5.0.56",
         "camelcase-keys": "^10.0.0",
         "codepage": "^1.15.0",
+        "drizzle-orm": "^0.44.5",
         "heic-convert": "1.2.4",
         "node-xlsx": "^0.24.0",
         "sharp": "0.34.4",

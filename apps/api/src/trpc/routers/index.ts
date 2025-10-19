@@ -9,32 +9,34 @@ import { importsRouter } from "./imports";
 import { integrationsRouter } from "./integrations";
 import { labelsRouter } from "./labels";
 import { notificationSettingsRouter } from "./notification-settings";
+import { resumeSettingsRouter } from "./resume-settings";
 import { tasksRouter } from "./tasks";
 import { teamsRouter } from "./teams";
 import { usersRouter } from "./users";
 
 export const appRouter = router({
-	healthCheck: publicProcedure.query(() => {
-		return "OK";
-	}),
-	privateData: protectedProcedure.query(({ ctx }) => {
-		return {
-			message: "This is private",
-			user: ctx.session.user,
-		};
-	}),
-	tasks: tasksRouter,
-	columns: columnsRouter,
-	chats: chatRouter,
-	users: usersRouter,
-	teams: teamsRouter,
-	integrations: integrationsRouter,
-	billing: billingRouter,
-	labels: labelsRouter,
-	activities: activitiesRouter,
-	github: githubRouter,
-	imports: importsRouter,
-	notificationSettings: notificationSettingsRouter,
+  healthCheck: publicProcedure.query(() => {
+    return "OK";
+  }),
+  privateData: protectedProcedure.query(({ ctx }) => {
+    return {
+      message: "This is private",
+      user: ctx.session.user,
+    };
+  }),
+  tasks: tasksRouter,
+  columns: columnsRouter,
+  chats: chatRouter,
+  users: usersRouter,
+  teams: teamsRouter,
+  integrations: integrationsRouter,
+  billing: billingRouter,
+  labels: labelsRouter,
+  activities: activitiesRouter,
+  github: githubRouter,
+  imports: importsRouter,
+  notificationSettings: notificationSettingsRouter,
+  resumeSettings: resumeSettingsRouter,
 });
 export type AppRouter = typeof appRouter;
 export type RouterOutputs = inferRouterOutputs<AppRouter>;

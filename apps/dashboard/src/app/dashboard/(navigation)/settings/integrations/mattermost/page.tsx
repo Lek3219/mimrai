@@ -10,6 +10,7 @@ import {
 import { queryClient, trpc } from "@/utils/trpc";
 import { LogsList } from "../logs-list";
 import { LinkedUsersList } from "./linked-users-list";
+import { MattermostNotificationsSettings } from "./notifications-settings";
 export const revalidate = 0;
 export default async function Page() {
 	const integrationInfo = await queryClient.fetchQuery(
@@ -42,6 +43,7 @@ export default async function Page() {
 					)}
 				</CardContent>
 			</Card>
+			<MattermostNotificationsSettings integrationId={id} />
 			<Card>
 				<CardHeader>
 					<CardDescription>Linked Users</CardDescription>

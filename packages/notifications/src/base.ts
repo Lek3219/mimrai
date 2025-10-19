@@ -10,6 +10,7 @@ export interface TeamContext {
 export interface CreateNotificationInput {
   title: string;
   message: string;
+  type: "customer" | "team" | "owners";
   url?: string;
 }
 

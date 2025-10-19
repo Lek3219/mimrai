@@ -33,6 +33,7 @@ export function KanbanBoard() {
 		assigneeId: filters.assigneeId ?? undefined,
 		search: filters.search ?? undefined,
 		labels: filters.labels ?? undefined,
+		pageSize: 100,
 		view: "board" as const,
 	};
 

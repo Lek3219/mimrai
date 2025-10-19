@@ -1,3 +1,7 @@
+import {
+  getIntegrationByType,
+  getLinkedUsers,
+} from "@mimir/db/queries/integrations";
 import type { NotificationChannel } from "@mimir/db/queries/notification-settings";
 import { getMembers, getTeamById } from "@mimir/db/queries/teams";
 import { sendMattermostNotification } from "@mimir/integration/mattermost";
@@ -30,11 +34,45 @@ export const sendNotification = async (
 
   switch (channel) {
     case "mattermost": {
-      await sendMattermostNotification({
-        teamId: user.teamId,
-        userId: user.id,
-        message: notification.message,
-      });
+      const team = await getTeamById(user.teamId);
+      if (!team) {
+        throw new Error(`Team not found: ${user.teamId}`);
+      }
+      const recipients = [];
+      if (notification.type === "customer") {
+        recipients.push(user.id);
+      }
+
+      if (notification.type === "team") {
+        // Send to team channel
+        await sendMattermostNotification({
+          teamId: user.teamId,
+          message: notification.message,
+        });
+        break;
+      }
+
+      if (notification.type === "owners") {
+        const members = await getMembers({ teamId: team.id, role: "owner" });
+        for (const member of members) {
+          recipients.push(member.id);
+        }
+      }
+
+      for (const userId of recipients) {
+        try {
+          await sendMattermostNotification({
+            teamId: user.teamId,
+            userId,
+            message: notification.message,
+          });
+        } catch (err) {
+          console.error(
+            `Failed to send Mattermost notification to user ${userId}:`,
+            err
+          );
+        }
+      }
       break;
     }
     case "email": {

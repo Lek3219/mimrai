@@ -20,7 +20,7 @@ const CustomUnorderedList = ({
 	children?: React.ReactNode;
 	className?: string;
 }) => (
-	<ul className={cn("m-0 list-none p-0", className)} {...props}>
+	<ul className={cn("m-0 list-disc p-0", className)} {...props}>
 		{children}
 	</ul>
 );
@@ -57,7 +57,7 @@ const CustomListItem = ({
 	className?: string;
 }) => (
 	<li
-		className={cn("my-0 py-0 leading-none", className)}
+		className={cn("my-0 ms-4 py-1 leading-none", className)}
 		{...props}
 		data-streamdown="list-item"
 	>
@@ -78,7 +78,7 @@ export const Response = memo(
 				li: (props) => <CustomListItem {...props} />,
 				h2: ({ children, node, ...props }) => (
 					<h3
-						className="font-medium text-primary text-sm tracking-wide"
+						className="font-medium text-base text-primary tracking-wide"
 						{...props}
 					>
 						{children}
@@ -86,7 +86,7 @@ export const Response = memo(
 				),
 				h3: ({ children, node, ...props }) => (
 					<h3
-						className="font-medium text-primary text-sm tracking-wide"
+						className="font-medium text-base text-primary tracking-wide"
 						{...props}
 					>
 						{children}
@@ -94,7 +94,7 @@ export const Response = memo(
 				),
 				h4: ({ children, node, ...props }) => (
 					<h4
-						className="font-medium text-primary text-sm tracking-wide"
+						className="font-medium text-base text-primary tracking-wide"
 						{...props}
 					>
 						{children}

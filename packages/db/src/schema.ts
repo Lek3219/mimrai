@@ -531,6 +531,7 @@ export const activityTypeEnum = pgEnum("activity_type", [
   "task_updated",
   "task_comment",
   "task_assigned",
+  "resume_generated",
 ]);
 
 export const activities = pgTable(
@@ -703,6 +704,45 @@ export const notificationSettings = pgTable(
       columns: [table.teamId],
       foreignColumns: [teams.id],
       name: "notification_settings_team_id_fkey",
+    }).onDelete("cascade"),
+  ]
+);
+
+export const resumeSettings = pgTable(
+  "resume_settings",
+  {
+    id: text()
+      .$defaultFn(() => randomUUID())
+      .primaryKey()
+      .notNull(),
+    teamId: text("team_id").notNull(),
+    enabled: boolean("enabled").default(false).notNull(),
+    cronPrompt: text("cron_prompt").default("").notNull(),
+    cronExpression: text("cron_expression").default("0 0 * * *").notNull(), // default to every day at midnight
+    instructions: text("instructions").default("").notNull(),
+    jobId: text("job_id"),
+    shouldUpdateJob: boolean("should_update_job").default(false).notNull(),
+    nextRunAt: timestamp("next_run_at", {
+      withTimezone: true,
+      mode: "string",
+    }),
+    lastRunAt: timestamp("last_run_at", {
+      withTimezone: true,
+      mode: "string",
+    }),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true, mode: "string" })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    unique("unique_resume_settings_per_team").on(table.teamId),
+    foreignKey({
+      columns: [table.teamId],
+      foreignColumns: [teams.id],
+      name: "resume_settings_team_id_fkey",
     }).onDelete("cascade"),
   ]
 );
