@@ -19,8 +19,8 @@ export const en = {
         title: "Task Moved",
         description: "Notify me when a task is moved to a different column.",
       },
-      task_commented: {
-        title: "Task Commented",
+      task_comment: {
+        title: "New comment on Task",
         description: "Notify me when someone comments on a task.",
       },
     },
