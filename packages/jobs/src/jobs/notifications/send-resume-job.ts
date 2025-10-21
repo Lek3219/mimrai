@@ -9,6 +9,7 @@ import {
   users,
   usersOnTeams,
 } from "@mimir/db/schema";
+import { getTaskMarkdownLink } from "@mimir/utils/tasks";
 import { logger, schedules, schemaTask } from "@trigger.dev/sdk";
 import { generateText } from "ai";
 import { and, desc, eq, gt, gte, inArray, isNotNull } from "drizzle-orm";
@@ -99,12 +100,13 @@ export const sendResumeJob = schedules.task({
         const taskTitle = activity.tasks.title
           ? activity.tasks.title
           : "Unknown task";
+        const taskId = activity.tasks.id;
         const createdAt = new Date(
           activity.activities.createdAt!
         ).toLocaleDateString();
 
         if (activity.activities.type === "task_created") {
-          return `- Task "${taskTitle}" was created by ${userName} on ${createdAt}.`;
+          return `- Task "${getTaskMarkdownLink(taskId, taskTitle)}" was created by ${userName} on ${createdAt}.`;
         }
 
         if (activity.activities.type === "task_updated") {
@@ -142,7 +144,7 @@ export const sendResumeJob = schedules.task({
               return `- ${key}: "${oldValue}" => "${newValue}"`;
             })
             .join("\n");
-          return `- Task "${taskTitle}" was updated by ${userName} on ${createdAt}.\n\tChanges:\n${changesText}`;
+          return `- Task "${getTaskMarkdownLink(taskId, taskTitle)}" was updated by ${userName} on ${createdAt}.\n\tChanges:\n${changesText}`;
         }
 
         return null;
@@ -167,6 +169,7 @@ export const sendResumeJob = schedules.task({
       - Add a motivational note at the end of the summary.
       - Add a warming salute at the beginning of the summary.
       - Group the activities by team members
+      - Respect the markdown links provided in the activities.
 
       RESPONSE EXAMPLE (This is a format example, do not copy the content):
       Hello Team, you all are doing great! Here is a summary of your work so far:
