@@ -196,7 +196,7 @@ export function KanbanBoard() {
 				}}
 				getItemValue={(item) => item.id}
 			>
-				<Kanban.Board className="flex w-full gap-4 overflow-x-auto">
+				<Kanban.Board className="flex w-full items-stretch gap-4 overflow-x-auto">
 					{Object.entries(columnsData).map(([columnValue, tasks]) => {
 						const column = columns?.data.find(
 							(col) => col.name === columnValue,
@@ -205,7 +205,7 @@ export function KanbanBoard() {
 
 						return (
 							<Kanban.Column
-								className="min-h-[200px] max-w-86 grow-1 bg-accent/10"
+								className="h-auto min-h-[200px] max-w-86 grow-1 bg-accent/10"
 								key={columnValue}
 								value={columnValue}
 							>

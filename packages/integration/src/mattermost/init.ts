@@ -177,7 +177,11 @@ export const initMattermostSingle = async (
 
             console.log("New post event:", typedData);
 
-            const threadId = typedData.post.root_id;
+            const threadId = typedData.channel_name.includes(
+              typedData.post.root_id
+            )
+              ? typedData.post.id
+              : typedData.post.root_id;
             const isDirect =
               typedData.channel_type === "D" &&
               typedData.channel_name.includes(me.id);

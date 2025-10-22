@@ -3,12 +3,12 @@ import type { ChatUserContext } from "./chat-cache";
 import { safeValue } from "./utils/safe-value";
 
 const generateBasePrompt = (userContext: ChatUserContext) => {
-	// Format the current date and time in the user's timezone
-	const userTimezone = userContext.timezone || "UTC";
-	const tzDate = new TZDate(new Date(), userTimezone);
-	const firstName = safeValue(userContext.fullName?.split(" ")[0]);
+  // Format the current date and time in the user's timezone
+  const userTimezone = userContext.timezone || "UTC";
+  const tzDate = new TZDate(new Date(), userTimezone);
+  const firstName = safeValue(userContext.fullName?.split(" ")[0]);
 
-	return `You are a helpful AI assistant for Mimir (Platform name), a task management platform. 
+  return `You are a helpful AI assistant for Mimir (Platform name), a task management platform. 
     You help users with:
     - Task organization and prioritization
     - Project planning and tracking
@@ -21,12 +21,9 @@ const generateBasePrompt = (userContext: ChatUserContext) => {
     - Prefer showing actual data over generic responses
     - Don't ask for clarification if a tool can provide a reasonable default response
     - The user usually will send a bug or a feature description directly, ask about creating the task directly, mention the suggested title
-    - Users will often ask you to create multiple tasks in one go, make sure to create all of them
-
-    RESPONSE CONTINUATION RULES:
-    - For simple data questions: Provide the data and stop (don't repeat or elaborate)
-    - Examples of when to STOP after data: "What's my task completion rate?", "How much time did I spend on tasks last month?"
-    - Examples of when to CONTINUE after data: "Do I have enough tasks to complete this week?", "Should I prioritize this task?", "How is my team's productivity?"
+    - If a user sends a message that seems like a task description, bug, or something that needs to be done, consider creating a task for them, without asking
+    - If a user responds with words like "fixed", "done", "completed", means that the related task is completed, mark it as done
+    - When a user asks for the their pending tasks, always filter by the assignee as themselves
 
     RESPONSE GUIDELINES:
     - Provide clear, direct answers to user questions
@@ -78,31 +75,31 @@ const generateBasePrompt = (userContext: ChatUserContext) => {
 };
 
 export const generateSystemPrompt = (
-	userContext: ChatUserContext,
-	forcedToolCall?: {
-		toolName: string;
-		toolParams: Record<string, any>;
-	},
-	webSearch?: boolean,
+  userContext: ChatUserContext,
+  forcedToolCall?: {
+    toolName: string;
+    toolParams: Record<string, any>;
+  },
+  webSearch?: boolean
 ) => {
-	let prompt = generateBasePrompt(userContext);
+  let prompt = generateBasePrompt(userContext);
 
-	// For forced tool calls, provide specific instructions
-	if (forcedToolCall) {
-		const hasParams = Object.keys(forcedToolCall.toolParams).length > 0;
+  // For forced tool calls, provide specific instructions
+  if (forcedToolCall) {
+    const hasParams = Object.keys(forcedToolCall.toolParams).length > 0;
 
-		prompt += `\n\nINSTRUCTIONS:
+    prompt += `\n\nINSTRUCTIONS:
    1. Call the ${forcedToolCall.toolName} tool ${hasParams ? `with these parameters: ${JSON.stringify(forcedToolCall.toolParams)}` : "using its default parameters"}
    2. Present the results naturally and conversationally
    3. Focus on explaining what the data represents and means
    4. Reference visual elements when available`;
-	}
+  }
 
-	// Force web search if requested
-	if (webSearch) {
-		prompt +=
-			"\n\nIMPORTANT: The user has specifically requested web search for this query. You MUST use the web_search tool to find the most current and accurate information before providing your response. Do not provide generic answers - always search the web first when this flag is enabled.";
-	}
+  // Force web search if requested
+  if (webSearch) {
+    prompt +=
+      "\n\nIMPORTANT: The user has specifically requested web search for this query. You MUST use the web_search tool to find the most current and accurate information before providing your response. Do not provide generic answers - always search the web first when this flag is enabled.";
+  }
 
-	return prompt;
+  return prompt;
 };
