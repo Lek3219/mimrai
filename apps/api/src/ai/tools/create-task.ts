@@ -108,6 +108,7 @@ export const createTaskTool = tool({
       yield {
         type: "text",
         text: `Task created: ${newTask.title}`,
+        taskLink: getTaskUrl(newTask.id),
       };
     } catch (error) {
       console.error("Error creating task:", error);

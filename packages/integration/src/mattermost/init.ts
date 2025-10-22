@@ -175,8 +175,6 @@ export const initMattermostSingle = async (
             // Check if the post is from a bot to avoid loops
             if (typedData.post.user_id === me.id) return;
 
-            console.log("New post event:", typedData);
-
             const threadId = typedData.channel_name.includes(
               typedData.post.root_id
             )
@@ -222,7 +220,20 @@ export const initMattermostSingle = async (
                   teamId: integration.teamId,
                 });
 
-                const systemPrompt = generateSystemPrompt(userContext);
+                const channel = await client.getChannel(
+                  typedData.post.channel_id
+                );
+
+                const teams = await client.getMyTeams();
+                const team =
+                  teams.find((t) => t.id === channel.team_id) ?? teams[0];
+                const teamName = team?.name || "default";
+
+                const systemPrompt = `${generateSystemPrompt(userContext)}
+                 
+                If you create a task add the next link to the task description to allow easy access to the context, append at the end of the description and use markdown format:
+                CONTEXT LINK: [Context Link](${integration.config.url}/${teamName}/pl/${threadId})
+                `;
 
                 const relevantMessages: UIMessage[] = [];
                 if (threadId) {
