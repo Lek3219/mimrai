@@ -12,12 +12,12 @@ export const TaskAttachments = ({
 	return (
 		<div className="">
 			<FormLabel className="mb-4">Attachments</FormLabel>
-			<ul className="min-h-[32px] border">
+			<ul className="flex min-h-[32px] items-center gap-2 border p-1">
 				{attachments?.length === 0 && (
 					<li className="p-4 text-muted-foreground text-sm">No attachments</li>
 				)}
 				{attachments.map((attachment) => (
-					<li key={attachment}>
+					<li key={attachment} className="flex items-center">
 						<TaskAttachmentPreview attachment={attachment} />
 					</li>
 				))}
