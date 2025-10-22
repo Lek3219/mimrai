@@ -204,7 +204,6 @@ export const tasks = pgTable(
     order: integer("order").default(0).notNull(),
     columnId: text("column_id").notNull(),
     attachments: jsonb("attachments").$type<string[]>().default([]),
-    pullRequestPlanId: text("pull_request_plan_id"),
     score: integer("score").default(1).notNull(),
     fts: tsvector("fts").generatedAlwaysAs(
       (): SQL =>
@@ -623,7 +622,8 @@ export const pullRequestPlan = pgTable("pull_request_plans", {
   repoId: bigint("repo_id", {
     mode: "number",
   }).notNull(),
-  plan: jsonb("plan").$type<{ taskId: string; columnId: string }[]>().notNull(),
+  taskId: text("task_id").notNull(),
+  columnId: text("column_id").notNull(),
   commentId: bigint("comment_id", {
     mode: "number",
   }),

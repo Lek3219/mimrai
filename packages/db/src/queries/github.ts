@@ -157,7 +157,8 @@ export const upsertPullRequestPlan = async ({
   prTitle,
   commentId,
   headCommitSha,
-  plan,
+  taskId,
+  columnId,
 }: {
   prNumber: number;
   teamId: string;
@@ -167,13 +168,9 @@ export const upsertPullRequestPlan = async ({
   prTitle?: string;
   status?: (typeof pullRequestPlanStatus.enumValues)[number];
   headCommitSha: string;
-  plan: {
-    taskId: string;
-    columnId: string;
-  }[];
+  taskId: string;
+  columnId: string;
 }) => {
-  const shouldUpdateTasks = plan.length > 0;
-
   const [existing] = await db
     .select()
     .from(pullRequestPlan)
@@ -186,19 +183,11 @@ export const upsertPullRequestPlan = async ({
     );
 
   if (existing) {
-    //remove associeted tasks pullRequestPlanId
-    if (shouldUpdateTasks)
-      await db
-        .update(tasks)
-        .set({
-          pullRequestPlanId: null,
-        })
-        .where(eq(tasks.pullRequestPlanId, existing.id));
-
     const [record] = await db
       .update(pullRequestPlan)
       .set({
-        plan,
+        taskId,
+        columnId,
         headCommitSha,
         commentId: commentId || existing.commentId,
         status: status || existing.status,
@@ -210,22 +199,6 @@ export const upsertPullRequestPlan = async ({
 
     if (!record) {
       throw new Error("Failed to update pull request plan");
-    }
-
-    // Re-associate tasks with the updated pull request plan
-    if (shouldUpdateTasks) {
-      const batch = [];
-      for (const item of plan) {
-        batch.push(
-          db
-            .update(tasks)
-            .set({
-              pullRequestPlanId: record.id,
-            })
-            .where(eq(tasks.id, item.taskId))
-        );
-      }
-      await Promise.all(batch);
     }
 
     return record;
@@ -242,26 +215,14 @@ export const upsertPullRequestPlan = async ({
       prUrl,
       prTitle,
       status: status || "pending",
-      plan,
+      taskId,
+      columnId,
     })
     .returning();
 
   if (!record) {
     throw new Error("Failed to create pull request plan");
   }
-
-  const batch = [];
-  for (const item of plan) {
-    batch.push(
-      db
-        .update(tasks)
-        .set({
-          pullRequestPlanId: record.id,
-        })
-        .where(eq(tasks.id, item.taskId))
-    );
-  }
-  await Promise.all(batch);
 
   return record;
 };
@@ -293,7 +254,7 @@ export const getPullRequestPlanByHead = async ({
   teamId: string;
   repoId: number;
 }) => {
-  const [record] = await db
+  const records = await db
     .select()
     .from(pullRequestPlan)
     .where(
@@ -303,7 +264,7 @@ export const getPullRequestPlanByHead = async ({
         eq(pullRequestPlan.headCommitSha, headCommitSha)
       )
     );
-  return record;
+  return records;
 };
 
 export const getPullRequestPlanByPrId = async ({
@@ -315,7 +276,7 @@ export const getPullRequestPlanByPrId = async ({
   teamId: string;
   repoId: number;
 }) => {
-  const [record] = await db
+  const records = await db
     .select()
     .from(pullRequestPlan)
     .where(
@@ -326,7 +287,7 @@ export const getPullRequestPlanByPrId = async ({
       )
     )
     .limit(1);
-  return record;
+  return records;
 };
 
 export const getPullRequestPlanById = async ({
@@ -387,60 +348,25 @@ export const cancelPullRequestPlan = async ({
     .where(and(...whereClause))
     .returning();
 
-  // Disassociate tasks from the canceled pull request plan
-  await db
-    .update(tasks)
-    .set({
-      pullRequestPlanId: null,
-    })
-    .where(eq(tasks.pullRequestPlanId, id));
-
   return record;
 };
 
 export const removeTasksFromPullRequestPlan = async ({
-  id,
   teamId,
   taskIds,
 }: {
-  id: string;
   teamId?: string;
   taskIds: string[];
 }) => {
-  const whereClause: SQL[] = [eq(pullRequestPlan.id, id)];
+  const whereClause: SQL[] = [inArray(pullRequestPlan.taskId, taskIds)];
   if (teamId) {
     whereClause.push(eq(pullRequestPlan.teamId, teamId));
   }
 
-  const [existing] = await db
-    .select()
-    .from(pullRequestPlan)
+  const records = await db
+    .delete(pullRequestPlan)
     .where(and(...whereClause))
-    .limit(1);
-
-  if (!existing) {
-    throw new Error("Pull request plan not found");
-  }
-
-  const updatedPlan = existing.plan.filter(
-    (item) => !taskIds.includes(item.taskId)
-  );
-
-  const [record] = await db
-    .update(pullRequestPlan)
-    .set({
-      plan: updatedPlan,
-    })
-    .where(eq(pullRequestPlan.id, id))
     .returning();
 
-  // Disassociate the task from the pull request plan
-  await db
-    .update(tasks)
-    .set({
-      pullRequestPlanId: null,
-    })
-    .where(and(eq(tasks.pullRequestPlanId, id), inArray(tasks.id, taskIds)));
-
-  return record;
+  return records;
 };

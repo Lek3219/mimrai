@@ -131,7 +131,13 @@ export const getTasks = async ({
     .leftJoin(labelsOnTasks, eq(labelsOnTasks.taskId, tasks.id))
     .leftJoin(labels, eq(labels.id, labelsOnTasks.labelId))
     .leftJoin(users, eq(tasks.assigneeId, users.id))
-    .leftJoin(pullRequestPlan, eq(tasks.pullRequestPlanId, pullRequestPlan.id))
+    .leftJoin(
+      pullRequestPlan,
+      and(
+        eq(tasks.id, pullRequestPlan.taskId),
+        inArray(pullRequestPlan.status, ["pending", "completed", "error"])
+      )
+    )
     .groupBy(tasks.id, users.id, columns.id, pullRequestPlan.id);
 
   if (input.view === "board") {
@@ -371,7 +377,13 @@ export const getTaskById = async (id: string, teamId?: string) => {
     .leftJoin(labelsOnTasks, eq(labelsOnTasks.taskId, tasks.id))
     .leftJoin(labels, eq(labels.id, labelsOnTasks.labelId))
     .leftJoin(users, eq(tasks.assigneeId, users.id))
-    .leftJoin(pullRequestPlan, eq(tasks.pullRequestPlanId, pullRequestPlan.id))
+    .leftJoin(
+      pullRequestPlan,
+      and(
+        eq(tasks.id, pullRequestPlan.taskId),
+        inArray(pullRequestPlan.status, ["pending", "completed", "error"])
+      )
+    )
     .groupBy(tasks.id, users.id, columns.id, pullRequestPlan.id)
     .limit(1);
 
