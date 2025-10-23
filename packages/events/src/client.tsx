@@ -10,8 +10,8 @@ const Provider = () => (
 	<OpenPanelComponent
 		clientId={process.env.NEXT_PUBLIC_OPENPANEL_CLIENT_ID!}
 		trackAttributes={true}
-		trackScreenViews={true}
-		trackOutgoingLinks={true}
+		trackScreenViews={isProd}
+		trackOutgoingLinks={isProd}
 	/>
 );
 
