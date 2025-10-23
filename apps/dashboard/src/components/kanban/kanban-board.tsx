@@ -302,13 +302,10 @@ export function KanbanBoard() {
 														setParams({ taskId: task.id });
 													}}
 												>
-													<div>
-														<KanbanTask
-															task={task}
-															// className="border-b-0 last:border-b"
-														/>
-														{task.order}
-													</div>
+													<KanbanTask
+														task={task}
+														// className="border-b-0 last:border-b"
+													/>
 												</Kanban.Item>
 											</TaskContextMenu>
 										))}
