@@ -94,6 +94,9 @@ export function KanbanBoard() {
 			<Kanban.Root
 				value={columnsData}
 				// onValueChange={setKanbanState}
+				onDragCancel={async ({ active, over }) => {
+					return;
+				}}
 				onDragOver={async ({ active, over }) => {
 					return;
 				}}
@@ -302,10 +305,7 @@ export function KanbanBoard() {
 														setParams({ taskId: task.id });
 													}}
 												>
-													<KanbanTask
-														task={task}
-														// className="border-b-0 last:border-b"
-													/>
+													<KanbanTask task={task} />
 												</Kanban.Item>
 											</TaskContextMenu>
 										))}

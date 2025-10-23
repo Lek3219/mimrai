@@ -3,9 +3,12 @@
 import type { RouterOutputs } from "@api/trpc/routers";
 import { useQuery } from "@tanstack/react-query";
 import { formatRelative } from "date-fns";
+import { ArrowDownIcon, ArrowRightIcon, CheckIcon } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useMemo } from "react";
 import { Priority } from "@/components/kanban/priority";
+import { TaskContextMenu } from "@/components/kanban/task-context-menu";
+import { Button } from "@/components/ui/button";
 import { LabelBadge } from "@/components/ui/label-badge";
 import { useTaskParams } from "@/hooks/use-task-params";
 import { useUser } from "@/hooks/use-user";
@@ -15,7 +18,7 @@ export const TasksList = () => {
 	const user = useUser();
 	const { data: columns } = useQuery(trpc.columns.get.queryOptions());
 
-	const { data: tasks } = useQuery(
+	const { data: tasks, isLoading } = useQuery(
 		trpc.tasks.get.queryOptions({
 			assigneeId: user?.id ? [user?.id] : [],
 			view: "board",
@@ -34,7 +37,7 @@ export const TasksList = () => {
 
 	return (
 		<ul className="flex flex-col gap-4 px-8 py-4">
-			{groupedTasks.length === 0 && (
+			{groupedTasks.length === 0 && !isLoading && (
 				<div className="mt-8 flex flex-col items-start justify-center gap-2 text-center">
 					<h3 className="text-2xl text-muted-foreground">
 						No tasks assigned to you
@@ -50,9 +53,23 @@ export const TasksList = () => {
 						<h2 className="mb-4 font-semibold text-xs">{column.name}</h2>
 						<ul className="flex flex-col gap-4">
 							{column.tasks.map((task) => (
-								<li key={task.id}>
-									<TaskItem task={task} />
-								</li>
+								<TaskContextMenu task={task} key={task.id}>
+									<li className="group flex items-center gap-2 transition-all">
+										{/* <div className="flex w-0 flex-col gap-2 overflow-hidden opacity-0 transition-all duration-300 group-hover:w-fit group-hover:opacity-100">
+											<Button
+												type="button"
+												variant={"outline"}
+												size={"sm"}
+												className="p-2 hover:bg-primary hover:text-primary-foreground dark:hover:bg-primary dark:hover:text-primary-foreground"
+											>
+												<CheckIcon />
+											</Button>
+										</div> */}
+										<div className="w-full transition-all duration-300">
+											<TaskItem task={task} />
+										</div>
+									</li>
+								</TaskContextMenu>
 							))}
 						</ul>
 					</li>
@@ -70,11 +87,13 @@ export const TaskItem = ({
 	const { setParams } = useTaskParams();
 
 	return (
-		<motion.button
-			type="button"
+		<motion.div
+			role="button"
 			initial={{ opacity: 0, y: 10 }}
 			animate={{ opacity: 1, y: 0 }}
 			exit={{ opacity: 0, y: 10 }}
+			layout
+			layoutId={`task-item-${task.id}`}
 			className="flex w-full flex-col gap-2 border p-4 transition-colors hover:bg-accent/50"
 			onClick={() => {
 				queryClient.setQueryData(
@@ -102,6 +121,6 @@ export const TaskItem = ({
 				</div>
 				<Priority value={task.priority} />
 			</div>
-		</motion.button>
+		</motion.div>
 	);
 };

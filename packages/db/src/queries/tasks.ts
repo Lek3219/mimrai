@@ -1,4 +1,5 @@
 import type { DeleteTaskInput } from "@api/schemas/tasks";
+import { trackTaskCompleted } from "@mimir/events/server";
 import { subDays } from "date-fns";
 import {
   and,
@@ -216,7 +217,7 @@ export const createTask = async ({
     throw new Error("Failed to create task");
   }
 
-  await createActivity({
+  createActivity({
     userId,
     teamId: task.teamId,
     type: "task_created",

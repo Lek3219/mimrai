@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Noto_Sans_Runic } from "next/font/google";
 import Providers from "@/components/providers";
 import "../index.css";
+import { Provider as OpenPanelProvider } from "@mimir/events/client";
 import { Suspense } from "react";
 
 const geistSans = Geist({
@@ -35,6 +36,7 @@ export default function RootLayout({
 			<body
 				className={`${geistSans.variable} ${geistMono.variable} ${notoSansRunic.variable} flex min-h-screen flex-col antialiased`}
 			>
+				<OpenPanelProvider />
 				<Suspense>
 					<Providers>{children}</Providers>
 				</Suspense>

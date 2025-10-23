@@ -21,6 +21,7 @@
     "@mimir/api": "workspace:*",
     "@mimir/locale": "workspace:*",
     "@mimir/tsconfig": "workspace:*",
+    "@mimir/events": "workspace:*",
     "@mimir/utils": "workspace:*",
     "@radix-ui/react-avatar": "^1.1.10",
     "@radix-ui/react-collapsible": "^1.1.12",

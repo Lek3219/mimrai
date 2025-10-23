@@ -71,7 +71,7 @@ export const KanbanTask = ({
 							))}
 						</div>
 					)}
-					<div className="flex items-center justify-between text-muted-foreground text-xs">
+					<div className="flex min-h-4 items-center justify-between text-muted-foreground text-xs">
 						<div className="flex items-center gap-2">
 							{task.dueDate && (
 								<time className="text-[10px] tabular-nums">

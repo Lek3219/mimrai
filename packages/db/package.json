@@ -21,6 +21,7 @@
     "@mimir/utils": "workspace:*",
     "@mimir/cache": "workspace:*",
     "@mimir/embedding": "workspace:*",
+    "@mimir/events": "workspace:*",
     "@types/pg": "^8.15.5",
     "camelcase-keys": "^10.0.0",
     "drizzle-orm": "^0.44.5",

@@ -22,7 +22,7 @@ import {
   shouldSendNotification,
 } from "./notification-settings";
 import { getMemberById } from "./teams";
-import { getSystemUser, getUserById } from "./users";
+import { getSystemUser } from "./users";
 
 export type CreateActivityInput = {
   userId?: string | null;
@@ -114,6 +114,11 @@ export const createTaskUpdateActivity = async ({
   userId?: string;
   teamId: string;
 }) => {
+  let definedUserId = userId;
+
+  // If userId is not set, get system user id
+  if (!definedUserId) definedUserId = (await getSystemUser())!.id;
+
   const changeKeys = [
     "title",
     "description",
@@ -158,7 +163,7 @@ export const createTaskUpdateActivity = async ({
 
   if (changes.assigneeId) {
     await createActivity({
-      userId,
+      userId: definedUserId,
       teamId,
       groupId: newTask.id,
       type: "task_assigned",
@@ -173,7 +178,7 @@ export const createTaskUpdateActivity = async ({
 
   if (changes.columnId) {
     await createActivity({
-      userId,
+      userId: definedUserId,
       teamId,
       groupId: newTask.id,
       type: "task_column_changed",

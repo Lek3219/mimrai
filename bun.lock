@@ -63,6 +63,7 @@
         "@hookform/resolvers": "^5.2.2",
         "@mdxeditor/editor": "^3.46.1",
         "@mimir/api": "workspace:*",
+        "@mimir/events": "workspace:*",
         "@mimir/locale": "workspace:*",
         "@mimir/tsconfig": "workspace:*",
         "@mimir/utils": "workspace:*",
@@ -163,6 +164,7 @@
         "@date-fns/utc": "^2.1.1",
         "@mimir/cache": "workspace:*",
         "@mimir/embedding": "workspace:*",
+        "@mimir/events": "workspace:*",
         "@mimir/logger": "workspace:*",
         "@mimir/utils": "workspace:*",
         "@types/pg": "^8.15.5",
@@ -214,6 +216,15 @@
       "devDependencies": {
         "@mimir/tsconfig": "workspace:*",
         "@types/bun": "latest",
+      },
+    },
+    "packages/events": {
+      "name": "@mimir/events",
+      "version": "0.0.1",
+      "dependencies": {
+        "@mimir/tsconfig": "workspace:*",
+        "@openpanel/nextjs": "^1.0.8",
+        "@openpanel/sdk": "^1.0.0",
       },
     },
     "packages/integration": {
@@ -832,6 +843,8 @@
 
     "@mimir/embedding": ["@mimir/embedding@workspace:packages/embedding"],
 
+    "@mimir/events": ["@mimir/events@workspace:packages/events"],
+
     "@mimir/integration": ["@mimir/integration@workspace:packages/integration"],
 
     "@mimir/jobs": ["@mimir/jobs@workspace:packages/jobs"],
@@ -945,6 +958,12 @@
     "@octokit/webhooks-types": ["@octokit/webhooks-types@7.6.1", "", {}, "sha512-S8u2cJzklBC0FgTwWVLaM8tMrDuDMVE4xiTK4EYXM9GntyvrdbSoxqDQa+Fh57CCNApyIpyeqPhhFEmHPfrXgw=="],
 
     "@open-draft/deferred-promise": ["@open-draft/deferred-promise@2.2.0", "", {}, "sha512-CecwLWx3rhxVQF6V4bAgPS5t+So2sTbPgAzafKkVizyi7tlwpcFpdFqq+wqF2OwNBmqFuu6tOyouTuxgpMfzmA=="],
+
+    "@openpanel/nextjs": ["@openpanel/nextjs@1.0.8", "", { "dependencies": { "@openpanel/web": "1.0.1" }, "peerDependencies": { "next": "^12.0.0 || ^13.0.0 || ^14.0.0 || ^15.0.0", "react": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0", "react-dom": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0" } }, "sha512-1y5T6ARQFysg1DjdLrepP/En7XPUQd1yShvSgC1bkW6k9cwW1v7fbRSCUHmRzhhCt0rs1FGUOuFFwpEF7GRvdA=="],
+
+    "@openpanel/sdk": ["@openpanel/sdk@1.0.0", "", {}, "sha512-FNmmfjdXoC/VHEjA+WkrQ4lyM5lxEmV7xDd57uj4E+lIS0sU3DLG2mV/dpS8AscnZbUvuMn3kPhiLCqYzuv/gg=="],
+
+    "@openpanel/web": ["@openpanel/web@1.0.1", "", { "dependencies": { "@openpanel/sdk": "1.0.0" } }, "sha512-cVZ7Kr9SicczJ/RDIfEtZs8+1iGDzwkabVA/j3NqSl8VSucsC8m1+LVbjmCDzCJNnK4yVn6tEcc9PJRi2rtllw=="],
 
     "@opentelemetry/api": ["@opentelemetry/api@1.9.0", "", {}, "sha512-3giAOQvZiH5F9bMlMiv8+GSPMeqg0dbaeo58/0SlA9sxSqZhnUtxzX9/2FzyhS9sWQf5S0GJE0AKBrFqjpeYcg=="],
 
