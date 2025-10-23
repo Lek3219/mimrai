@@ -234,6 +234,8 @@ export const tasks = pgTable(
       "gin",
       table.fts.asc().nullsLast().op("tsvector_ops")
     ),
+    index("tasks_order_index").on(table.order),
+    index("tasks_sequence_index").on(table.sequence),
     foreignKey({
       columns: [table.assigneeId],
       foreignColumns: [users.id],
@@ -533,6 +535,7 @@ export const labelsOnTasks = pgTable(
 export const activityTypeEnum = pgEnum("activity_type", [
   // User actions
   "task_column_changed",
+  "task_completed",
   "task_created",
   "task_updated",
   "task_comment",
@@ -558,6 +561,8 @@ export const activities = pgTable(
     }).defaultNow(),
   },
   (table) => [
+    index("activity_group_id_index").on(table.groupId),
+    index("activity_type_index").on(table.type),
     foreignKey({
       columns: [table.userId],
       foreignColumns: [users.id],

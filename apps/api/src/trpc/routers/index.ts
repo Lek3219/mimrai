@@ -13,6 +13,7 @@ import { resumeSettingsRouter } from "./resume-settings";
 import { tasksRouter } from "./tasks";
 import { teamsRouter } from "./teams";
 import { usersRouter } from "./users";
+import { widgetsRouter } from "./widgets";
 
 export const appRouter = router({
   healthCheck: publicProcedure.query(() => {
@@ -37,6 +38,7 @@ export const appRouter = router({
   imports: importsRouter,
   notificationSettings: notificationSettingsRouter,
   resumeSettings: resumeSettingsRouter,
+  widgets: widgetsRouter,
 });
 export type AppRouter = typeof appRouter;
 export type RouterOutputs = inferRouterOutputs<AppRouter>;

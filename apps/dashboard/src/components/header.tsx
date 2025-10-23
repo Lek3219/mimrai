@@ -1,11 +1,5 @@
 "use client";
-import {
-	BotIcon,
-	BotOffIcon,
-	PanelLeftCloseIcon,
-	PanelLeftOpenIcon,
-	PanelRightIcon,
-} from "lucide-react";
+import { PanelLeftCloseIcon, PanelLeftOpenIcon } from "lucide-react";
 import { motion } from "motion/react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -23,6 +17,7 @@ const links: {
 	label: string;
 	active?: boolean;
 }[] = [
+	{ to: "/dashboard/overview", label: "Overview" },
 	{ to: "/dashboard/my-tasks", label: "My Tasks" },
 	{ to: "/dashboard", label: "Board" },
 	{ to: "/dashboard/backlog", label: "Backlog" },

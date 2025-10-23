@@ -127,10 +127,7 @@ export const createTaskUpdateActivity = async ({
     "assigneeId",
   ] as const;
   const changes: Partial<
-    Record<
-      (typeof changeKeys)[number],
-      { value: string | null; display?: string | null; oldValue: string | null }
-    >
+    Record<(typeof changeKeys)[number], Record<string, any>>
   > = {};
   if (oldTask.title !== newTask.title)
     changes.title = { value: newTask.title, oldValue: oldTask.title };
@@ -144,6 +141,7 @@ export const createTaskUpdateActivity = async ({
     changes.columnId = {
       value: newTask.columnId,
       display: newColumn.name,
+      columnType: newColumn.type,
       oldValue: oldTask.columnId,
     };
   }
@@ -177,6 +175,7 @@ export const createTaskUpdateActivity = async ({
   }
 
   if (changes.columnId) {
+    // Track task column changed activity
     await createActivity({
       userId: definedUserId,
       teamId,
@@ -186,10 +185,40 @@ export const createTaskUpdateActivity = async ({
         fromColumnId: changes.columnId.oldValue,
         toColumnId: changes.columnId.value,
         toColumnName: changes.columnId.display,
+        toColumnType: changes.columnId.columnType,
         title: newTask.title,
         subscribers: newTask.subscribers,
       },
     });
+
+    if (changes.columnId.columnType === "done") {
+      // Track task completed activity
+      await createActivity({
+        userId: newTask.assigneeId ?? definedUserId,
+        teamId,
+        groupId: newTask.id,
+        type: "task_completed",
+        metadata: {
+          fromColumnId: changes.columnId.oldValue,
+          toColumnId: changes.columnId.value,
+          toColumnName: changes.columnId.display,
+          toColumnType: changes.columnId.columnType,
+          title: newTask.title,
+          subscribers: newTask.subscribers,
+        },
+      });
+    } else {
+      // Delete task completed activity for the same task since only one can exist
+      await db
+        .delete(activities)
+        .where(
+          and(
+            eq(activities.groupId, newTask.id),
+            eq(activities.type, "task_completed")
+          )
+        );
+    }
+
     delete changes.columnId;
   }
 
