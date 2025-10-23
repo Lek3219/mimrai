@@ -51,18 +51,6 @@ export const KanbanTask = ({
 			}}
 			{...props}
 		>
-			{task.attachments?.length! > 0 &&
-				task.attachments![0]?.includes("image") && (
-					<div>
-						<Image
-							src={task.attachments![0]!}
-							alt={"attachment"}
-							width={300}
-							height={300}
-							className="h-16 w-full object-cover"
-						/>
-					</div>
-				)}
 			<div className="p-3">
 				<div className="flex h-full grow-1 flex-col justify-between gap-2">
 					<div className="flex items-center justify-between gap-2">
