@@ -10,7 +10,9 @@ export const getTasksToolSchema = z.object({
   search: z
     .string()
     .optional()
-    .describe("Partial title of the task to filter by"),
+    .describe(
+      "Prefer searching by task sequence to find a specific task. Use keywords otherwise"
+    ),
   assigneeId: z
     .array(z.string())
     .optional()
@@ -71,6 +73,7 @@ export const getTasksTool = tool({
         dueDate: task.dueDate,
         createdAt: task.createdAt,
         updatedAt: task.updatedAt,
+        sequence: task.sequence,
         taskUrl: getTaskUrl(task.id),
       }));
 

@@ -92,6 +92,19 @@ export const getTasks = async ({
     );
   }
 
+  const checklistSummarySubquery = db
+    .select({
+      taskId: checklistItems.taskId,
+      completed:
+        sql<number>`COUNT(CASE WHEN ${checklistItems.isCompleted} = true THEN 1 END)`.as(
+          "completed"
+        ),
+      total: sql<number>`COUNT(${checklistItems.id})`.as("total"),
+    })
+    .from(checklistItems)
+    .groupBy(checklistItems.taskId)
+    .as("checklist_summary");
+
   const query = db
     .select({
       id: tasks.id,
@@ -114,13 +127,10 @@ export const getTasks = async ({
       updatedAt: tasks.updatedAt,
       teamId: tasks.teamId,
       attachments: tasks.attachments,
-      checklistSummary: sql<{
-        completed: number;
-        total: number;
-      }>`jsonb_build_object(
-        'completed', COUNT(CASE WHEN ${checklistItems.isCompleted} = true THEN 1 END),
-        'total', COUNT(${checklistItems.id})
-      )`.as("checklistSummary"),
+      checklistSummary: {
+        completed: checklistSummarySubquery.completed,
+        total: checklistSummarySubquery.total,
+      },
       pullRequestPlan: {
         id: pullRequestPlan.id,
         prUrl: pullRequestPlan.prUrl,
@@ -150,7 +160,10 @@ export const getTasks = async ({
     .leftJoin(labelsOnTasks, eq(labelsOnTasks.taskId, tasks.id))
     .leftJoin(labels, eq(labels.id, labelsOnTasks.labelId))
     .leftJoin(users, eq(tasks.assigneeId, users.id))
-    .leftJoin(checklistItems, eq(checklistItems.taskId, tasks.id))
+    .leftJoin(
+      checklistSummarySubquery,
+      eq(checklistSummarySubquery.taskId, tasks.id)
+    )
     .leftJoin(
       pullRequestPlan,
       and(
@@ -158,7 +171,14 @@ export const getTasks = async ({
         inArray(pullRequestPlan.status, ["pending", "completed", "error"])
       )
     )
-    .groupBy(tasks.id, users.id, columns.id, pullRequestPlan.id);
+    .groupBy(
+      tasks.id,
+      users.id,
+      columns.id,
+      pullRequestPlan.id,
+      checklistSummarySubquery.completed,
+      checklistSummarySubquery.total
+    );
 
   if (input.view === "board") {
     query.orderBy(tasks.order);

@@ -1,6 +1,7 @@
 import { openai } from "@ai-sdk/openai";
 import type { InferUITools } from "ai";
 import { getContext } from "./context";
+import { createSubtaskTool } from "./tools/create-subtask";
 import { createTaskTool } from "./tools/create-task";
 import { getColumnsTool } from "./tools/get-columns";
 import { getLabelsTool } from "./tools/get-labels";
@@ -23,6 +24,7 @@ export const createToolRegistry = () => {
     getLabels: getLabelsTool,
     getSubtasks: getSubtasksTool,
     updateSubtask: updateSubtaskTool,
+    createSubtask: createSubtaskTool,
     // web_search: openai.tools.webSearch({
     // 	searchContextSize: "medium",
     // 	userLocation: {
