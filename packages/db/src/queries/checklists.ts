@@ -6,12 +6,14 @@ export const createChecklistItem = async ({
   taskId,
   description,
   assigneeId,
+  attachments,
   teamId,
 }: {
   taskId?: string;
   teamId: string;
   description: string;
   assigneeId?: string;
+  attachments?: string[];
 }) => {
   const [nextOrder] = await db
     .select({
@@ -28,6 +30,7 @@ export const createChecklistItem = async ({
       teamId,
       description,
       assigneeId,
+      attachments,
       order: nextOrder?.maxOrder ?? 1,
     })
     .returning();
@@ -66,6 +69,7 @@ export const getChecklistItems = async ({
       createdAt: checklistItems.createdAt,
       updatedAt: checklistItems.updatedAt,
       isCompleted: checklistItems.isCompleted,
+      attachments: checklistItems.attachments,
       assignee: {
         id: users.id,
         name: users.name,
@@ -88,12 +92,14 @@ export const updateChecklistItem = async ({
   description,
   assigneeId,
   isCompleted,
+  attachments,
   teamId,
 }: {
   id: string;
   description?: string;
   assigneeId?: string;
   isCompleted?: boolean;
+  attachments?: string[];
   teamId?: string;
 }) => {
   const whereClause: SQL[] = [eq(checklistItems.id, id)];
@@ -106,6 +112,7 @@ export const updateChecklistItem = async ({
       description,
       assigneeId,
       isCompleted,
+      attachments,
     })
     .where(and(...whereClause))
     .returning();

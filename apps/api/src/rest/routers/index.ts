@@ -1,6 +1,7 @@
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { protectedMiddleware } from "../middleware";
 import type { Context } from "../types";
+import { attachmentsRouter } from "./attachments";
 import { chatRouter } from "./chat";
 import { githubRouter } from "./github";
 import { importsRouter } from "./imports";
@@ -15,5 +16,6 @@ routers.route("/chat", chatRouter);
 routers.route("/integrations", integrationsRouter);
 routers.route("/github", githubRouter);
 routers.route("/imports", importsRouter);
+routers.route("/attachments", attachmentsRouter);
 
 export { routers };

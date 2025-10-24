@@ -781,6 +781,7 @@ export const checklistItems = pgTable(
       .notNull(),
     assigneeId: text("assignee_id"),
     teamId: text("team_id").notNull(),
+    attachments: jsonb("attachments").$type<string[]>().default([]),
 
     createdAt: timestamp("created_at", {
       withTimezone: true,

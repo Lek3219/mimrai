@@ -15,10 +15,12 @@ type EditorProps = {
 	value?: string;
 	placeholder?: string;
 	autoFocus?: boolean;
+	shouldInsertImage?: boolean;
 	onUpdate?: (editor: EditorInstance) => void;
 	onChange?: (value: string) => void;
 	onBlur?: () => void;
 	onFocus?: () => void;
+	onUpload?: (fileUrl: string) => Promise<void>;
 	className?: string;
 	tabIndex?: number;
 };
@@ -26,16 +28,22 @@ type EditorProps = {
 export function Editor({
 	value,
 	placeholder,
+	shouldInsertImage,
 	onUpdate,
 	onChange,
 	onBlur,
 	onFocus,
+	onUpload,
 	autoFocus,
 	className,
 	tabIndex,
 }: EditorProps) {
 	const editor = useEditor({
-		extensions: registerExtensions({ placeholder }),
+		extensions: registerExtensions({
+			placeholder,
+			onUpload,
+			shouldInsertImage,
+		}),
 		content: value,
 		immediatelyRender: false,
 		onBlur,
