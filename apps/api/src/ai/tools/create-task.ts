@@ -78,12 +78,15 @@ export const createTaskTool = tool({
             description: input.description,
           },
           teamId: user.teamId,
+          threshold: 0.9,
         });
 
         if (taskExist) {
           yield {
             type: "text",
             text: `A similar task already exists: ${taskExist.title}`,
+            suggestion:
+              "Think about creating a subtask or updating the existing one.",
             taskId: taskExist.id,
             taskLink: getTaskUrl(taskExist.id),
           };
