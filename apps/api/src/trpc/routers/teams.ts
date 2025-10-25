@@ -106,6 +106,21 @@ export const teamsRouter = router({
 
   getCurrent: protectedProcedure.query(async ({ ctx }) => {
     const team = await getTeamById(ctx.user.teamId!);
+    if (!team.customerId) {
+      await stripeClient.customers.create({
+        name: team.name,
+        email: team.email,
+        metadata: {
+          teamId: team.id,
+        },
+      });
+
+      await linkCustomerToTeam({
+        teamId: team.id,
+        customerId: team.customerId!,
+      });
+    }
+
     return team;
   }),
 

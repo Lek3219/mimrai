@@ -11,6 +11,7 @@ export const getTeamById = async (teamId: string) => {
     .from(teams)
     .where(eq(teams.id, teamId))
     .limit(1);
+
   return team;
 };
 
