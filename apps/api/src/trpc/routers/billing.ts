@@ -19,6 +19,9 @@ export const billingRouter = router({
   upcomingInvoice: protectedProcedure.query(async ({ ctx }) => {
     const team = await getTeamById(ctx.user.teamId!);
     try {
+      if (!team?.subscriptionId) {
+        return null;
+      }
       const subscription = await stripeClient.subscriptions.retrieve(
         team!.subscriptionId!
       );

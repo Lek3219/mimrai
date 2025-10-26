@@ -1,4 +1,5 @@
 import { stripeClient } from "@api/lib/payments";
+import { updateSubscriptionUsersUsage } from "@api/utils/billing";
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { updateTeamPlan } from "@mimir/db/queries/teams";
 import { getPlanByProductId } from "@mimir/utils/plans";
@@ -22,6 +23,7 @@ app.post(async (c) => {
   }
 
   switch (event.type) {
+    case "customer.subscription.resumed":
     case "customer.subscription.created": {
       await updateTeamPlan({
         customerId: event.data.object.customer as string,
@@ -29,6 +31,10 @@ app.post(async (c) => {
           event.data.object.items.data[0].price.product as string
         ),
         canceledAt: null,
+      });
+      // update subscription users usage
+      await updateSubscriptionUsersUsage({
+        teamId: event.data.object.metadata.teamId,
       });
       break;
     }
@@ -48,18 +54,6 @@ app.post(async (c) => {
       break;
     }
     case "customer.subscription.updated": {
-      const subscription = event.data.object as Stripe.Subscription;
-
-      await updateTeamPlan({
-        customerId: event.data.object.customer as string,
-        plan: getPlanByProductId(
-          subscription.items.data[0].price.product as string
-        ),
-        canceledAt: null,
-      });
-      break;
-    }
-    case "customer.subscription.resumed": {
       const subscription = event.data.object as Stripe.Subscription;
 
       await updateTeamPlan({
