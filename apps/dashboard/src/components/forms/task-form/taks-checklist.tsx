@@ -233,7 +233,7 @@ export const TaskChecklistItemForm = ({
 	const attachments = form.watch("attachments") || [];
 
 	useEffect(() => {
-		const handleClickOutside = (event: MouseEvent) => {
+		const handleClickOutside = async (event: MouseEvent) => {
 			const formElement = document.getElementById("subtask-form");
 			// if e.target has data-slot="popover-content" or is inside an element with that attribute, do nothing
 			let el: HTMLElement | null = event.target as HTMLElement;
@@ -250,6 +250,10 @@ export const TaskChecklistItemForm = ({
 			}
 
 			if (formElement && !formElement.contains(event.target as Node)) {
+				const valid = await form.trigger();
+				if (valid && form.formState.isDirty) {
+					handleSubmit(form.getValues());
+				}
 				onBlur();
 			}
 		};

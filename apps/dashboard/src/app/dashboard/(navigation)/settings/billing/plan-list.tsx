@@ -9,30 +9,25 @@ import { trpc } from "@/utils/trpc";
 export const PlanList = ({
 	onClickPlan,
 }: {
-	onClickPlan?: (planId: string, recurringInterval: "month" | "year") => void;
+	onClickPlan?: (
+		planSlug: string,
+		recurringInterval: "monthly" | "yearly",
+	) => void;
 }) => {
-	const [billingType, setBillingType] = useState<"month" | "year">("year");
+	const [billingType, setBillingType] = useState<"monthly" | "yearly">(
+		"yearly",
+	);
 	const { data } = useQuery(trpc.billing.plans.queryOptions());
-
-	const mergedPlans = PLANS.map((plan) => {
-		const matchingData = data?.find((d) => d.id === plan.id);
-		return {
-			...plan,
-			stripePlan: matchingData,
-		};
-	});
-
-	console.log("MERGED PLANS", mergedPlans);
 
 	return (
 		<div className="grid auto-cols-fr grid-flow-col gap-4">
-			{mergedPlans?.map((plan) => (
-				<div key={plan.id} className="flex flex-col border p-4">
+			{data?.map((plan) => (
+				<div key={plan.slug} className="flex flex-col border p-4">
 					<div className="space-y-1">
 						<h3 className="font-medium text-base">{plan.name}</h3>
 						<span className="text-xl">
 							$
-							{billingType === "month"
+							{billingType === "monthly"
 								? plan.prices.monthly
 								: plan.prices.yearly}
 							<span className="ml-2 text-muted-foreground">per user/mo</span>
@@ -41,13 +36,13 @@ export const PlanList = ({
 
 					<div className="mt-4 flex items-center">
 						<Switch
-							checked={billingType === "year"}
+							checked={billingType === "yearly"}
 							onCheckedChange={(checked) =>
-								setBillingType(checked ? "year" : "month")
+								setBillingType(checked ? "yearly" : "monthly")
 							}
 						/>
 						<span className="ml-2">
-							{billingType === "month" ? "Monthly Billing" : "Yearly Billing"}
+							{billingType === "monthly" ? "Monthly Billing" : "Yearly Billing"}
 						</span>
 					</div>
 
@@ -64,7 +59,7 @@ export const PlanList = ({
 					</ul>
 
 					<Button
-						onClick={() => onClickPlan?.(plan.id, billingType)}
+						onClick={() => onClickPlan?.(plan.slug, billingType)}
 						className="mt-8"
 						data-track={`select-plan-${plan.name.toLowerCase()}`}
 					>

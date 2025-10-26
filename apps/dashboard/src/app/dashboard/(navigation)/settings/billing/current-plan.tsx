@@ -51,13 +51,13 @@ export const CurrentPlan = () => {
 	};
 
 	const handleCheckout = async (
-		productId: string,
-		recurringInterval: "month" | "year",
+		planSlug: string,
+		recurringInterval: "monthly" | "yearly",
 	) => {
 		if (!team) return;
 
 		const data = await createCheckout({
-			productId,
+			planSlug,
 			recurringInterval,
 		});
 

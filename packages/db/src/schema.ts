@@ -71,7 +71,7 @@ export const verification = pgTable("verification", {
   updatedAt: timestamp("updated_at"),
 });
 
-export const plansEnum = pgEnum("plans", ["starter", "enterprise"]);
+export const plansEnum = pgEnum("plans", ["starter"]);
 
 export const teams = pgTable("teams", {
   id: text("id")

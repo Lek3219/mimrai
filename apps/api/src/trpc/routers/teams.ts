@@ -14,7 +14,10 @@ import {
   updateTeamSchema,
 } from "@api/schemas/teams";
 import { protectedProcedure, router } from "@api/trpc/init";
-import { updateSubscriptionUsersUsage } from "@api/utils/billing";
+import {
+  createTrialSubscription,
+  updateSubscriptionUsersUsage,
+} from "@api/utils/billing";
 import {
   changeOwner,
   createTeam,
@@ -66,40 +69,9 @@ export const teamsRouter = router({
         customerId: customer.id,
       });
 
-      // Retrieve the product and prices from Stripe
-      const plan = PLANS.find((p) => p.default);
-      const prices = await stripeClient.prices.list({
-        product: plan.id,
-        active: true,
-        recurring: {
-          interval: "month",
-        },
-      });
-
-      // Create a trial subscription for the team
-      const subscription = await stripeClient.subscriptions.create({
-        customer: customer.id,
-        items: prices.data.map((price) => ({
-          price: price.id,
-          quantity: 1,
-        })),
-        metadata: {
-          planName: plan.name,
-          teamId: team.id,
-        },
-        trial_period_days: 14,
-        trial_settings: {
-          end_behavior: {
-            missing_payment_method: "cancel",
-          },
-        },
-      });
-
-      // Update the team with plan
-      await updateTeam({
-        id: team.id,
-        plan: plan.slug,
-        subscriptionId: subscription.id,
+      await createTrialSubscription({
+        teamId: team.id,
+        recurringInterval: "monthly",
       });
 
       return team;

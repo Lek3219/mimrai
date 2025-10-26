@@ -339,16 +339,17 @@ export const getMemberById = async ({
 export const updateTeamPlan = async ({
   customerId,
   plan,
+  subscriptionId,
   canceledAt,
 }: {
   customerId: string;
-
+  subscriptionId?: string;
   plan?: (typeof plansEnum.enumValues)[number] | null;
   canceledAt?: Date | null;
 }) => {
   const [team] = await db
     .update(teams)
-    .set({ plan, canceledAt })
+    .set({ plan, canceledAt, subscriptionId })
     .where(eq(teams.customerId, customerId))
     .returning();
 

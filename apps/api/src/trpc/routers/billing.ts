@@ -1,8 +1,10 @@
 import { stripeClient } from "@api/lib/payments";
 import { createCheckoutSchema } from "@api/schemas/billing";
 import { protectedProcedure, router } from "@api/trpc/init";
+import { buildSubscriptionItems } from "@api/utils/billing";
 import { getTeamById } from "@mimir/db/queries/teams";
 import { getAppUrl } from "@mimir/utils/envs";
+import { getPlans, type PlanSlug } from "@mimir/utils/plans";
 
 export const billingRouter = router({
   subscription: protectedProcedure.query(async ({ ctx }) => {
@@ -26,8 +28,8 @@ export const billingRouter = router({
         team!.subscriptionId!
       );
       if (
-        subscription.trial_end &&
-        subscription.trial_end > Math.floor(Date.now() / 1000)
+        subscription.status === "trialing" ||
+        subscription.status === "canceled"
       ) {
         // Still in trial period, no upcoming invoice
         return null;
@@ -44,25 +46,18 @@ export const billingRouter = router({
   }),
 
   plans: protectedProcedure.query(async () => {
-    const result = await stripeClient.products.list({
-      active: true,
-      type: "service",
-    });
-
-    return result.data;
+    return getPlans();
   }),
 
   checkout: protectedProcedure
     .input(createCheckoutSchema)
     .mutation(async ({ ctx, input }) => {
       const team = await getTeamById(ctx.user.teamId!);
-      const product = await stripeClient.products.retrieve(input.productId);
-      const prices = await stripeClient.prices.list({
-        product: product.id,
-        active: true,
-        recurring: {
-          interval: input.recurringInterval,
-        },
+
+      const items = await buildSubscriptionItems({
+        planSlug: input.planSlug as PlanSlug,
+        teamId: team!.id,
+        recurringInterval: input.recurringInterval,
       });
 
       return await stripeClient.checkout.sessions.create({
@@ -72,13 +67,13 @@ export const billingRouter = router({
           payment_method_save: "enabled",
           allow_redisplay_filters: ["always"],
         },
-        line_items: prices.data.map((price) => ({
-          price: price.id,
-          quantity: 1,
+        line_items: items.map((item) => ({
+          price: item.id,
+          quantity: item.quantity,
         })),
         subscription_data: {
           metadata: {
-            planName: product.name,
+            planName: input.planSlug,
             teamId: team!.id,
           },
         },
