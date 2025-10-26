@@ -12,8 +12,8 @@ export const updateSubscriptionUsersUsage = async ({
     const subscription = await stripeClient.subscriptions.retrieve(
       team.subscriptionId
     );
-    const userSubscriptionItem = subscription.items.data.find(
-      (item) => item.price.lookup_key === "users"
+    const userSubscriptionItem = subscription.items.data.find((item) =>
+      item.price.lookup_key.includes("users")
     );
 
     if (userSubscriptionItem) {
