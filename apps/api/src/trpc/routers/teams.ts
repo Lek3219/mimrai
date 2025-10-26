@@ -14,6 +14,7 @@ import {
   updateTeamSchema,
 } from "@api/schemas/teams";
 import { protectedProcedure, router } from "@api/trpc/init";
+import { updateSubscriptionUsersUsage } from "@api/utils/billing";
 import {
   changeOwner,
   createTeam,
@@ -180,6 +181,10 @@ export const teamsRouter = router({
         userId: ctx.user.id,
         userInviteId: input.inviteId,
       });
+
+      // Update the subscription with the new user count
+      updateSubscriptionUsersUsage({ teamId: invite.teamId });
+
       return invite;
     }),
 
@@ -227,7 +232,10 @@ export const teamsRouter = router({
     }),
 
   leave: protectedProcedure.mutation(async ({ ctx }) => {
-    return await leaveTeam(ctx.user.id, ctx.user.teamId!);
+    const membership = await leaveTeam(ctx.user.id, ctx.user.teamId!);
+    // Update the subscription with the new user count
+    updateSubscriptionUsersUsage({ teamId: ctx.user.teamId! });
+    return membership;
   }),
 
   updateMember: protectedProcedure
@@ -257,7 +265,10 @@ export const teamsRouter = router({
         throw new Error("You cannot remove yourself");
       }
 
-      return await leaveTeam(input.userId, ctx.user.teamId!);
+      const membership = await leaveTeam(input.userId, ctx.user.teamId!);
+      // Update the subscription with the new user count
+      updateSubscriptionUsersUsage({ teamId: ctx.user.teamId! });
+      return membership;
     }),
 
   transferOwnership: protectedProcedure

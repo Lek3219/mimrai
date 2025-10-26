@@ -19,12 +19,23 @@ export const billingRouter = router({
   upcomingInvoice: protectedProcedure.query(async ({ ctx }) => {
     const team = await getTeamById(ctx.user.teamId!);
     try {
+      const subscription = await stripeClient.subscriptions.retrieve(
+        team!.subscriptionId!
+      );
+      if (
+        subscription.trial_end &&
+        subscription.trial_end > Math.floor(Date.now() / 1000)
+      ) {
+        // Still in trial period, no upcoming invoice
+        return null;
+      }
       const result = await stripeClient.invoices.createPreview({
         customer: team!.customerId!,
         subscription: team!.subscriptionId!,
       });
       return result;
     } catch (e) {
+      console.error("Error fetching upcoming invoice:", e);
       return null;
     }
   }),

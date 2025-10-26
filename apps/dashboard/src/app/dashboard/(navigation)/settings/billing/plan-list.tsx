@@ -63,12 +63,10 @@ export const PlanList = ({
 						))}
 					</ul>
 
-					<div className="mt-8 text-muted-foreground text-sm">
-						This is a beta price and may change in the future.
-					</div>
 					<Button
 						onClick={() => onClickPlan?.(plan.id, billingType)}
-						className="mt-2"
+						className="mt-8"
+						data-track={`select-plan-${plan.name.toLowerCase()}`}
 					>
 						Get {plan.name}
 					</Button>

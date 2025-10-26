@@ -28,5 +28,9 @@ export default async function Page({ params }: Props) {
 
 	if (!invite) return notFound();
 
+	if (invite.email !== session.user.email) {
+		return redirect("/dashboard");
+	}
+
 	return <TeamInvite invite={invite} />;
 }

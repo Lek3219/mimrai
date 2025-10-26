@@ -1,6 +1,12 @@
 import type { AppRouter } from "@mimir/api/trpc";
 import { QueryCache, QueryClient } from "@tanstack/react-query";
-import { createTRPCClient, httpBatchLink, loggerLink } from "@trpc/client";
+import {
+  createTRPCClient,
+  httpBatchLink,
+  httpBatchStreamLink,
+  loggerLink,
+  splitLink,
+} from "@trpc/client";
 import { createTRPCOptionsProxy } from "@trpc/tanstack-react-query";
 
 export const queryClient = new QueryClient({
@@ -13,11 +19,12 @@ export const queryClient = new QueryClient({
 
 const trpcClient = createTRPCClient<AppRouter>({
   links: [
-    httpBatchLink({
-      url: `${process.env.NEXT_PUBLIC_SERVER_URL}/trpc`,
-      // transformer: superjson,
-      async fetch(url, options) {
-        if (typeof window === "undefined") {
+    splitLink({
+      condition: () => typeof window === "undefined",
+      // Server-side
+      true: httpBatchLink({
+        url: `${process.env.NEXT_PUBLIC_SERVER_URL}/trpc`,
+        async fetch(url, options) {
           const headersImport = await import("next/headers");
           const cookieHeader = (await headersImport.headers()).get("cookie");
 
@@ -37,21 +44,18 @@ const trpcClient = createTRPCClient<AppRouter>({
           }
 
           return response;
-        }
-
-        // Client-side, include cookies
-        const response = await fetch(url, {
-          ...options,
-          credentials: "include",
-        });
-
-        if (response.status === 401) {
-          // Handle unauthorized access globally
-          window.location.href = "/sign-in";
-        }
-
-        return response;
-      },
+        },
+      }),
+      // Client-side
+      false: httpBatchStreamLink({
+        url: `${process.env.NEXT_PUBLIC_SERVER_URL}/trpc`,
+        fetch(url, options) {
+          return fetch(url, {
+            ...options,
+            credentials: "include",
+          });
+        },
+      }),
     }),
     loggerLink({
       enabled: (opts) =>
