@@ -1,6 +1,8 @@
 "use client";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { EllipsisIcon, FileIcon, PlusIcon } from "lucide-react";
+import { motion } from "motion/react";
+
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -87,6 +89,7 @@ export const TaskChecklist = ({ taskId }: { taskId: string }) => {
 							<div key={item.id}>
 								{activeUpdateId === item.id ? (
 									<TaskChecklistItemForm
+										id={item.id}
 										taskId={taskId}
 										defaultValues={{
 											id: item.id,
@@ -174,12 +177,13 @@ export const TaskChecklist = ({ taskId }: { taskId: string }) => {
 						))}
 					</div>
 				) : (
-					<div className="text-muted-foreground text-sm">No subtasks found</div>
+					<div className="text-muted-foreground text-sm" />
 				)}
 			</div>
 			<div>
 				{create ? (
 					<TaskChecklistItemForm
+						id="new"
 						taskId={taskId}
 						onSuccess={() => setCreate(false)}
 						onBlur={() => setCreate(false)}
@@ -210,11 +214,13 @@ const schema = z.object({
 });
 
 export const TaskChecklistItemForm = ({
+	id,
 	taskId,
 	defaultValues,
 	onSuccess,
 	onBlur,
 }: {
+	id: string;
 	taskId: string;
 	defaultValues?: Partial<z.infer<typeof schema>>;
 	onSuccess: () => void;
@@ -262,7 +268,7 @@ export const TaskChecklistItemForm = ({
 		return () => {
 			document.removeEventListener("mousedown", handleClickOutside);
 		};
-	}, [onBlur]);
+	}, [onBlur, form.formState.isDirty]);
 
 	const { mutate: createChecklistItem } = useMutation(
 		trpc.checklists.create.mutationOptions({
@@ -284,7 +290,7 @@ export const TaskChecklistItemForm = ({
 					trpc.checklists.get.queryOptions({ taskId }),
 				);
 				onSuccess();
-				toast.success("Subtask updated");
+				toast.info("Subtask updated");
 			},
 		}),
 	);

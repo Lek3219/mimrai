@@ -196,6 +196,7 @@ export const teamsRouter = router({
           inviteId: invite.id!,
           teamId: invite.teamId!,
           teamName: invite.team.name,
+          email: invite.email!,
         }),
       });
       console.log("Invite email sent to", invite.email);

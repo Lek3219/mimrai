@@ -150,7 +150,7 @@ export const getSystemUser = async () => {
       .insert(users)
       .values({
         name: "System",
-        email: "system@start-mimir.app",
+        email: "system@mimrai.com",
         isSystemUser: true,
         createdAt: new Date(),
         updatedAt: new Date(),

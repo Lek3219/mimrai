@@ -26,13 +26,13 @@ const signUpSchema = z.object({
 });
 
 export default function SignUpForm() {
-	useAuthParams();
+	const { email } = useAuthParams();
 	const router = useRouter();
 	const { isPending } = authClient.useSession();
 
 	const form = useZodForm(signUpSchema, {
 		defaultValues: {
-			email: "",
+			email: email || "",
 			password: "",
 			name: "",
 		},

@@ -20,6 +20,7 @@ interface Props {
 	teamId: string;
 	inviteId: string;
 	teamName: string;
+	email: string;
 }
 
 const baseUrl = getEmailUrl();
@@ -28,6 +29,7 @@ export const InviteEmail = ({
 	teamName = "Acme Inc.",
 	inviteId,
 	teamId = "",
+	email = "jhondoe@example.com",
 }: Props) => {
 	const text = `You've been invited to ${teamName}.`;
 	const themeClasses = getEmailThemeClasses();
@@ -82,7 +84,7 @@ export const InviteEmail = ({
 					<br />
 
 					<Section className="text-center">
-						<Button href={`${baseUrl}/invites/${inviteId}`}>
+						<Button href={`${baseUrl}/invites/${inviteId}?email=${email}`}>
 							Join {teamName}
 						</Button>
 					</Section>

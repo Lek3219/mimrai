@@ -8,6 +8,8 @@ export default async function Page() {
 		return redirect("/sign-in");
 	}
 
+	// TODO: Improve invite flow
+
 	if ("teamId" in session.user && !session.user.teamId) {
 		return redirect("/dashboard/onboarding");
 	}
