@@ -1,8 +1,11 @@
-import { associateMattermostUserSchema } from "@api/schemas/integrations";
+import {
+  associateMattermostUserSchema,
+  associeteIntegrationUserSchema,
+} from "@api/schemas/integrations";
 import { db } from "@db/index";
 import { integrationUserLink } from "@db/schema";
 import { OpenAPIHono } from "@hono/zod-openapi";
-import { and, eq } from "drizzle-orm";
+import { and, eq, type SQL } from "drizzle-orm";
 import type { Context } from "../types";
 
 const app = new OpenAPIHono<Context>();
@@ -22,42 +25,86 @@ const RESPONSE_HTML = `
     `;
 
 app.get("/mattermost/associate", async (c) => {
-	const query = c.req.query();
-	const safeQuery = associateMattermostUserSchema.safeParse(query);
+  const query = c.req.query();
+  const safeQuery = associateMattermostUserSchema.safeParse(query);
 
-	if (!safeQuery.success) {
-		return c.json({ success: false, error: safeQuery.error }, 400);
-	}
+  if (!safeQuery.success) {
+    return c.json({ success: false, error: safeQuery.error }, 400);
+  }
 
-	const session = c.get("session");
-	const userId = session.userId;
+  const session = c.get("session");
+  const userId = session.userId;
 
-	const [existingLink] = await db
-		.select()
-		.from(integrationUserLink)
-		.where(
-			and(
-				eq(integrationUserLink.integrationId, safeQuery.data.integrationId),
-				eq(integrationUserLink.userId, userId),
-				eq(integrationUserLink.externalUserId, safeQuery.data.mattermostUserId),
-			),
-		)
-		.limit(1);
+  const [existingLink] = await db
+    .select()
+    .from(integrationUserLink)
+    .where(
+      and(
+        eq(integrationUserLink.integrationId, safeQuery.data.integrationId),
+        eq(integrationUserLink.userId, userId),
+        eq(integrationUserLink.externalUserId, safeQuery.data.mattermostUserId)
+      )
+    )
+    .limit(1);
 
-	if (existingLink) {
-		return c.html(RESPONSE_HTML);
-	}
+  if (existingLink) {
+    return c.html(RESPONSE_HTML);
+  }
 
-	await db.insert(integrationUserLink).values({
-		integrationId: safeQuery.data.integrationId,
-		userId: userId,
-		externalUserId: safeQuery.data.mattermostUserId,
-		externalUserName: safeQuery.data.mattermostUserName,
-	});
+  await db.insert(integrationUserLink).values({
+    integrationId: safeQuery.data.integrationId,
+    userId: userId,
+    externalUserId: safeQuery.data.mattermostUserId,
+    externalUserName: safeQuery.data.mattermostUserName,
+  });
 
-	const html_body = RESPONSE_HTML;
+  const html_body = RESPONSE_HTML;
 
-	return c.html(html_body);
+  return c.html(html_body);
+});
+
+app.get("/associate", async (c) => {
+  const query = c.req.query();
+  const safeQuery = associeteIntegrationUserSchema.safeParse(query);
+
+  if (!safeQuery.success) {
+    return c.json({ success: false, error: safeQuery.error }, 400);
+  }
+
+  const session = c.get("session");
+  const userId = session.userId;
+
+  const whereClause: SQL[] = [
+    eq(integrationUserLink.userId, userId),
+    eq(integrationUserLink.externalUserId, safeQuery.data.externalUserId),
+  ];
+
+  if (safeQuery.data.integrationId) {
+    whereClause.push(
+      eq(integrationUserLink.integrationId, safeQuery.data.integrationId)
+    );
+  }
+
+  const [existingLink] = await db
+    .select()
+    .from(integrationUserLink)
+    .where(and(...whereClause))
+    .limit(1);
+
+  if (existingLink) {
+    return c.html(RESPONSE_HTML);
+  }
+
+  await db.insert(integrationUserLink).values({
+    integrationId: safeQuery.data.integrationId,
+    userId: userId,
+    externalUserId: safeQuery.data.externalUserId,
+    externalUserName: safeQuery.data.externalUserName,
+  });
+
+  const html_body = RESPONSE_HTML;
+
+  return c.html(html_body);
 });
 
 export { app as integrationsRouter };

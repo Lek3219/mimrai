@@ -101,7 +101,7 @@ export const switchTeam = async (userId: string, teamId: string) => {
       name: teams.name,
     })
     .from(usersOnTeams)
-    .rightJoin(teams, eq(teams.id, usersOnTeams.teamId))
+    .innerJoin(teams, eq(teams.id, usersOnTeams.teamId))
     .where(
       and(eq(usersOnTeams.userId, userId), eq(usersOnTeams.teamId, teamId))
     )

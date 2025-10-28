@@ -390,7 +390,6 @@ export const initMattermostSingle = async (
                     model: "openai/gpt-4o",
                     system: systemPrompt,
                     messages: convertToModelMessages(relevantMessages),
-                    // temperature: 0.7,
                     tools: createToolRegistry(),
                     onStepFinish: async (step) => {
                       if (step.text) {

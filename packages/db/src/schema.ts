@@ -13,10 +13,8 @@ import {
   jsonb,
   numeric,
   pgEnum,
-  pgSequence,
   pgTable,
   primaryKey,
-  serial,
   text,
   timestamp,
   unique,
@@ -348,7 +346,7 @@ export const chats = pgTable(
       .$defaultFn(() => randomUUID())
       .primaryKey()
       .notNull(),
-    teamId: text("team_id").notNull(),
+    teamId: text("team_id"),
     userId: text("user_id").notNull(),
     title: text("title"),
     createdAt: timestamp("created_at", {
@@ -374,7 +372,7 @@ export const chatMessages = pgTable(
       .primaryKey()
       .notNull(),
     chatId: text("chat_id").notNull(),
-    teamId: text("team_id").notNull(),
+    teamId: text("team_id"),
     userId: text("user_id").notNull(),
     content: jsonb("content").$type<UIChatMessage>().notNull(),
     createdAt: timestamp("created_at", {
@@ -453,7 +451,7 @@ export const integrationUserLink = pgTable(
     userId: text("user_id").notNull(),
     externalUserId: text("external_user_id").notNull(),
     externalUserName: text("external_user_name").notNull(),
-    integrationId: text("integration_id").notNull(),
+    integrationId: text("integration_id"),
     createdAt: timestamp("created_at", {
       withTimezone: true,
       mode: "string",

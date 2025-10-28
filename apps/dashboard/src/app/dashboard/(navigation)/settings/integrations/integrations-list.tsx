@@ -46,6 +46,12 @@ export const IntegrationsList = () => {
 													</Button>
 												</Link>
 											</div>
+										) : integration.type === "whatsapp" ? (
+											<Link href={"https://wa.me/+18634347933"}>
+												<Button size="sm" variant={"outline"}>
+													Chat
+												</Button>
+											</Link>
 										) : (
 											<Button
 												size={"sm"}

@@ -2,6 +2,7 @@
 
 import type { IntegrationName } from "@mimir/integration/registry";
 import { useMutation } from "@tanstack/react-query";
+import { Button } from "@ui/components/ui/button";
 import { useState } from "react";
 import { github } from "react-syntax-highlighter/dist/esm/styles/hljs";
 import z from "zod";
@@ -18,6 +19,7 @@ const schemas = {
 	}),
 	github: z.object({}),
 	example: z.object({}),
+	whatsapp: z.object({}),
 };
 
 export const IntegrationConfigForm = <N extends IntegrationName>({
@@ -90,6 +92,18 @@ export const IntegrationConfigForm = <N extends IntegrationName>({
 						error={error}
 						integrationId={id!}
 					/>
+				);
+			case "whatsapp":
+				return (
+					<div>
+						<p className="border p-2 text-muted-foreground text-sm">
+							WhatsApp integration does not require configuration. Just message
+							to{" "}
+							<a className="underline" href="https://wa.me/+18634347933">
+								+18634347933
+							</a>
+						</p>
+					</div>
 				);
 			default:
 				return "Integration not supported yet.";

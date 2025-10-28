@@ -20,6 +20,12 @@ export const integrationsRegistry = {
       installationId: z.string().min(1, "Installation ID is required"),
     }),
   },
+  whatsapp: {
+    name: "WhatsApp",
+    type: "whatsapp" as const,
+    description: "WhatsApp integration",
+    configSchema: z.object({}),
+  },
 } as const;
 
 export type IntegrationName = keyof typeof integrationsRegistry;
