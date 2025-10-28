@@ -1,12 +1,18 @@
 "use client";
 
-import { arrayMove } from "@dnd-kit/sortable";
 import type { RouterOutputs } from "@mimir/api/trpc";
 import { Badge } from "@mimir/ui/badge";
 import { Button } from "@mimir/ui/button";
 import * as Kanban from "@mimir/ui/kanban";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { FlagIcon, GripVertical, PlusIcon } from "lucide-react";
+import {
+	CircleCheckIcon,
+	CircleDashed,
+	CircleDotDashedIcon,
+	FlagIcon,
+	GripVertical,
+	PlusIcon,
+} from "lucide-react";
 import { AnimatePresence } from "motion/react";
 import * as React from "react";
 import { useColumnParams } from "@/hooks/use-column-params";
@@ -14,7 +20,6 @@ import { useTaskParams } from "@/hooks/use-task-params";
 import { useTasksFilterParams } from "@/hooks/use-tasks-filter-params";
 import { trpc } from "@/utils/trpc";
 import { ColumnContextMenu } from "./column-context-menu";
-import { TaskGrid } from "./grid";
 import { KanbanTask } from "./kanban-task";
 import { TaskContextMenu } from "./task-context-menu";
 import { TasksFilters } from "./tasks-filters";
@@ -253,14 +258,16 @@ export function KanbanBoard() {
 											<div className="flex items-center gap-2">
 												<Badge
 													variant="outline"
-													className="pointer-events-none rounded-sm"
+													className="pointer-events-none space-x-1 rounded-none font-mono text-base"
 												>
-													{column.type === "done" && (
-														<FlagIcon className="size-4" />
-													)}
-													{tasks.length}
+													{column.type === "done" ? (
+														<CircleCheckIcon className="size-4!" />
+													) : column.type === "normal" ? (
+														<CircleDashed className="size-4!" />
+													) : null}
+													<span>{tasks.length}</span>
 												</Badge>
-												<span className="font-medium text-sm">
+												<span className="font-normal text-sm uppercase">
 													{columnValue}
 												</span>
 											</div>

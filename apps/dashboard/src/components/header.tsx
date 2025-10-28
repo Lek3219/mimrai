@@ -37,7 +37,7 @@ export default function Header() {
 	}, [pathname]);
 
 	return (
-		<header className="">
+		<header className="bg-background">
 			<div className="flex h-full flex-col items-start border-b px-8 pt-4">
 				<div className="flex w-full items-center justify-between">
 					<div className="flex items-center gap-2">

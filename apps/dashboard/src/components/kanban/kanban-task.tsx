@@ -32,7 +32,7 @@ export const KanbanTask = ({
 	return (
 		<motion.div
 			className={cn(
-				"flex min-h-26 cursor-pointer flex-col rounded-xs border bg-card",
+				"flex min-h-26 cursor-pointer flex-col rounded-none border bg-card",
 				{
 					"opacity-50!": task.column?.type === "done",
 				},
@@ -60,7 +60,7 @@ export const KanbanTask = ({
 					<div className="flex items-center justify-between gap-2">
 						<span className={"font-medium text-sm"}>
 							{task.sequence && (
-								<span className="mr-2 text-muted-foreground">
+								<span className="mr-2 font-mono text-muted-foreground">
 									{task.sequence}
 								</span>
 							)}
@@ -88,7 +88,7 @@ export const KanbanTask = ({
 							{task.checklistSummary?.total > 0 && (
 								<div
 									className={cn(
-										"flex items-center text-muted-foreground text-xs",
+										"flex items-center font-mono text-muted-foreground text-xs",
 										{
 											"rounded-sm bg-primary px-2 py-1 text-primary-foreground":
 												task.checklistSummary.completed ===

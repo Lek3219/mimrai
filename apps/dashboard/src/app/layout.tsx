@@ -38,7 +38,9 @@ export default function RootLayout({
 			>
 				<OpenPanelProvider />
 				<Suspense>
-					<Providers>{children}</Providers>
+					<Providers>
+						<main className="">{children}</main>
+					</Providers>
 				</Suspense>
 			</body>
 		</html>
