@@ -141,3 +141,45 @@ body {
 	border-width: 3px;
 	border-style: solid;
 }
+
+.collapsible-chevron::before {
+	content: "";
+	display: inline-block;
+	@apply size-1.5 mr-1;
+	border-right: 1px solid currentColor;
+	border-bottom: 1px solid currentColor;
+	transform: rotate(45deg);
+	transition: transform 150ms ease-out;
+}
+
+.collapsible-chevron[data-state="open"]::before {
+	transform: rotate(225deg);
+}
+
+.CollapsibleContent {
+	overflow: hidden;
+}
+.CollapsibleContent[data-state="open"] {
+	animation: slideDown 150ms ease-out;
+}
+.CollapsibleContent[data-state="closed"] {
+	animation: slideUp 150ms ease-out;
+}
+
+@keyframes slideDown {
+	from {
+		height: 0;
+	}
+	to {
+		height: var(--radix-collapsible-content-height);
+	}
+}
+
+@keyframes slideUp {
+	from {
+		height: var(--radix-collapsible-content-height);
+	}
+	to {
+		height: 0;
+	}
+}

@@ -6,6 +6,7 @@ import { formatRelative } from "date-fns";
 import { DotIcon } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useMemo } from "react";
+import { Response } from "@/components/ai-elements/response";
 import { AssigneeAvatar } from "@/components/kanban/asignee";
 import { trpc } from "@/utils/trpc";
 
@@ -117,8 +118,27 @@ const ActivityItem = ({
 						{formatRelative(new Date(activity.createdAt!), new Date())}
 					</div>
 					<div className="whitespace-pre-wrap break-words pt-1 text-foreground">
-						{metadata.comment}
+						<Response>{metadata.comment}</Response>
 					</div>
+				</div>
+			);
+		}
+		case "mention": {
+			const metadata = activity.metadata as {
+				mentionedUserId: string;
+				mentionedUserName: string;
+				title: string;
+			};
+			return (
+				<div className="flex items-center px-4 text-muted-foreground text-xs">
+					<AssigneeAvatar {...activity.user} className="mr-2 size-4 text-xs" />
+					<span className="mr-1 font-medium">{activity.user!.name}</span>
+					mentioned{" "}
+					<span className="ml-1 font-medium">
+						@{metadata.mentionedUserName || "a user"}
+					</span>
+					<DotIcon />
+					{formatRelative(new Date(activity.createdAt!), new Date())}
 				</div>
 			);
 		}

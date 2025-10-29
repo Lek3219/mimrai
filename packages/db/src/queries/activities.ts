@@ -12,6 +12,7 @@ import {
 import { db } from "..";
 import {
   activities,
+  type activitySourceEnum,
   type activityTypeEnum,
   type tasks,
   users,
@@ -28,6 +29,7 @@ export type CreateActivityInput = {
   userId?: string | null;
   teamId: string;
   groupId?: string;
+  source?: (typeof activitySourceEnum.enumValues)[number];
   type: (typeof activityTypeEnum.enumValues)[number];
   metadata?: Record<string, any>;
 };
@@ -75,6 +77,7 @@ export const createActivity = async (input: CreateActivityInput) => {
       teamId: input.teamId,
       type: input.type,
       groupId: input.groupId,
+      source: input.source,
       metadata: {
         ...input.metadata,
         changes: metadataChanges,
@@ -124,6 +127,7 @@ export const createTaskUpdateActivity = async ({
     "description",
     "columnId",
     "dueDate",
+    "mentions",
     "assigneeId",
   ] as const;
   const changes: Partial<
@@ -156,6 +160,24 @@ export const createTaskUpdateActivity = async ({
       value: newTask.assigneeId,
       display: newAssignee?.name || null,
       oldValue: oldTask.assigneeId,
+    };
+  }
+
+  if (
+    oldTask.mentions?.sort().toString() !== newTask.mentions?.sort().toString()
+  ) {
+    const oldMentions = oldTask.mentions || [];
+    const newMentions = newTask.mentions || [];
+    const addedMentions = newMentions.filter((id) => !oldMentions.includes(id));
+    const removedMentions = oldMentions.filter(
+      (id) => !newMentions.includes(id)
+    );
+
+    changes.mentions = {
+      value: newTask.mentions,
+      added: addedMentions,
+      removed: removedMentions,
+      oldValue: oldTask.mentions,
     };
   }
 
@@ -220,6 +242,31 @@ export const createTaskUpdateActivity = async ({
     }
 
     delete changes.columnId;
+  }
+
+  // Create mention activities
+  if (changes.mentions) {
+    const mentionChanges = changes.mentions;
+    for (const mentionedUserId of mentionChanges.added || []) {
+      const mentionedUser = await getMemberById({
+        userId: mentionedUserId,
+        teamId,
+      });
+      await createActivity({
+        userId: definedUserId,
+        teamId,
+        groupId: newTask.id,
+        type: "mention",
+        source: "task",
+        metadata: {
+          title: newTask.title,
+          mentionedUserId,
+          mentionedUserName: mentionedUser?.name || null,
+        },
+      });
+    }
+
+    delete changes.mentions;
   }
 
   if (Object.keys(changes).length === 0) {

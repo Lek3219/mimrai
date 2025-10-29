@@ -49,86 +49,91 @@ export const SubscribersList = ({ taskId }: { taskId: string }) => {
 	);
 
 	return (
-		<Popover>
-			<PopoverTrigger asChild>
-				<Button variant={"ghost"} size={"sm"} className="font-mono">
-					<EyeIcon />
-					{subscribers?.length ?? 0}
+		<div className="flex items-center gap-2">
+			{isSubscribed ? (
+				<Button
+					variant={"secondary"}
+					className="w-fit justify-start text-start"
+					type="button"
+					size={"sm"}
+					onClick={() => {
+						unsubscribe({ id: taskId });
+					}}
+				>
+					<EyeOffIcon className="text-destructive" />
+					Unsubscribe
 				</Button>
-			</PopoverTrigger>
-			<PopoverContent className="p-0">
-				<div className="">
-					<div className="p-2">
-						{isSubscribed ? (
-							<Button
-								variant={"ghost"}
-								className="w-full justify-start text-start"
-								type="button"
-								onClick={() => {
-									unsubscribe({ id: taskId });
-								}}
-							>
-								<EyeOffIcon className="text-destructive" />
-								Unsubscribe from changes
-							</Button>
-						) : (
-							<Button
-								variant={"ghost"}
-								className="w-full justify-start text-start"
-								type="button"
-								onClick={() => {
-									subscribe({ id: taskId, userId: user?.id! });
-								}}
-							>
-								<EyeIcon />
-								Subscribe to changes
-							</Button>
-						)}
-					</div>
-					<div className="border-y">
-						{subscribers?.map((subscriber) => (
-							<div key={subscriber.id} className="flex items-center px-4 py-2">
-								<AssigneeAvatar {...subscriber} />
-								<span className="ml-2 text-sm">{subscriber.name}</span>
-							</div>
-						))}
-					</div>
-					<div className="p-2">
-						<Popover>
-							<PopoverTrigger asChild>
-								<Button
-									variant={"ghost"}
-									className="w-full justify-start text-start"
-									onClick={() => {
-										subscribe({ id: taskId, userId: "current" });
-									}}
+			) : (
+				<Button
+					variant={"secondary"}
+					className="w-fit justify-start text-start"
+					type="button"
+					size={"sm"}
+					onClick={() => {
+						subscribe({ id: taskId, userId: user?.id! });
+					}}
+				>
+					<EyeIcon />
+					Subscribe
+				</Button>
+			)}
+			<Popover>
+				<PopoverTrigger asChild>
+					<Button variant={"ghost"} size={"sm"} className="font-mono">
+						<EyeIcon />
+						{subscribers?.length ?? 0}
+					</Button>
+				</PopoverTrigger>
+				<PopoverContent className="p-0">
+					<div className="">
+						<div className="border-b py-2">
+							{subscribers?.map((subscriber) => (
+								<div
+									key={subscriber.id}
+									className="flex items-center px-4 py-2"
 								>
-									<PlusIcon />
-									Add people
-								</Button>
-							</PopoverTrigger>
-							<PopoverContent>
-								<Command>
-									<CommandInput placeholder="Search members..." />
-									<CommandGroup>
-										{members?.map((member) => (
-											<CommandItem
-												key={member.id}
-												onSelect={() => {
-													subscribe({ id: taskId, userId: member.id });
-												}}
-											>
-												<AssigneeAvatar {...member} />
-												{member.name}
-											</CommandItem>
-										))}
-									</CommandGroup>
-								</Command>
-							</PopoverContent>
-						</Popover>
+									<AssigneeAvatar {...subscriber} />
+									<span className="ml-2 text-sm">{subscriber.name}</span>
+								</div>
+							))}
+						</div>
+						<div className="p-2">
+							<Popover>
+								<PopoverTrigger asChild>
+									<Button
+										variant={"ghost"}
+										className="w-full justify-start text-start"
+										onClick={() => {
+											subscribe({ id: taskId, userId: "current" });
+										}}
+									>
+										<PlusIcon />
+										Add people
+									</Button>
+								</PopoverTrigger>
+								<PopoverContent>
+									<Command>
+										<CommandInput placeholder="Search members..." />
+										<CommandGroup>
+											{members?.map((member) => (
+												<CommandItem
+													key={member.id}
+													onSelect={() => {
+														subscribe({ id: taskId, userId: member.id });
+													}}
+												>
+													<AssigneeAvatar {...member} />
+													{member.name}
+												</CommandItem>
+											))}
+										</CommandGroup>
+									</Command>
+								</PopoverContent>
+							</Popover>
+						</div>
 					</div>
-				</div>
-			</PopoverContent>
-		</Popover>
+				</PopoverContent>
+			</Popover>
+		</div>
 	);
 };

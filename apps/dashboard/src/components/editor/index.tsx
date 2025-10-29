@@ -21,6 +21,7 @@ type EditorProps = {
 	onBlur?: () => void;
 	onFocus?: () => void;
 	onUpload?: (fileUrl: string) => Promise<void>;
+	ref?: React.Ref<EditorInstance>;
 	className?: string;
 	tabIndex?: number;
 };
@@ -29,6 +30,7 @@ export function Editor({
 	value,
 	placeholder,
 	shouldInsertImage,
+	ref,
 	onUpdate,
 	onChange,
 	onBlur,
@@ -50,6 +52,7 @@ export function Editor({
 		onFocus,
 		autofocus: autoFocus,
 		onUpdate: ({ editor }) => {
+			if (ref) ref.current = editor;
 			onChange?.(editor.getHTML());
 			onUpdate?.(editor);
 		},

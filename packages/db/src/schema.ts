@@ -218,6 +218,7 @@ export const tasks = pgTable(
       mode: "string",
     }),
     subscribers: text("subscribers").array().default([]).notNull(),
+    mentions: text("mentions").array().default([]).notNull(),
 
     createdAt: timestamp("created_at", {
       withTimezone: true,
@@ -539,7 +540,17 @@ export const activityTypeEnum = pgEnum("activity_type", [
   "task_updated",
   "task_comment",
   "task_assigned",
+  "checklist_item_completed",
+  "checklist_item_created",
+  "checklist_item_updated",
+  "mention",
   "resume_generated",
+]);
+
+export const activitySourceEnum = pgEnum("activity_source", [
+  "task",
+  "comment",
+  "checklist_item",
 ]);
 
 export const activities = pgTable(
@@ -552,6 +563,7 @@ export const activities = pgTable(
     userId: text("user_id"),
     teamId: text("team_id").notNull(),
     groupId: text("group_id"),
+    source: activitySourceEnum("source"),
     type: activityTypeEnum("type").notNull(),
     metadata: jsonb("metadata").$type<Record<string, any>>(),
     createdAt: timestamp("created_at", {

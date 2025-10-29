@@ -56,7 +56,8 @@
       "a11y": {
         "useSemanticElements": "off",
         "useKeyWithClickEvents": "off",
-        "noSvgWithoutTitle": "off"
+        "noSvgWithoutTitle": "off",
+        "noStaticElementInteractions": "off"
       },
       "suspicious": {
         "noArrayIndexKey": "off"

@@ -7,7 +7,6 @@ import {
 	GitPullRequestIcon,
 } from "lucide-react";
 import { motion } from "motion/react";
-import Image from "next/image";
 import Link from "next/link";
 import { useTaskParams } from "@/hooks/use-task-params";
 import { cn } from "@/lib/utils";

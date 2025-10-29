@@ -22,6 +22,11 @@ import {
 } from "@mimir/ui/dropdown-menu";
 import { Form, FormControl, FormField, FormItem } from "@mimir/ui/form";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import {
+	Collapsible,
+	CollapsibleContent,
+	CollapsibleTrigger,
+} from "@ui/components/ui/collapsible";
 import { EllipsisIcon, FileIcon, PlusIcon, SaveIcon } from "lucide-react";
 import { motion } from "motion/react";
 import Image from "next/image";
@@ -71,137 +76,148 @@ export const TaskChecklist = ({ taskId }: { taskId: string }) => {
 					trpc.checklists.get.queryOptions({ taskId }),
 				);
 				queryClient.invalidateQueries(trpc.tasks.get.queryOptions());
-				toast.success("Subtask deleted");
+				toast.success("Checklist item deleted");
 			},
 		}),
 	);
 
 	return (
-		<div>
-			<div className="mb-2 flex items-center justify-between">
-				<span className="font-medium text-sm">Subtasks</span>
-			</div>
-			<div className="mb-2">
-				{data?.length ? (
-					<div className="space-y-2">
-						{data.map((item) => (
-							<div key={item.id}>
-								{activeUpdateId === item.id ? (
-									<TaskChecklistItemForm
-										id={item.id}
-										taskId={taskId}
-										defaultValues={{
-											id: item.id,
-											description: item.description,
-											assigneeId: item.assigneeId || undefined,
-											attachments: item.attachments || [],
-										}}
-										onBlur={() => setActiveUpdateId(null)}
-										onSuccess={() => setActiveUpdateId(null)}
-									/>
-								) : (
-									<div className="flex items-start justify-between gap-2 border px-4 py-3">
-										<div className="flex gap-2">
-											<Checkbox
-												checked={item.isCompleted}
-												disabled={isPending}
-												onCheckedChange={(value) => {
-													updateChecklistItem({
-														id: item.id,
-														isCompleted: value === true,
-													});
+		<div className="w-full">
+			<Collapsible defaultOpen>
+				<CollapsibleTrigger className="collapsible-chevron flex items-center gap-2">
+					<div className="flex items-center justify-between">
+						<span className="font-medium text-sm">Checklist</span>
+					</div>
+				</CollapsibleTrigger>
+				<CollapsibleContent className="w-full">
+					<div className="my-2 w-full">
+						{data?.length ? (
+							<div className="space-y-2">
+								{data.map((item) => (
+									<div key={item.id}>
+										{activeUpdateId === item.id ? (
+											<TaskChecklistItemForm
+												id={item.id}
+												taskId={taskId}
+												defaultValues={{
+													id: item.id,
+													description: item.description,
+													assigneeId: item.assigneeId || undefined,
+													attachments: item.attachments || [],
 												}}
-												className="size-5"
+												onBlur={() => setActiveUpdateId(null)}
+												onSuccess={() => setActiveUpdateId(null)}
 											/>
-											<div>
-												<div
-													role="button"
-													tabIndex={0}
-													onClick={() => setActiveUpdateId(item.id)}
-													className={cn({
-														"text-muted-foreground [&_*]:line-through":
-															item.isCompleted,
-													})}
-												>
-													<Response className={cn("text-sm")}>
-														{item.description}
-													</Response>
-												</div>
+										) : (
+											<div className="flex items-start justify-between gap-2 bg-secondary px-4 py-3 text-secondary-foreground">
+												<div className="flex gap-2">
+													<Checkbox
+														checked={item.isCompleted}
+														disabled={isPending}
+														onCheckedChange={(value) => {
+															updateChecklistItem({
+																id: item.id,
+																isCompleted: value === true,
+															});
+														}}
+														className="size-5"
+													/>
+													<div>
+														<div
+															role="button"
+															tabIndex={0}
+															onClick={() => setActiveUpdateId(item.id)}
+															className={cn({
+																"text-muted-foreground [&_*]:line-through":
+																	item.isCompleted,
+															})}
+														>
+															<Response className={cn("text-sm")}>
+																{item.description}
+															</Response>
+														</div>
 
-												{item.attachments && item.attachments.length > 0 && (
-													<div className="mt-2">
-														<ChecklistItemAttachments
-															attachments={item.attachments}
-															onRemove={(index) => {
-																const updatedAttachments =
-																	item.attachments?.filter(
-																		(_, i) => i !== index,
-																	) || [];
+														{item.attachments &&
+															item.attachments.length > 0 && (
+																<div className="mt-2">
+																	<ChecklistItemAttachments
+																		attachments={item.attachments}
+																		onRemove={(index) => {
+																			const updatedAttachments =
+																				item.attachments?.filter(
+																					(_, i) => i !== index,
+																				) || [];
 
-																updateChecklistItem({
-																	id: item.id,
-																	attachments: updatedAttachments,
-																});
-															}}
-														/>
+																			updateChecklistItem({
+																				id: item.id,
+																				attachments: updatedAttachments,
+																			});
+																		}}
+																	/>
+																</div>
+															)}
 													</div>
-												)}
+												</div>
+												<div className="flex items-center gap-2">
+													{item.assignee && (
+														<AssigneeAvatar {...item.assignee} />
+													)}
+													<DropdownMenu>
+														<DropdownMenuTrigger asChild>
+															<Button
+																variant={"ghost"}
+																size={"icon"}
+																className="size-6"
+															>
+																<EllipsisIcon />
+															</Button>
+														</DropdownMenuTrigger>
+														<DropdownMenuContent>
+															<DropdownMenuItem
+																variant="destructive"
+																onClick={() =>
+																	deleteChecklistItem({ id: item.id })
+																}
+															>
+																Delete
+															</DropdownMenuItem>
+														</DropdownMenuContent>
+													</DropdownMenu>
+												</div>
 											</div>
-										</div>
-										<div className="flex items-center gap-2">
-											{item.assignee && <AssigneeAvatar {...item.assignee} />}
-											<DropdownMenu>
-												<DropdownMenuTrigger asChild>
-													<Button
-														variant={"ghost"}
-														size={"icon"}
-														className="size-6"
-													>
-														<EllipsisIcon />
-													</Button>
-												</DropdownMenuTrigger>
-												<DropdownMenuContent>
-													<DropdownMenuItem
-														variant="destructive"
-														onClick={() => deleteChecklistItem({ id: item.id })}
-													>
-														Delete
-													</DropdownMenuItem>
-												</DropdownMenuContent>
-											</DropdownMenu>
-										</div>
+										)}
 									</div>
-								)}
+								))}
 							</div>
-						))}
+						) : (
+							<div className="text-muted-foreground text-sm" />
+						)}
 					</div>
-				) : (
-					<div className="text-muted-foreground text-sm" />
-				)}
-			</div>
-			<div className="">
-				{create ? (
-					<TaskChecklistItemForm
-						id="new"
-						taskId={taskId}
-						onSuccess={() => setCreate(false)}
-						onBlur={() => setCreate(false)}
-					/>
-				) : (
-					<div className="flex justify-end">
-						<Button
-							variant={"secondary"}
-							size={"sm"}
-							type="button"
-							className="text-sm"
-							onClick={() => setCreate(true)}
-						>
-							<PlusIcon />
-							Add Subtask
-						</Button>
+					<div className="">
+						{create ? (
+							<TaskChecklistItemForm
+								id="new"
+								taskId={taskId}
+								onSuccess={() => setCreate(false)}
+								onBlur={() => setCreate(false)}
+							/>
+						) : (
+							<div className="flex justify-end">
+								<Button
+									variant={"ghost"}
+									size={"sm"}
+									type="button"
+									className="text-sm"
+									onClick={() => setCreate(true)}
+								>
+									<PlusIcon />
+									Add Item
+								</Button>
+							</div>
+						)}
 					</div>
-				)}
-			</div>
+				</CollapsibleContent>
+			</Collapsible>
 		</div>
 	);
 };
@@ -241,7 +257,7 @@ export const TaskChecklistItemForm = ({
 
 	useEffect(() => {
 		const handleClickOutside = async (event: MouseEvent) => {
-			const formElement = document.getElementById("subtask-form");
+			const formElement = document.getElementById("checklist-form");
 			// if e.target has data-slot="popover-content" or is inside an element with that attribute, do nothing
 			let el: HTMLElement | null = event.target as HTMLElement;
 			while (el) {
@@ -279,7 +295,7 @@ export const TaskChecklistItemForm = ({
 				);
 				queryClient.invalidateQueries(trpc.tasks.get.queryOptions());
 				onSuccess();
-				toast.success("Subtask created");
+				toast.success("Checklist item created");
 			},
 		}),
 	);
@@ -291,7 +307,7 @@ export const TaskChecklistItemForm = ({
 					trpc.checklists.get.queryOptions({ taskId }),
 				);
 				onSuccess();
-				toast.info("Subtask updated");
+				toast.info("Checklist item updated");
 			},
 		}),
 	);
@@ -313,7 +329,7 @@ export const TaskChecklistItemForm = ({
 		<div className="border px-4 py-2">
 			<Form {...form}>
 				<form
-					id="subtask-form"
+					id="checklist-form"
 					onSubmit={form.handleSubmit(handleSubmit)}
 					className="space-y-1"
 					onClick={(e) => {

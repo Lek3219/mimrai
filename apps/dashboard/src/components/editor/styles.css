@@ -28,6 +28,14 @@
 	@apply flex gap-2;
 }
 
+.tiptap p {
+	@apply mb-1;
+}
+
+.tiptap hr {
+	@apply my-4;
+}
+
 .tiptap p.is-empty::before {
 	color: #404040;
 	content: attr(data-placeholder);

@@ -57,6 +57,7 @@ export const saveChatMessage = async (data: {
   teamId?: string;
   userId: string;
   message: UIChatMessage;
+  createdAt?: string;
 }) => {
   const [message] = await db
     .insert(chatMessages)
@@ -65,6 +66,7 @@ export const saveChatMessage = async (data: {
       teamId: data.teamId,
       userId: data.userId,
       content: data.message,
+      createdAt: data.createdAt || new Date().toISOString(),
     })
     .returning();
 

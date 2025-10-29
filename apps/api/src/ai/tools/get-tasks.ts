@@ -32,7 +32,8 @@ export const getTasksToolSchema = z.object({
 });
 
 export const getTasksTool = tool({
-  description: "Retrieve a list of tasks. Supports pagination.",
+  description:
+    "Retrieve a list of tasks. Supports pagination. If the user wants to know more about a specific task use the sequence number to search for it.",
   inputSchema: getTasksToolSchema,
   execute: async function* ({ search, cursor, pageSize, assigneeId }) {
     try {

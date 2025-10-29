@@ -1,17 +1,6 @@
 import type { DeleteTaskInput } from "@api/schemas/tasks";
-import { trackTaskCompleted } from "@mimir/events/server";
 import { subDays } from "date-fns";
-import {
-  and,
-  desc,
-  eq,
-  gte,
-  ilike,
-  inArray,
-  or,
-  type SQL,
-  sql,
-} from "drizzle-orm";
+import { and, desc, eq, gte, inArray, or, type SQL, sql } from "drizzle-orm";
 import { buildSearchQuery } from "src/utils/search-query";
 import { db } from "..";
 import {
@@ -224,6 +213,7 @@ export const createTask = async ({
   priority?: "low" | "medium" | "high";
   dueDate?: string;
   attachments?: string[];
+  mentions?: string[];
   userId?: string;
 }) => {
   const { sequence, order } = await getNextTaskSequence(input.teamId);
@@ -233,7 +223,11 @@ export const createTask = async ({
       ...input,
       sequence,
       order,
-      subscribers: unionArray([userId, input.assigneeId]),
+      subscribers: unionArray([
+        userId,
+        input.assigneeId,
+        ...(input.mentions ?? []),
+      ]),
     })
     .returning();
 
@@ -300,6 +294,7 @@ export const updateTask = async ({
   priority?: "low" | "medium" | "high";
   dueDate?: string;
   attachments?: string[];
+  mentions?: string[];
   userId?: string;
 }) => {
   const whereClause: SQL[] = [eq(tasks.id, input.id)];
@@ -323,7 +318,10 @@ export const updateTask = async ({
     .set({
       ...input,
       updatedAt: new Date().toISOString(),
-      subscribers: unionArray(oldTask.subscribers, [input.assigneeId]),
+      subscribers: unionArray(oldTask.subscribers, [
+        input.assigneeId,
+        ...(input.mentions ?? []),
+      ]),
     })
     .where(and(...whereClause))
     .returning();

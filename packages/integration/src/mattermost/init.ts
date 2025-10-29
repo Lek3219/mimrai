@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { setContext } from "@api/ai/context";
 import { generateSystemPrompt } from "@api/ai/generate-system-prompt";
 import { createToolRegistry } from "@api/ai/tool-types";
+import type { UIChatMessage } from "@api/ai/types";
 import { getUserContext } from "@api/ai/utils/get-user-context";
 import { createAdminClient } from "@api/lib/supabase";
 import { shouldForceStop } from "@api/utils/streaming-utils";
@@ -9,6 +10,11 @@ import { Client4, type WebSocketMessage } from "@mattermost/client";
 import type { UserProfile } from "@mattermost/types/users";
 import { integrationsCache } from "@mimir/cache/integrations-cache";
 import { db } from "@mimir/db/client";
+import {
+  getChatById,
+  saveChat,
+  saveChatMessage,
+} from "@mimir/db/queries/chats";
 import {
   getIntegrationByType,
   getLinkedUserByExternalId,
@@ -18,6 +24,7 @@ import {
   convertToModelMessages,
   generateText,
   stepCountIs,
+  streamText,
   type UIMessage,
 } from "ai";
 import { fetch } from "bun";
@@ -214,161 +221,225 @@ export const initMattermostSingle = async (
               } else {
                 // handle the message
 
-                // get user context
-                const userContext = await getUserContext({
-                  userId: associetedUser.userId,
-                  teamId: integration.teamId,
-                });
-
-                const channel = await client.getChannel(
-                  typedData.post.channel_id
-                );
-
-                const teams = await client.getMyTeams();
-                const team =
-                  teams.find((t) => t.id === channel.team_id) ?? teams[0];
-                const teamName = team?.name || "default";
-
-                const systemPrompt = `${generateSystemPrompt(userContext)}
-                 
-                If you create a task add the next link to the task description to allow easy access to the context, append at the end of the description and use markdown format:
-                CONTEXT LINK: [Context Link](${integration.config.url}/${teamName}/pl/${threadId})
-                `;
-
-                const relevantMessages: UIMessage[] = [];
-                if (threadId) {
-                  const posts = await client.getPostThread(threadId, true);
-                  const postsArray = Object.values(posts.posts);
-
-                  // Sort posts by creation time
-                  postsArray.sort((a, b) => a.create_at - b.create_at);
-
-                  for (const post of postsArray) {
-                    const files = post.metadata.files;
-
-                    const message: UIMessage = {
-                      id: post.id,
-                      role: post.user_id === me.id ? "assistant" : "user",
-                      parts: [],
-                    };
-
-                    // Attach files if any
-                    if (files && files.length > 0) {
-                      for (const file of files) {
-                        const fileRemoteUrl = client.getFileUrl(
-                          file.id,
-                          file.create_at
-                        );
-                        const fileResponse = await fetch(fileRemoteUrl, {
-                          headers: {
-                            Authorization: `Bearer ${integration.config.token}`,
-                          },
-                        });
-                        const fileBlob = await fileResponse.blob();
-
-                        const supabase = await createAdminClient();
-                        const storageFile = await supabase.storage
-                          .from("vault")
-                          .upload(
-                            `${associetedUser.userId}/${file.id}-${file.name}`,
-                            fileBlob,
-                            {
-                              upsert: true,
-                            }
-                          );
-                        const fullPath = `${process.env.SUPABASE_URL}/storage/v1/object/public/${storageFile.data?.fullPath}`;
-
-                        console.log("Attaching file to message:", fullPath);
-
-                        if (fullPath) {
-                          message.parts.push({
-                            type: "text",
-                            text: `Save the next url as an attachment: ${fullPath}`,
-                          });
-                        }
-                      }
-                    }
-
-                    // Simple heuristic: include messages that are not too long
-                    if (post.message.split(" ").length < 100) {
-                      message.parts.push({
-                        text: safeMessage(post.message),
-                        type: "text",
-                      });
-                    }
-
-                    if (message.parts.length > 0)
-                      relevantMessages.push(message);
-                  }
-                } else {
-                  const latestPostInChannel = await client.getPosts(
-                    typedData.post.channel_id,
-                    0,
-                    20
-                  );
-                  const postArray = Object.values(latestPostInChannel.posts);
-                  // Sort posts by creation time
-                  postArray.sort((a, b) => a.create_at - b.create_at);
-
-                  for (const post of postArray) {
-                    const files = post.metadata.files;
-
-                    const message: UIMessage = {
-                      id: post.id,
-                      role: post.user_id === me.id ? "assistant" : "user",
-                      parts: [],
-                    };
-                    if (files && files.length > 0) {
-                      for (const file of files) {
-                        const fileRemoteUrl = client.getFileUrl(
-                          file.id,
-                          file.create_at
-                        );
-                        const fileResponse = await fetch(fileRemoteUrl, {
-                          headers: {
-                            Authorization: `Bearer ${integration.config.token}`,
-                          },
-                        });
-                        const fileBlob = await fileResponse.blob();
-
-                        const supabase = await createAdminClient();
-                        const storageFile = await supabase.storage
-                          .from("vault")
-                          .upload(
-                            `${associetedUser.userId}/${file.id}-${file.name}`,
-                            fileBlob,
-                            {
-                              upsert: true,
-                            }
-                          );
-                        const fullPath = `${process.env.SUPABASE_URL}/storage/v1/object/public/${storageFile.data?.fullPath}`;
-
-                        console.log("Attaching file to message:", fullPath);
-
-                        if (fullPath) {
-                          message.parts.push({
-                            type: "text",
-                            text: `Save the next url as an attachment: ${fullPath}`,
-                          });
-                        }
-                      }
-                    }
-
-                    if (post.message.split(" ").length < 100) {
-                      // Simple heuristic: include messages that are not too long
-                      message.parts.push({
-                        text: safeMessage(post.message),
-                        type: "text",
-                      });
-                    }
-
-                    if (message.parts.length > 0)
-                      relevantMessages.push(message);
-                  }
-                }
-
                 if (isMentioned) {
-                  // fetch thread messages and populate relevantMessages
+                  const [userContext, chat] = await Promise.all([
+                    getUserContext({
+                      userId: associetedUser.userId,
+                      teamId: integration.teamId,
+                    }),
+                    getChatById(threadId, integration.teamId),
+                  ]);
+                  const previousMessages = chat ? chat.messages : [];
+                  const allMessages = [...previousMessages];
+                  const userMessage: UIChatMessage = {
+                    id: typedData.post.id,
+                    role: "user",
+                    parts: [
+                      {
+                        type: "text",
+                        text: safeMessage(typedData.post.message),
+                      },
+                    ],
+                  };
+
+                  if (!chat) {
+                    await saveChat({
+                      chatId: threadId,
+                      teamId: integration.teamId,
+                      userId: associetedUser.userId,
+                    });
+                  }
+                  const unsavedMessages: {
+                    message: UIChatMessage;
+                    createdAt: string;
+                  }[] = [];
+
+                  const channel = await client.getChannel(
+                    typedData.post.channel_id
+                  );
+
+                  const teams = await client.getMyTeams();
+                  const team =
+                    teams.find((t) => t.id === channel.team_id) ?? teams[0];
+                  const teamName = team?.name || "default";
+
+                  const systemPrompt = `${generateSystemPrompt(userContext)}
+                   
+                  If you create a task add the next link to the task description to allow easy access to the context, append at the end of the description and use markdown format:
+                  CONTEXT LINK: [Context Link](${integration.config.url}/${teamName}/pl/${threadId})
+                  `;
+
+                  if (threadId) {
+                    const posts = await client.getPostThread(threadId, true);
+                    const postsArray = Object.values(posts.posts);
+
+                    // Sort posts by creation time
+                    postsArray.sort((a, b) => a.create_at - b.create_at);
+
+                    for (const post of postsArray) {
+                      if (previousMessages.find((m) => m.id === post.id)) {
+                        continue;
+                      }
+
+                      const files = post.metadata.files;
+
+                      const message: UIChatMessage = {
+                        id: post.id,
+                        role: post.user_id === me.id ? "assistant" : "user",
+                        parts: [],
+                      };
+
+                      // Attach files if any
+                      if (files && files.length > 0) {
+                        for (const file of files) {
+                          const fileRemoteUrl = client.getFileUrl(
+                            file.id,
+                            file.create_at
+                          );
+                          const fileResponse = await fetch(fileRemoteUrl, {
+                            headers: {
+                              Authorization: `Bearer ${integration.config.token}`,
+                            },
+                          });
+                          const fileBlob = await fileResponse.blob();
+
+                          const supabase = await createAdminClient();
+                          const storageFile = await supabase.storage
+                            .from("vault")
+                            .upload(
+                              `${associetedUser.userId}/${file.id}-${file.name}`,
+                              fileBlob,
+                              {
+                                upsert: true,
+                              }
+                            );
+                          const fullPath = `${process.env.SUPABASE_URL}/storage/v1/object/public/${storageFile.data?.fullPath}`;
+
+                          console.log("Attaching file to message:", fullPath);
+
+                          if (fullPath) {
+                            message.parts.push({
+                              type: "text",
+                              text: `Save the next url as an attachment: ${fullPath}`,
+                            });
+                          }
+                        }
+                      }
+
+                      // Simple heuristic: include messages that are not too long
+                      if (post.message.split(" ").length < 100) {
+                        message.parts.push({
+                          text: safeMessage(post.message),
+                          type: "text",
+                        });
+                      }
+
+                      if (message.parts.length > 0) {
+                        unsavedMessages.push({
+                          message,
+                          createdAt: new Date(post.create_at).toISOString(),
+                        });
+                        allMessages.push(message);
+                      }
+                    }
+                  } else {
+                    const latestPostInChannel = await client.getPosts(
+                      typedData.post.channel_id,
+                      0,
+                      20
+                    );
+                    const postArray = Object.values(latestPostInChannel.posts);
+                    // Sort posts by creation time
+                    postArray.sort((a, b) => a.create_at - b.create_at);
+
+                    for (const post of postArray) {
+                      if (previousMessages.find((m) => m.id === post.id)) {
+                        continue;
+                      }
+                      const files = post.metadata.files;
+
+                      const message: UIChatMessage = {
+                        id: post.id,
+                        role: post.user_id === me.id ? "assistant" : "user",
+                        parts: [],
+                      };
+                      if (files && files.length > 0) {
+                        for (const file of files) {
+                          const fileRemoteUrl = client.getFileUrl(
+                            file.id,
+                            file.create_at
+                          );
+                          const fileResponse = await fetch(fileRemoteUrl, {
+                            headers: {
+                              Authorization: `Bearer ${integration.config.token}`,
+                            },
+                          });
+                          const fileBlob = await fileResponse.blob();
+
+                          const supabase = await createAdminClient();
+                          const storageFile = await supabase.storage
+                            .from("vault")
+                            .upload(
+                              `${associetedUser.userId}/${file.id}-${file.name}`,
+                              fileBlob,
+                              {
+                                upsert: true,
+                              }
+                            );
+                          const fullPath = `${process.env.SUPABASE_URL}/storage/v1/object/public/${storageFile.data?.fullPath}`;
+
+                          console.log("Attaching file to message:", fullPath);
+
+                          if (fullPath) {
+                            message.parts.push({
+                              type: "text",
+                              text: `Save the next url as an attachment: ${fullPath}`,
+                            });
+                          }
+                        }
+                      }
+
+                      if (post.message.split(" ").length < 100) {
+                        // Simple heuristic: include messages that are not too long
+                        message.parts.push({
+                          text: safeMessage(post.message),
+                          type: "text",
+                        });
+                      }
+
+                      if (message.parts.length > 0) {
+                        unsavedMessages.push({
+                          message,
+                          createdAt: new Date(post.create_at).toISOString(),
+                        });
+                        allMessages.push(message);
+                      }
+                    }
+                  }
+
+                  // Add user message to unsaved messages
+                  unsavedMessages.push({
+                    message: userMessage,
+                    createdAt: new Date(typedData.post.create_at).toISOString(),
+                  });
+
+                  // Save unsaved messages to the database
+                  const savePromises: Promise<unknown>[] = [];
+                  for (const { message, createdAt } of unsavedMessages) {
+                    savePromises.push(
+                      saveChatMessage({
+                        chatId: threadId,
+                        teamId: integration.teamId,
+                        userId: associetedUser.userId,
+                        message,
+                        createdAt,
+                      })
+                    );
+                  }
+                  await Promise.all(savePromises);
+
+                  // Add user message to all messages
+                  allMessages.push(userMessage);
 
                   setContext({
                     db,
@@ -386,54 +457,78 @@ export const initMattermostSingle = async (
                     root_id: threadId ?? typedData.post.id,
                   });
 
-                  const text = await generateText({
-                    model: "openai/gpt-4o",
-                    system: systemPrompt,
-                    messages: convertToModelMessages(relevantMessages),
-                    tools: createToolRegistry(),
-                    onStepFinish: async (step) => {
-                      if (step.text) {
-                        await client.updatePost({
-                          ...thinkingPost,
-                          message: `_${step.text}_`,
-                        });
-                        return;
-                      }
+                  const systemMessage: UIChatMessage = await new Promise(
+                    (resolve, reject) => {
+                      const result = streamText({
+                        model: "openai/gpt-4o",
+                        system: systemPrompt,
+                        messages: convertToModelMessages(allMessages),
+                        tools: {
+                          ...createToolRegistry(),
+                        },
+                        onStepFinish: async (step) => {},
+                        stopWhen: (step) => {
+                          // Stop if we've reached 10 steps (original condition)
+                          if (stepCountIs(10)(step)) {
+                            return true;
+                          }
 
-                      if (step.reasoningText) {
-                        await client.updatePost({
-                          ...thinkingPost,
-                          message: `_${step.reasoningText}_`,
-                        });
-                        return;
-                      }
-                    },
-                    stopWhen: (step) => {
-                      // Stop if we've reached 10 steps (original condition)
-                      if (stepCountIs(10)(step)) {
-                        return true;
-                      }
+                          // Force stop if any tool has completed its full streaming response
+                          return shouldForceStop(step);
+                        },
+                      });
 
-                      // Force stop if any tool has completed its full streaming response
-                      return shouldForceStop(step);
-                    },
+                      const messageStream = result.toUIMessageStream({
+                        sendFinish: true,
+                        onFinish: ({ responseMessage }) => {
+                          resolve(responseMessage as UIChatMessage);
+                        },
+                      });
+
+                      // read the stream to completion to avoid memory leaks
+                      (async () => {
+                        try {
+                          for await (const _part of messageStream) {
+                            // no-op
+                          }
+                        } catch (error) {
+                          reject(error);
+                        }
+                      })();
+                    }
+                  );
+
+                  await saveChatMessage({
+                    chatId: threadId,
+                    userId: associetedUser.userId,
+                    message: systemMessage,
                   });
+
+                  const body =
+                    systemMessage.parts[systemMessage.parts.length - 1]
+                      ?.type === "text"
+                      ? (
+                          systemMessage.parts[
+                            systemMessage.parts.length - 1
+                          ] as UIMessage["parts"][number] & {
+                            type: "text";
+                          }
+                        ).text
+                      : "Sorry, I could not process your message.";
 
                   log(
                     integration.id,
                     "info",
-                    `Response: ${text.text.slice(0, 80)}...`,
+                    `Response: ${body.slice(0, 80)}...`,
                     {
-                      message: text.text,
-                    },
-                    text.usage.inputTokens,
-                    text.usage.outputTokens
+                      message: body,
+                    }
                   );
 
                   // Post the response back to the thread
                   await client.updatePost({
                     ...thinkingPost,
-                    message: text.text,
+                    message: body,
                   });
                 }
               }

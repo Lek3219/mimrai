@@ -29,6 +29,15 @@ export const en = {
         title: "New comment on Task",
         description: "Notify me when someone comments on a task.",
       },
+      checklist_item_created: {
+        title: "Checklist Item Created",
+        description:
+          "Notify me when a new checklist item is created on a task.",
+      },
+      mention: {
+        title: "Mentioned",
+        description: "Notify me when I am mentioned in a task or comment.",
+      },
     },
     channels: {
       in_app: "In-App",

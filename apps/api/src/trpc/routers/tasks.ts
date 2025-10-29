@@ -50,7 +50,7 @@ export const tasksRouter = router({
       });
     }),
   update: protectedProcedure
-    .input(updateTaskSchema.omit({ teamId: true }))
+    .input(updateTaskSchema)
     .mutation(async ({ ctx, input }) => {
       return updateTask({
         ...input,
