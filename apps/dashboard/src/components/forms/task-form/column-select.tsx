@@ -1,6 +1,7 @@
 import { DataSelectInput } from "@mimir/ui/data-select-input";
 import { FormControl, FormField, FormItem, FormLabel } from "@mimir/ui/form";
 import { useFormContext } from "react-hook-form";
+import { ColumnIcon } from "@/components/column-icon";
 import { trpc } from "@/utils/trpc";
 import type { TaskFormValues } from "./task-form";
 
@@ -28,6 +29,12 @@ export const ColumnSelect = () => {
 							onChange={(value) => field.onChange(value || undefined)}
 							getLabel={(item) => item?.name ?? ""}
 							getValue={(item) => item?.id ?? ""}
+							renderItem={(item) => (
+								<span className="flex items-center gap-2">
+									<ColumnIcon type={item.type} />
+									{item.name}
+								</span>
+							)}
 							variant={"ghost"}
 						/>
 					</FormControl>

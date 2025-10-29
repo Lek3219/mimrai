@@ -18,7 +18,7 @@ const links: {
 	active?: boolean;
 }[] = [
 	{ to: "/dashboard/overview", label: "Overview" },
-	{ to: "/dashboard/my-tasks", label: "My Tasks" },
+	// { to: "/dashboard/my-tasks", label: "My Tasks" },
 	{ to: "/dashboard", label: "Board" },
 	{ to: "/dashboard/backlog", label: "Backlog" },
 	{ to: "/dashboard/settings/general", label: "Settings" },

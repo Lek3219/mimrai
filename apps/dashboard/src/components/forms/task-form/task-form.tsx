@@ -28,7 +28,7 @@ import { PriorityBadge } from "@/components/kanban/priority";
 import { useTaskParams } from "@/hooks/use-task-params";
 import { useZodForm } from "@/hooks/use-zod-form";
 import { trpc } from "@/utils/trpc";
-import { Assignee } from "../../kanban/asignee";
+import { Assignee, AssigneeAvatar } from "../../kanban/asignee";
 import { TaskActivitiesList } from "./activities-list";
 import { TaskAttachments } from "./attachments";
 import { ColumnSelect } from "./column-select";
@@ -36,16 +36,16 @@ import { CommentInput } from "./comment-input";
 import { LabelInput } from "./label-input";
 import { SmartInput } from "./smart-input";
 import { SubscribersList } from "./subscribers-list";
-import { TaskChecklist } from "./taks-checklist";
 import { TaskDuplicated } from "./task-duplicated";
+import { TaskChecklist } from "./tasks-checklist";
 
 export const taskFormSchema = z.object({
 	id: z.string().optional(),
 	title: z.string().min(1).max(255),
 	description: z.string().max(50_000).optional(),
-	assigneeId: z.string().optional(),
-	columnId: z.string(),
-	dueDate: z.date().optional(),
+	assigneeId: z.string().nullable().optional(),
+	columnId: z.string().min(1),
+	dueDate: z.date().nullable().optional(),
 	labels: z.array(z.string()).optional(),
 	priority: z.enum(["low", "medium", "high"]).optional(),
 	attachments: z.array(z.string()).optional(),
@@ -76,6 +76,7 @@ export const TaskForm = ({
 			priority: "medium",
 			labels: [],
 			showSmartInput: !defaultValues?.id,
+			assigneeId: null,
 			...defaultValues,
 		},
 	});
@@ -301,7 +302,7 @@ export const TaskForm = ({
 																queryOptions={trpc.teams.getMembers.queryOptions()}
 																value={field.value || null}
 																onChange={(value) =>
-																	field.onChange(value || undefined)
+																	field.onChange(value || null)
 																}
 																getValue={(item) => item.id}
 																getLabel={(item) =>
@@ -309,8 +310,16 @@ export const TaskForm = ({
 																}
 																variant={"ghost"}
 																className="w-fit px-4!"
+																placeholder="Assignee"
+																clearable
+																renderClear={() => (
+																	<div className="flex items-center gap-2">
+																		<AssigneeAvatar />
+																		Unassigned
+																	</div>
+																)}
 																renderItem={(item) => (
-																	<Assignee {...item} className="size-5" />
+																	<Assignee {...item} className="size-6" />
 																)}
 															/>
 														</FormControl>
@@ -329,10 +338,14 @@ export const TaskForm = ({
 																		variant="ghost"
 																		className="w-fit justify-between font-normal"
 																	>
-																		{field.value
-																			? formatRelative(field.value, new Date())
-																			: "Due date"}
-																		<ChevronDownIcon />
+																		{field.value ? (
+																			formatRelative(field.value, new Date())
+																		) : (
+																			<span className="text-muted-foreground">
+																				Due date
+																			</span>
+																		)}
+																		<ChevronDownIcon className="text-muted-foreground" />
 																	</Button>
 																</PopoverTrigger>
 																<PopoverContent
@@ -341,7 +354,7 @@ export const TaskForm = ({
 																>
 																	<Calendar
 																		mode="single"
-																		selected={field.value}
+																		selected={field.value || undefined}
 																		captionLayout="dropdown"
 																		onSelect={(date) => {
 																			field.onChange(date);

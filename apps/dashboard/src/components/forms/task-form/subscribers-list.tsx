@@ -51,7 +51,7 @@ export const SubscribersList = ({ taskId }: { taskId: string }) => {
 	return (
 		<Popover>
 			<PopoverTrigger asChild>
-				<Button variant={"ghost"} size={"sm"}>
+				<Button variant={"ghost"} size={"sm"} className="font-mono">
 					<EyeIcon />
 					{subscribers?.length ?? 0}
 				</Button>

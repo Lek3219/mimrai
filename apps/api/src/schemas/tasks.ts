@@ -22,13 +22,13 @@ export type GetTasksInput = z.infer<typeof getTasksSchema>;
 export const createTaskSchema = z.object({
   title: z.string().min(1).max(255),
   description: z.string().max(50_000).optional(),
-  assigneeId: z.string().optional(),
+  assigneeId: z.string().nullable().optional(),
   columnId: z.string(),
   teamId: z.string(),
   order: z.number().optional(),
   priority: z.enum(priorityEnum.enumValues).optional(),
   labels: z.array(z.string()).optional(),
-  dueDate: z.string().optional(),
+  dueDate: z.string().nullable().optional(),
 });
 export type CreateTaskInput = z.infer<typeof createTaskSchema>;
 
@@ -37,9 +37,9 @@ export const updateTaskSchema = z.object({
   teamId: z.string().optional(),
   title: z.string().min(1).max(255).optional(),
   description: z.string().max(50_000).optional(),
-  assigneeId: z.string().optional(),
+  assigneeId: z.string().nullable().optional(),
   priority: z.enum(priorityEnum.enumValues).optional(),
-  dueDate: z.string().optional(),
+  dueDate: z.string().nullable().optional(),
   order: z.number().optional(),
   columnId: z.string().optional(),
   labels: z.array(z.string()).optional(),

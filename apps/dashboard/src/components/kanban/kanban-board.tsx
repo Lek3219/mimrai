@@ -19,6 +19,7 @@ import { useColumnParams } from "@/hooks/use-column-params";
 import { useTaskParams } from "@/hooks/use-task-params";
 import { useTasksFilterParams } from "@/hooks/use-tasks-filter-params";
 import { trpc } from "@/utils/trpc";
+import { ColumnIcon } from "../column-icon";
 import { ColumnContextMenu } from "./column-context-menu";
 import { KanbanTask } from "./kanban-task";
 import { TaskContextMenu } from "./task-context-menu";
@@ -258,16 +259,12 @@ export function KanbanBoard() {
 											<div className="flex items-center gap-2">
 												<Badge
 													variant="outline"
-													className="pointer-events-none space-x-1 rounded-none font-mono text-base"
+													className="pointer-events-none space-x-1 rounded-none font-mono text-sm"
 												>
-													{column.type === "done" ? (
-														<CircleCheckIcon className="size-4!" />
-													) : column.type === "normal" ? (
-														<CircleDashed className="size-4!" />
-													) : null}
+													<ColumnIcon className="size-4!" type={column.type} />
 													<span>{tasks.length}</span>
 												</Badge>
-												<span className="font-normal text-sm uppercase">
+												<span className="font-medium text-sm">
 													{columnValue}
 												</span>
 											</div>

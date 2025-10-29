@@ -21,6 +21,8 @@ export const DataSelectInput = <
 	getValue,
 	getLabel,
 	renderItem,
+	renderClear,
+	clearable,
 	className,
 	showChevron = true,
 	multiple,
@@ -44,6 +46,8 @@ export const DataSelectInput = <
 	onChange: (value: V) => void;
 	getValue: (item: T[number]) => string;
 	getLabel: (item?: T[number]) => string;
+	renderClear?: () => React.ReactNode;
+	clearable?: boolean;
 	renderItem?: (item: T[number]) => React.ReactNode;
 	renderMultiple?: (items: D[]) => React.ReactNode;
 	showChevron?: boolean;
@@ -100,6 +104,18 @@ export const DataSelectInput = <
 				<Command>
 					<CommandInput placeholder="Type to filter..." />
 					<CommandGroup>
+						{clearable && (
+							<CommandItem
+								onSelect={() => {
+									if (multiple) onChange([] as string[] as V);
+									else onChange(null as V);
+									setOpen(false);
+								}}
+								className="text-muted-foreground"
+							>
+								{renderClear ? renderClear() : "Clear selection"}
+							</CommandItem>
+						)}
 						{data?.map((item: D) => (
 							<CommandItem
 								key={getValue(item)?.toString()}

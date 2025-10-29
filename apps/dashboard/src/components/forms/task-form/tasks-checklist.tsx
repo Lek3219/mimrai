@@ -22,7 +22,7 @@ import {
 } from "@mimir/ui/dropdown-menu";
 import { Form, FormControl, FormField, FormItem } from "@mimir/ui/form";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { EllipsisIcon, FileIcon, PlusIcon } from "lucide-react";
+import { EllipsisIcon, FileIcon, PlusIcon, SaveIcon } from "lucide-react";
 import { motion } from "motion/react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
@@ -179,7 +179,7 @@ export const TaskChecklist = ({ taskId }: { taskId: string }) => {
 					<div className="text-muted-foreground text-sm" />
 				)}
 			</div>
-			<div>
+			<div className="">
 				{create ? (
 					<TaskChecklistItemForm
 						id="new"
@@ -188,16 +188,18 @@ export const TaskChecklist = ({ taskId }: { taskId: string }) => {
 						onBlur={() => setCreate(false)}
 					/>
 				) : (
-					<Button
-						variant={"secondary"}
-						size={"sm"}
-						type="button"
-						className="text-sm"
-						onClick={() => setCreate(true)}
-					>
-						<PlusIcon />
-						Add Subtask
-					</Button>
+					<div className="flex justify-end">
+						<Button
+							variant={"secondary"}
+							size={"sm"}
+							type="button"
+							className="text-sm"
+							onClick={() => setCreate(true)}
+						>
+							<PlusIcon />
+							Add Subtask
+						</Button>
+					</div>
 				)}
 			</div>
 		</div>
@@ -355,11 +357,7 @@ export const TaskChecklistItemForm = ({
 							/>
 						</div>
 					)}
-					<div className="flex justify-between">
-						<Button type="submit" size={"sm"} variant={"secondary"}>
-							Save Subtask
-						</Button>
-
+					<div className="flex items-center justify-end gap-2">
 						<div className="flex gap-2">
 							<FormField
 								control={form.control}
@@ -376,6 +374,13 @@ export const TaskChecklistItemForm = ({
 												getLabel={(item) =>
 													item?.name || item?.email || "Unassigned"
 												}
+												clearable
+												renderClear={() => (
+													<div className="flex items-center gap-2">
+														<AssigneeAvatar />
+														Unassigned
+													</div>
+												)}
 												variant={"ghost"}
 												renderItem={(item) => <Assignee {...item} />}
 											/>
@@ -383,6 +388,11 @@ export const TaskChecklistItemForm = ({
 									</FormItem>
 								)}
 							/>
+
+							<Button type="submit" size={"sm"} variant={"secondary"}>
+								<SaveIcon />
+								Save
+							</Button>
 						</div>
 					</div>
 				</form>

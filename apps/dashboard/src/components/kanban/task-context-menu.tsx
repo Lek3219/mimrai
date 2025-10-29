@@ -19,7 +19,8 @@ import {
 	UserIcon,
 } from "lucide-react";
 import { queryClient, trpc } from "@/utils/trpc";
-import { Assignee } from "./asignee";
+import { ColumnIcon } from "../column-icon";
+import { Assignee, AssigneeAvatar } from "./asignee";
 import { PriorityBadge } from "./priority";
 
 export const TaskContextMenu = ({
@@ -89,7 +90,7 @@ export const TaskContextMenu = ({
 					<ContextMenuSubTrigger className="flex items-center gap-2">
 						Move to
 					</ContextMenuSubTrigger>
-					<ContextMenuSubContent className="w-32">
+					<ContextMenuSubContent className="w-48">
 						{columns?.data
 							?.filter((column) => column.id !== task.columnId)
 							.map((column) => (
@@ -99,7 +100,7 @@ export const TaskContextMenu = ({
 										columnId: column.id,
 									})}
 								>
-									{column.type === "done" && <FlagIcon />}
+									<ColumnIcon type={column.type} className="size-4" />
 									{column.name}
 								</ContextMenuItem>
 							))}
@@ -163,6 +164,14 @@ export const TaskContextMenu = ({
 						Assign to
 					</ContextMenuSubTrigger>
 					<ContextMenuSubContent className="w-48">
+						<ContextMenuItem
+							onClick={handleUpdateTask.bind(null, { assigneeId: null })}
+						>
+							<div className="flex items-center gap-2">
+								<AssigneeAvatar />
+								Unassigned
+							</div>
+						</ContextMenuItem>
 						{members?.map((member) => (
 							<ContextMenuItem
 								key={member.id}
