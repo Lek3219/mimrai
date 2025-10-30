@@ -72,7 +72,7 @@ export const buildSubscriptionItems = async ({
   const prices = plan.pricesIds[recurringInterval];
   const pricesWithQuantities = await Promise.all(
     Object.keys(prices).map(async (priceType) => ({
-      id: prices[priceType as PriceType],
+      price: prices[priceType as PriceType],
       quantity: await getPriceQuantity({
         type: priceType as PriceType,
         teamId,
