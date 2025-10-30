@@ -1,7 +1,7 @@
 import { generateTaskEmbedding } from "@mimir/embedding/embeddings/task";
-import { and, desc, eq, sql } from "drizzle-orm";
+import { and, desc, eq, not, sql } from "drizzle-orm";
 import { db } from "../index";
-import { taskEmbeddings, tasks } from "../schema";
+import { columns, taskEmbeddings, tasks } from "../schema";
 
 export const upsertTaskEmbedding = async ({
   task,
@@ -58,10 +58,12 @@ export const getDuplicateTaskEmbedding = async ({
     .where(
       and(
         eq(taskEmbeddings.teamId, teamId),
-        sql`${taskEmbeddings.embedding} <-> ${JSON.stringify(embedding)} < ${THRESHOLD}`
+        sql`${taskEmbeddings.embedding} <-> ${JSON.stringify(embedding)} < ${THRESHOLD}`,
+        not(eq(columns.type, "done"))
       )
     )
     .innerJoin(tasks, eq(tasks.id, taskEmbeddings.taskId))
+    .leftJoin(columns, eq(columns.id, tasks.columnId))
     .orderBy(
       desc(
         sql`1 - (${taskEmbeddings.embedding} <-> ${JSON.stringify(embedding)})`
