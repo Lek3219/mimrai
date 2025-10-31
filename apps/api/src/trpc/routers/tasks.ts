@@ -64,6 +64,7 @@ export const tasksRouter = router({
   update: protectedProcedure
     .input(updateTaskSchema)
     .mutation(async ({ ctx, input }) => {
+      console.log("updating task with recurring", input.recurring);
       const task = await updateTask({
         ...input,
         userId: ctx.user.id,

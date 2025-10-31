@@ -322,6 +322,7 @@ export const updateTask = async ({
     interval: number;
   };
 }) => {
+  console.log("recurring input", input.recurring);
   const whereClause: SQL[] = [eq(tasks.id, input.id)];
 
   if (input.teamId) {

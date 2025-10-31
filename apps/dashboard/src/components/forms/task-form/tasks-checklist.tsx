@@ -59,7 +59,9 @@ export const TaskChecklist = ({ taskId }: { taskId: string }) => {
 					const newData = data.filter(
 						(item) =>
 							!item.isCompleted ||
-							new Date(item.updatedAt!).valueOf() >= Date.now() - ms("1 day"),
+							(new Date(item.updatedAt!).valueOf() >=
+								Date.now() - ms("1 day") &&
+								item.isCompleted),
 					);
 					const hiddenCount = data.length - newData.length;
 					if (showAll)

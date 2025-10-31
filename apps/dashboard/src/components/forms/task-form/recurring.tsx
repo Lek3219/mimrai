@@ -54,8 +54,6 @@ export const Recurring = () => {
 	const form = useFormContext<TaskFormValues>();
 	const recurring = form.watch("recurring");
 
-	console.log("recurring", form.formState.errors.recurring);
-
 	return (
 		<Popover>
 			<PopoverTrigger asChild>
@@ -153,7 +151,10 @@ export const Recurring = () => {
 							}
 							captionLayout="dropdown"
 							onSelect={(date) => {
-								form.setValue("recurring.startDate", date?.toISOString());
+								form.setValue("recurring.startDate", date?.toISOString(), {
+									shouldDirty: true,
+									shouldValidate: true,
+								});
 							}}
 						/>
 					</div>
