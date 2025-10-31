@@ -72,6 +72,22 @@ export const sendResumeJob = schedules.task({
       .orderBy(desc(activities.createdAt))
       .limit(50);
 
+    const checklistItemActivities = await db
+      .selectDistinctOn([activities.groupId])
+      .from(activities)
+      .where(
+        and(
+          eq(activities.teamId, team.id),
+          eq(activities.type, "checklist_item_completed"),
+          gte(activities.createdAt, lastResumeDate.toISOString()),
+          isNotNull(activities.groupId)
+        )
+      )
+      .leftJoin(users, eq(activities.userId, users.id))
+      .innerJoin(tasks, eq(activities.groupId, tasks.id))
+      .orderBy(asc(activities.groupId), desc(activities.createdAt))
+      .limit(50);
+
     const columnChangeActivities = await db
       .selectDistinctOn([activities.groupId])
       .from(activities)
@@ -87,8 +103,6 @@ export const sendResumeJob = schedules.task({
       .innerJoin(tasks, eq(activities.groupId, tasks.id))
       .orderBy(asc(activities.groupId), desc(activities.createdAt))
       .limit(50);
-
-    console.log(columnChangeActivities);
 
     const teamColumns = await db
       .select({
@@ -110,7 +124,11 @@ export const sendResumeJob = schedules.task({
       .innerJoin(users, eq(users.id, usersOnTeams.userId))
       .limit(50);
 
-    const activitiesContext = [...teamActivities, ...columnChangeActivities]
+    const activitiesContext = [
+      ...teamActivities,
+      ...columnChangeActivities,
+      ...checklistItemActivities,
+    ]
       .map((activity) => {
         if (!activity.tasks) return null;
         const userName = activity.user ? activity.user.name : "Unknown user";
@@ -171,11 +189,16 @@ export const sendResumeJob = schedules.task({
           )}" was updated by ${userName} on ${createdAt}.\n\tChanges:\n${changesText}`;
         }
 
+        if (activity.activities.type === "checklist_item_completed") {
+          return `- A checklist item in task "${getTaskMarkdownLink(
+            taskId,
+            taskTitle
+          )}" was completed by ${userName} on ${createdAt}.`;
+        }
+
         return null;
       })
       .filter(Boolean);
-
-    console.log(activitiesContext);
 
     const text = await generateText({
       model: "openai/gpt-4o",
