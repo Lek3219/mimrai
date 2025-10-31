@@ -106,6 +106,7 @@ export const createTaskTool = tool({
         teamId: user.teamId,
         attachments: input.attachments || [],
         labels: input.labels || [],
+        userId: user.userId,
       });
 
       yield {
