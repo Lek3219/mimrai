@@ -179,6 +179,7 @@ export const en = {
       billing: "Billing",
       members: "Members",
       labels: "Labels",
+      columns: "Columns",
       notifications: "Notifications",
       resumes: "Resumes",
       integrations: "Integrations",

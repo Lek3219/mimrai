@@ -27,6 +27,10 @@ export const SettingsSidebar = () => {
 			},
 			{ to: "/dashboard/settings/labels", label: t("settings.sidebar.labels") },
 			{
+				to: "/dashboard/settings/columns",
+				label: t("settings.sidebar.columns"),
+			},
+			{
 				to: "/dashboard/settings/notifications",
 				label: t("settings.sidebar.notifications"),
 			},

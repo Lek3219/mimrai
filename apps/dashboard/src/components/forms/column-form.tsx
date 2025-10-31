@@ -17,6 +17,7 @@ import {
 } from "@mimir/ui/select";
 import { Textarea } from "@mimir/ui/textarea";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Loader2 } from "lucide-react";
 import z from "zod";
 import { useColumnParams } from "@/hooks/use-column-params";
 import { useZodForm } from "@/hooks/use-zod-form";
@@ -45,7 +46,7 @@ export const ColumnForm = ({
 		},
 	});
 
-	const { mutate: createColumn } = useMutation(
+	const { mutate: createColumn, isPending: isCreating } = useMutation(
 		trpc.columns.create.mutationOptions({
 			onSuccess: (column) => {
 				queryClient.setQueryData(
@@ -59,7 +60,7 @@ export const ColumnForm = ({
 		}),
 	);
 
-	const { mutate: updateColumn } = useMutation(
+	const { mutate: updateColumn, isPending: isUpdating } = useMutation(
 		trpc.columns.update.mutationOptions({
 			onSuccess: (column) => {
 				queryClient.setQueryData(
@@ -149,7 +150,10 @@ export const ColumnForm = ({
 				</div>
 				{/* </ScrollArea> */}
 				<div className="flex items-center justify-end p-4">
-					<Button>Save</Button>
+					<Button disabled={isCreating || isUpdating}>
+						{(isCreating || isUpdating) && <Loader2 className="animate-spin" />}
+						Save
+					</Button>
 				</div>
 			</form>
 		</Form>
