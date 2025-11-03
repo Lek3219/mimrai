@@ -1,5 +1,11 @@
 import { Badge } from "@mimir/ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@mimir/ui/tooltip";
+import {
+	SignalHighIcon,
+	SignalLow,
+	SignalLowIcon,
+	SignalMediumIcon,
+} from "lucide-react";
 
 const PriorityTooltip = ({
 	value,
@@ -16,41 +22,21 @@ const PriorityTooltip = ({
 	);
 };
 
+const PriorityIcon = {
+	low: SignalLowIcon,
+	medium: SignalMediumIcon,
+	high: SignalHighIcon,
+};
+
 export const Priority = ({ value }: { value: "low" | "medium" | "high" }) => {
-	if (value === "low") {
-		return (
-			<PriorityTooltip value={value}>
-				<div className="flex items-center gap-1">
-					<div className="size-1 bg-secondary" />
-				</div>
-			</PriorityTooltip>
-		);
-	}
-
-	if (value === "medium") {
-		return (
-			<PriorityTooltip value={value}>
-				<div className="flex items-center gap-1">
-					<div className="size-1 bg-primary" />
-					<div className="size-1 bg-primary" />
-				</div>
-			</PriorityTooltip>
-		);
-	}
-
-	if (value === "high") {
-		return (
-			<PriorityTooltip value={value}>
-				<div className="flex items-center gap-1">
-					<div className="size-1 bg-red-500" />
-					<div className="size-1 bg-red-500" />
-					<div className="size-1 bg-red-500" />
-				</div>
-			</PriorityTooltip>
-		);
-	}
-
-	return null;
+	const Icon = PriorityIcon[value];
+	return (
+		<PriorityTooltip value={value}>
+			<div className="mb-1">
+				<Icon />
+			</div>
+		</PriorityTooltip>
+	);
 };
 
 export const PriorityBadge = ({

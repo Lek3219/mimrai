@@ -17,7 +17,7 @@ export const ColumnSelect = () => {
 					<FormControl>
 						<DataSelectInput
 							size="sm"
-							className="h-6! w-full text-xs"
+							className="h-6! text-xs"
 							// @ts-expect-error
 							queryOptions={trpc.columns.get.queryOptions(
 								{},

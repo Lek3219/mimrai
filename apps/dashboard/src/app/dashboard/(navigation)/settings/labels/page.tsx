@@ -1,9 +1,12 @@
+import { Suspense } from "react";
 import { LabelList } from "./label-list";
 
 export default function Page() {
 	return (
 		<div>
-			<LabelList />
+			<Suspense>
+				<LabelList />
+			</Suspense>
 		</div>
 	);
 }

@@ -1,9 +1,10 @@
+import { Suspense } from "react";
 import { SchedulesList } from "./schedules-list";
 
 export default function Page() {
 	return (
-		<div>
+		<Suspense>
 			<SchedulesList />
-		</div>
+		</Suspense>
 	);
 }

@@ -1,0 +1,103 @@
+"use client";
+
+import {
+	Collapsible,
+	CollapsibleContent,
+	CollapsibleTrigger,
+} from "@ui/components/ui/collapsible";
+import {
+	SidebarGroup,
+	SidebarMenu,
+	SidebarMenuAction,
+	SidebarMenuButton,
+	SidebarMenuItem,
+	SidebarMenuSub,
+	SidebarMenuSubButton,
+	SidebarMenuSubItem,
+} from "@ui/components/ui/sidebar";
+import { ChevronRight, type LucideIcon } from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
+
+export function NavMain({
+	items,
+}: {
+	items: {
+		title: string;
+		url: string;
+		icon: LucideIcon;
+		items?: {
+			title: string;
+			url: string;
+		}[];
+	}[];
+}) {
+	const pathname = usePathname();
+
+	return (
+		<SidebarGroup>
+			<SidebarMenu>
+				{items.map((item) => {
+					const isActive =
+						pathname.startsWith(item.url) ||
+						item.items?.some((subItem) => pathname === subItem.url);
+					return (
+						<Collapsible key={item.title} asChild defaultOpen={isActive}>
+							<SidebarMenuItem>
+								<SidebarMenuButton asChild tooltip={item.title}>
+									<Link
+										href={item.url}
+										className={cn(
+											"flex items-center border border-transparent py-5 text-sm! hover:border-input",
+											{
+												"border-input bg-accent": isActive,
+											},
+										)}
+									>
+										<item.icon className="size-4!" />
+										<span>{item.title}</span>
+									</Link>
+								</SidebarMenuButton>
+								{item.items?.length ? (
+									<>
+										<CollapsibleTrigger asChild>
+											<SidebarMenuAction className="mt-1 hover:bg-transparent data-[state=open]:rotate-90">
+												<ChevronRight />
+												<span className="sr-only">Toggle</span>
+											</SidebarMenuAction>
+										</CollapsibleTrigger>
+										<CollapsibleContent>
+											<SidebarMenuSub>
+												{item.items?.map((subItem) => {
+													const isSubActive = pathname === subItem.url;
+													return (
+														<SidebarMenuSubItem key={subItem.title}>
+															<SidebarMenuSubButton
+																asChild
+																className={cn(
+																	"text-muted-foreground hover:bg-transparent focus-visible:bg-transparent",
+																	{
+																		"text-accent-foreground": isSubActive,
+																	},
+																)}
+															>
+																<Link href={subItem.url}>
+																	<span>{subItem.title}</span>
+																</Link>
+															</SidebarMenuSubButton>
+														</SidebarMenuSubItem>
+													);
+												})}
+											</SidebarMenuSub>
+										</CollapsibleContent>
+									</>
+								) : null}
+							</SidebarMenuItem>
+						</Collapsible>
+					);
+				})}
+			</SidebarMenu>
+		</SidebarGroup>
+	);
+}

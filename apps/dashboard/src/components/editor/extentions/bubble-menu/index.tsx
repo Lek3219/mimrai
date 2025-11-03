@@ -21,8 +21,8 @@ export function BubbleMenu({
 
 	return (
 		<div>
-			<TiptapBubbleMenu editor={editor}>
-				<div className="flex w-fit max-w-[90vw] overflow-hidden rounded-full border border-border bg-background font-regular text-mono">
+			<TiptapBubbleMenu editor={editor} >
+				<div className="flex w-fit h-9 max-w-[90vw] overflow-hidden rounded-full border border-border bg-background font-regular text-mono">
 					<BubbleMenuItem
 						editor={editor}
 						action={() => editor.chain().focus().toggleBold().run()}

@@ -51,22 +51,26 @@ export const TeamSwitcher = () => {
 			<DropdownMenuTrigger asChild>
 				<button
 					type="button"
-					className="flex cursor-pointer items-center gap-2"
+					className="flex w-full items-center gap-2 py-2 opacity-90 hover:bg-transparent hover:opacity-100 focus:outline-none"
 				>
-					<Avatar className="size-6 text-xs">
-						<AvatarFallback className="bg-primary text-primary-foreground">
-							{user?.team?.name?.charAt(0).toUpperCase()}
-						</AvatarFallback>
-					</Avatar>
-					<div className="flex items-center justify-between gap-1">
-						<div className="text-sm">{user?.team?.name}</div>
-						<ChevronsUpDownIcon className="size-3.5" />
+					<div className="flex aspect-square size-8 items-center justify-center rounded-sm bg-sidebar-primary text-sidebar-primary-foreground">
+						<Avatar className="size-6 text-base">
+							<AvatarFallback className="bg-primary text-primary-foreground">
+								{user?.team?.name?.charAt(0).toUpperCase()}
+							</AvatarFallback>
+						</Avatar>
+					</div>
+					<div className="grid flex-1 text-left text-sm leading-tight">
+						<span className="truncate font-medium">{user?.team?.name}</span>
+						<span className="truncate text-muted-foreground text-xs capitalize">
+							{user?.team?.role}
+						</span>
 					</div>
 				</button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent
-				className="w-48"
-				side="bottom"
+				className="w-62"
+				side="right"
 				align="start"
 				sideOffset={10}
 			>

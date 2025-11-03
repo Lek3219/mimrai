@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useMemo } from "react";
 import { cn } from "@/lib/utils";
 
-export const SettingsSidebar = () => {
+export const SettingsNavbar = () => {
 	const pathname = usePathname();
 	const settingsLinks = useMemo(() => {
 		return [
@@ -47,8 +47,8 @@ export const SettingsSidebar = () => {
 	}, []);
 
 	return (
-		<div className="sticky top-8 h-fit w-full border p-4">
-			<ul className="flex flex-col space-y-1 text-sm">
+		<div className="h-fit w-full">
+			<ul className="flex space-x-1 text-sm">
 				{settingsLinks.map(({ to, label }) => (
 					<Link
 						href={to}

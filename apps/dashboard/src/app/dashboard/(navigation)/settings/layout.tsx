@@ -1,4 +1,4 @@
-import { SettingsSidebar } from "./sidebar";
+import { SettingsNavbar } from "./navbar";
 
 type Props = {
 	children: React.ReactNode;
@@ -6,8 +6,8 @@ type Props = {
 
 export default function Page({ children }: Props) {
 	return (
-		<div className="relative grid w-full flex-1 grid-cols-[250px_1fr] gap-8 px-12 py-10">
-			<SettingsSidebar />
+		<div className="relative flex w-full flex-1 flex-col gap-6 p-6">
+			<SettingsNavbar />
 			<main className="flex w-full">
 				<div className="w-full">{children}</div>
 			</main>

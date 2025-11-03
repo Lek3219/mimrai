@@ -1,16 +1,29 @@
+import { SidebarInset, SidebarProvider } from "@ui/components/ui/sidebar";
+import { Suspense } from "react";
+import { AppSidebar } from "@/components/app-sidebar";
 import Header from "@/components/header";
 import { GlobalSheets } from "@/components/sheets/global-sheets";
 
-export default async function DashboardLayout({
+export default function DashboardLayout({
 	children,
 }: {
 	children: React.ReactNode;
 }) {
 	return (
 		<>
-			<Header />
-			{children}
-			<GlobalSheets />
+			{/*<Header />*/}
+			<Suspense>
+				<SidebarProvider>
+					<AppSidebar collapsible="icon" />
+					<SidebarInset>
+						<Header />
+						<main className="flex flex-1 flex-col">{children}</main>
+					</SidebarInset>
+				</SidebarProvider>
+			</Suspense>
+			<Suspense>
+				<GlobalSheets />
+			</Suspense>
 		</>
 	);
 }

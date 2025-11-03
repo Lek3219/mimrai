@@ -5,23 +5,17 @@ import { Badge } from "@mimir/ui/badge";
 import { Button } from "@mimir/ui/button";
 import * as Kanban from "@mimir/ui/kanban";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-	CircleCheckIcon,
-	CircleDashed,
-	CircleDotDashedIcon,
-	FlagIcon,
-	GripVertical,
-	PlusIcon,
-} from "lucide-react";
+import { GripVertical, PlusIcon } from "lucide-react";
 import { AnimatePresence } from "motion/react";
 import * as React from "react";
 import { useColumnParams } from "@/hooks/use-column-params";
 import { useTaskParams } from "@/hooks/use-task-params";
 import { useTasksFilterParams } from "@/hooks/use-tasks-filter-params";
+import { cn } from "@/lib/utils";
 import { trpc } from "@/utils/trpc";
 import { ColumnIcon } from "../column-icon";
 import { ColumnContextMenu } from "./column-context-menu";
-import { KanbanTask } from "./kanban-task";
+import { KanbanTask } from "./kanban-task/kanban-task";
 import { TaskContextMenu } from "./task-context-menu";
 import { TasksFilters } from "./tasks-filters";
 
@@ -255,7 +249,7 @@ export function KanbanBoard() {
 
 							return (
 								<Kanban.Column
-									className="h-auto min-h-[200px] max-w-86 grow-1 bg-accent/10"
+									className="h-auto min-h-[200px] max-w-86 grow-1"
 									key={columnValue}
 									value={columnValue}
 								>
@@ -263,8 +257,13 @@ export function KanbanBoard() {
 										<div className="flex items-center justify-between">
 											<div className="flex items-center gap-2">
 												<Badge
-													variant="outline"
-													className="pointer-events-none space-x-1 rounded-none font-mono text-sm"
+													variant="secondary"
+													className={cn(
+														"pointer-events-none space-x-1 rounded-none bg-transparent text-sm",
+														{
+															"text-muted-foreground": tasks.length === 0,
+														},
+													)}
 												>
 													<ColumnIcon className="size-4!" type={column.type} />
 													<span>{tasks.length}</span>

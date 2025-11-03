@@ -8,7 +8,6 @@ import { format } from "date-fns";
 import { Loader2Icon, PlusIcon } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useMemo } from "react";
-import { AssigneeAvatar } from "@/components/kanban/asignee";
 import { TaskContextMenu } from "@/components/kanban/task-context-menu";
 import { useTaskParams } from "@/hooks/use-task-params";
 import { useTasksFilterParams } from "@/hooks/use-tasks-filter-params";

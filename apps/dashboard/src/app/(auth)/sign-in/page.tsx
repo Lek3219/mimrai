@@ -1,5 +1,6 @@
 import Image from "next/image";
 import SignInForm from "@/components/sign-in-form";
+import { Suspense } from "react";
 
 export default function LoginPage() {
 	return (
@@ -13,7 +14,9 @@ export default function LoginPage() {
 					className="h-screen w-full object-cover"
 				/>
 			</div>
-			<SignInForm />
+			<Suspense>
+			  <SignInForm />
+			</Suspense>
 		</div>
 	);
 }

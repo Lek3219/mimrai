@@ -306,7 +306,7 @@ export const TaskForm = ({
 												)}
 											/>
 
-											<div className="flex items-center gap-2">
+											<div className="flex flex-wrap items-center gap-2">
 												<FormField
 													control={form.control}
 													name="assigneeId"
@@ -404,7 +404,7 @@ export const TaskForm = ({
 																>
 																	<SelectTrigger className="h-6! border-none bg-secondary text-xs hover:bg-secondary/80 dark:bg-secondary/80 hover:dark:bg-secondary/70">
 																		{field.value && (
-																			<div className="flex gap-2 capitalize">
+																			<div className="flex items-center gap-2 capitalize">
 																				<Priority value={field.value} />
 																				{field.value}
 																			</div>
@@ -438,28 +438,41 @@ export const TaskForm = ({
 													control={form.control}
 													name="attachments"
 													render={({ field }) => (
-														<TaskAttachments attachments={field.value ?? []} />
+														<TaskAttachments
+															attachments={field.value ?? []}
+															onRemove={(index) => {
+																field.onChange(
+																	field.value?.filter((_, i) => i !== index),
+																);
+															}}
+														/>
 													)}
 												/>
 											</div>
-											<Button
-												type="submit"
-												variant={defaultValues?.id ? "ghost" : "default"}
-												size={"sm"}
-												className="text-xs"
-												disabled={
-													!form.formState.isDirty ||
-													isPendingCreate ||
-													isPendingUpdate
-												}
-											>
-												{(isPendingCreate || isPendingUpdate) && (
-													<Loader2 className="animate-spin" />
+
+											<div className="flex items-center gap-2">
+												{defaultValues?.id && (
+													<span className="text-muted-foreground text-xs">
+														Last saved at {format(lastSavedDate, "PP, p")}
+													</span>
 												)}
-												{defaultValues?.id
-													? `Last saved at ${format(lastSavedDate, "PP, p")}`
-													: "Create Task"}
-											</Button>
+												<Button
+													type="submit"
+													variant={"default"}
+													size={"sm"}
+													className="text-xs"
+													disabled={
+														!form.formState.isDirty ||
+														isPendingCreate ||
+														isPendingUpdate
+													}
+												>
+													{(isPendingCreate || isPendingUpdate) && (
+														<Loader2 className="animate-spin" />
+													)}
+													{defaultValues?.id ? "Save" : "Create Task"}
+												</Button>
+											</div>
 										</div>
 									</div>
 								</div>
