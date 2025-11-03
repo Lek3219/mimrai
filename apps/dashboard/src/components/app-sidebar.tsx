@@ -31,6 +31,7 @@ type Item = {
 	url: string;
 	icon: LucideIcon;
 	items?: Omit<Item, "icon" | "items">[];
+	scopes?: string[];
 	isActive?: boolean;
 };
 
@@ -71,6 +72,7 @@ const data: {
 				{
 					title: "Billing",
 					url: "/dashboard/settings/billing",
+					scopes: ["team:write"],
 				},
 				{
 					title: "Members",

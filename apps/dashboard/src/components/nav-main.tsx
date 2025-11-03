@@ -18,6 +18,7 @@ import {
 import { ChevronRight, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useUser } from "@/hooks/use-user";
 import { cn } from "@/lib/utils";
 
 export function NavMain({
@@ -27,12 +28,15 @@ export function NavMain({
 		title: string;
 		url: string;
 		icon: LucideIcon;
+		scopes?: string[];
 		items?: {
 			title: string;
 			url: string;
+			scopes?: string[];
 		}[];
 	}[];
 }) {
+	const user = useUser();
 	const pathname = usePathname();
 
 	return (
@@ -42,6 +46,14 @@ export function NavMain({
 					const isActive =
 						pathname.startsWith(item.url) ||
 						item.items?.some((subItem) => pathname === subItem.url);
+
+					if (
+						item.scopes &&
+						!item.scopes.every((scope) =>
+							(user?.team?.scopes as string[])?.includes(scope),
+						)
+					)
+						return null;
 					return (
 						<Collapsible key={item.title} asChild defaultOpen={isActive}>
 							<SidebarMenuItem>
@@ -71,6 +83,14 @@ export function NavMain({
 											<SidebarMenuSub>
 												{item.items?.map((subItem) => {
 													const isSubActive = pathname === subItem.url;
+
+													if (
+														subItem.scopes &&
+														!subItem.scopes.every((scope) =>
+															(user?.team?.scopes as string[])?.includes(scope),
+														)
+													)
+														return null;
 													return (
 														<SidebarMenuSubItem key={subItem.title}>
 															<SidebarMenuSubButton

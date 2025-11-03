@@ -3,9 +3,11 @@ import { t } from "@mimir/locale";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useMemo } from "react";
+import { useUser } from "@/hooks/use-user";
 import { cn } from "@/lib/utils";
 
 export const SettingsNavbar = () => {
+	const user = useUser();
 	const pathname = usePathname();
 	const settingsLinks = useMemo(() => {
 		return [
@@ -20,6 +22,7 @@ export const SettingsNavbar = () => {
 			{
 				to: "/dashboard/settings/billing",
 				label: t("settings.sidebar.billing"),
+				scopes: ["team:write"],
 			},
 			{
 				to: "/dashboard/settings/members",
@@ -46,24 +49,35 @@ export const SettingsNavbar = () => {
 		];
 	}, []);
 
+	if (!user) return null;
+
 	return (
 		<div className="h-fit w-full">
 			<ul className="flex space-x-1 text-sm">
-				{settingsLinks.map(({ to, label }) => (
-					<Link
-						href={to}
-						key={to}
-						className={cn(
-							"rounded-none border border-transparent px-4 py-2 transition-all hover:border-muted hover:text-accent-foreground",
-							{
-								"bg-accent font-medium text-accent-foreground":
-									pathname.includes(to),
-							},
-						)}
-					>
-						<li>{label}</li>
-					</Link>
-				))}
+				{settingsLinks.map(({ to, label, scopes }) => {
+					if (
+						scopes &&
+						!scopes.every((scope) =>
+							(user?.team?.scopes as string[])?.includes(scope),
+						)
+					)
+						return null;
+					return (
+						<Link
+							href={to}
+							key={to}
+							className={cn(
+								"rounded-none border border-transparent px-4 py-2 transition-all hover:border-muted hover:text-accent-foreground",
+								{
+									"bg-accent font-medium text-accent-foreground":
+										pathname.includes(to),
+								},
+							)}
+						>
+							<li>{label}</li>
+						</Link>
+					);
+				})}
 			</ul>
 		</div>
 	);
