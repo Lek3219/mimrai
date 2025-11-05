@@ -65,9 +65,9 @@ export function NavMain({
 									<Link
 										href={item.url}
 										className={cn(
-											"flex items-center border border-transparent py-5 text-sm! hover:border-input",
+											"flex h-9 items-center border border-transparent text-sm!",
 											{
-												"border-input bg-accent": isActive,
+												"bg-accent": isActive,
 											},
 										)}
 									>
