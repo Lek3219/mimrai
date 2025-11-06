@@ -92,7 +92,22 @@ export const Recurring = () => {
 							render={({ field }) => (
 								<FormItem className="w-full">
 									<FormControl>
-										<Select value={field.value} onValueChange={field.onChange}>
+										<Select
+											value={field.value}
+											onValueChange={(value) => {
+												if (!recurring?.startDate) {
+													form.setValue(
+														"recurring.startDate",
+														new Date().toISOString(),
+														{
+															shouldDirty: true,
+															shouldValidate: true,
+														},
+													);
+												}
+												field.onChange(value);
+											}}
+										>
 											<SelectTrigger size="sm" className="w-full">
 												<SelectValue placeholder="Repeat..." />
 											</SelectTrigger>

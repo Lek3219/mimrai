@@ -46,7 +46,7 @@ export const RecurringList = () => {
 
 	if (listData.length === 0 && !isLoading && !hasFilters) {
 		return (
-			<div className="mt-12 flex flex-col items-start justify-center gap-2 px-8 text-center">
+			<div className="flex flex-col items-start justify-center gap-2 text-center">
 				<h3 className="flex items-center gap-2 font-runic text-3xl uppercase">
 					no tasks scheduled
 				</h3>
@@ -69,7 +69,7 @@ export const RecurringList = () => {
 	return (
 		<div>
 			<AnimatePresence>
-				<ul className="flex flex-col py-4">
+				<ul className="flex flex-col">
 					{listData.map((task) => (
 						<TaskContextMenu key={task.id} task={task}>
 							<li>

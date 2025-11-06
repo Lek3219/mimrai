@@ -12,6 +12,7 @@ import type z from "zod";
 import { useTaskParams } from "@/hooks/use-task-params";
 import { useZodForm } from "@/hooks/use-zod-form";
 import { trpc } from "@/utils/trpc";
+import { ActionsMenu } from "./actions-menu";
 import { TaskActivitiesList } from "./activities-list";
 import { Assignee } from "./assignee";
 import { Attachments } from "./attachments";
@@ -54,12 +55,10 @@ export const TaskForm = ({
 			showSmartInput: !defaultValues?.id,
 			assigneeId: null,
 			...defaultValues,
-			recurring: {
-				startDate: new Date().toISOString(),
-				...defaultValues?.recurring,
-			},
 		},
 	});
+
+	const id = form.watch("id");
 
 	const { mutate: removeTaskFromPullRequestPlan } = useMutation(
 		trpc.github.removeTrasksFromPullRequestPlan.mutationOptions({
@@ -67,7 +66,7 @@ export const TaskForm = ({
 				queryClient.invalidateQueries(trpc.tasks.get.queryOptions());
 				queryClient.invalidateQueries(
 					trpc.tasks.getById.queryOptions({
-						id: defaultValues?.id!,
+						id: id!,
 					}),
 				);
 			},
@@ -154,7 +153,7 @@ export const TaskForm = ({
 		}
 	};
 
-	const createMode = !defaultValues?.id;
+	const createMode = !id;
 	const showSmartInput = createMode && formValues.showSmartInput;
 
 	return (
@@ -189,7 +188,7 @@ export const TaskForm = ({
 				<>
 					<Form {...form}>
 						<form onSubmit={form.handleSubmit(onSubmit)}>
-							<div className="">
+							<div className="pt-4">
 								<div className="space-y-1 py-2">
 									<input className="hidden size-0 opacity-0" />
 									<div className="flex items-center justify-between gap-4 px-4">
@@ -225,11 +224,12 @@ export const TaskForm = ({
 											</div>
 
 											<div className="flex items-center gap-2">
-												{defaultValues?.id && (
-													<span className="text-muted-foreground text-xs">
+												{id && (
+													<span className="mr-2 text-muted-foreground text-xs">
 														Last saved at {format(lastSavedDate, "PP, p")}
 													</span>
 												)}
+
 												<Button
 													type="submit"
 													variant={"default"}
@@ -244,8 +244,9 @@ export const TaskForm = ({
 													{(isPendingCreate || isPendingUpdate) && (
 														<Loader2 className="animate-spin" />
 													)}
-													{defaultValues?.id ? "Save" : "Create Task"}
+													{id ? "Save Changes" : "Create Task"}
 												</Button>
+												{id && <ActionsMenu />}
 											</div>
 										</div>
 									</div>
@@ -255,26 +256,24 @@ export const TaskForm = ({
 					</Form>
 
 					<div className="px-4">
-						{defaultValues?.id && (
+						{id && (
 							<div>
 								<hr className="my-6" />
-								<TaskChecklist taskId={defaultValues?.id!} />
+								<TaskChecklist taskId={id!} />
 							</div>
 						)}
-						{defaultValues?.id && (
+						{id && (
 							<div>
 								<hr className="my-6" />
 								<div>
 									<div className="mb-4 flex items-center justify-between">
 										<span className="font-medium text-sm">Activity</span>
-										{defaultValues?.id && (
-											<SubscribersList taskId={defaultValues?.id!} />
-										)}
+										{id && <SubscribersList taskId={id!} />}
 									</div>
-									<TaskActivitiesList taskId={defaultValues?.id} />
+									<TaskActivitiesList taskId={id} />
 								</div>
 								<div className="mt-4">
-									<CommentInput taskId={defaultValues?.id} />
+									<CommentInput taskId={id} />
 								</div>
 							</div>
 						)}

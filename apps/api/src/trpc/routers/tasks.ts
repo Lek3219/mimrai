@@ -1,5 +1,6 @@
 import { getUserContext } from "@api/ai/utils/get-user-context";
 import {
+	cloneTaskSchema,
 	commentTaskSchema,
 	createTaskSchema,
 	deleteTaskSchema,
@@ -16,6 +17,7 @@ import { protectedProcedure, router } from "@api/trpc/init";
 import { getLabels } from "@db/queries/labels";
 import { getMemberById, getMembers } from "@db/queries/teams";
 import {
+	cloneTask,
 	createTask,
 	createTaskComment,
 	deleteTask,
@@ -62,6 +64,17 @@ export const tasksRouter = router({
 
 			return task;
 		}),
+
+	clone: protectedProcedure
+		.input(cloneTaskSchema)
+		.mutation(async ({ ctx, input }) => {
+			return cloneTask({
+				taskId: input.taskId,
+				userId: ctx.user.id,
+				teamId: ctx.user.teamId!,
+			});
+		}),
+
 	update: protectedProcedure
 		.input(updateTaskSchema)
 		.mutation(async ({ ctx, input }) => {
@@ -72,7 +85,7 @@ export const tasksRouter = router({
 			});
 
 			// If recurring is set, schedule the first occurrence
-			if (task.recurring) {
+			if (task.recurring?.interval && task.recurring?.frequency) {
 				const existingJob = task.recurringJobId;
 				if (existingJob) {
 					// If there's an existing job, we might want to cancel it first

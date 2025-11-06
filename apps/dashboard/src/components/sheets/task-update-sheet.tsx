@@ -16,6 +16,8 @@ export const TaskUpdateSheet = () => {
 
 	const isOpen = Boolean(taskId);
 
+	console.log("taskId", taskId, isOpen);
+
 	const { data: task } = useQuery(
 		trpc.tasks.getById.queryOptions(
 			{
@@ -23,7 +25,11 @@ export const TaskUpdateSheet = () => {
 			},
 			{
 				enabled: isOpen,
-				placeholderData: (prev) => prev,
+				placeholderData: (old) => {
+					if (!taskId) return old;
+					if (taskId === old?.id) return old;
+					return undefined;
+				},
 			},
 		),
 	);

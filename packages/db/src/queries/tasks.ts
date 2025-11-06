@@ -715,3 +715,51 @@ export const updateTaskRecurringJob = async ({
 	}
 	return task;
 };
+
+export const cloneTask = async ({
+	taskId,
+	teamId,
+	userId,
+}: {
+	taskId: string;
+	teamId: string;
+	userId: string;
+}) => {
+	const task = await getTaskById(taskId, teamId);
+	if (!task) throw new Error("Task not found");
+
+	const newTask = await createTask({
+		title: task.title,
+		description: task.description!,
+		assigneeId: task.assigneeId!,
+		columnId: task.columnId,
+		order: task.order,
+		priority: task.priority,
+		labels: task.labels.map((label) => label.id),
+		teamId,
+		userId,
+		dueDate: task.dueDate!,
+		recurring: task.recurring!,
+		attachments: task.attachments!,
+	});
+
+	const items = await db
+		.select()
+		.from(checklistItems)
+		.where(eq(checklistItems.taskId, taskId));
+
+	await Promise.all(
+		items.map((item) =>
+			db.insert(checklistItems).values({
+				taskId: newTask.id,
+				description: item.description,
+				isCompleted: false,
+				assigneeId: item.assigneeId,
+				teamId,
+				attachments: item.attachments,
+			}),
+		),
+	);
+
+	return newTask;
+};

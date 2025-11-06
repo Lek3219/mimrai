@@ -20,6 +20,7 @@ export const taskFormSchema = z.object({
 				.default(() => new Date().toISOString())
 				.optional(),
 		})
+		.transform((val) => (val.frequency && val.interval ? val : null))
 		.nullable()
 		.optional(),
 });

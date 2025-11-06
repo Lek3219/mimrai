@@ -41,6 +41,10 @@ export const createTaskSchema = z.object({
 });
 export type CreateTaskInput = z.infer<typeof createTaskSchema>;
 
+export const cloneTaskSchema = z.object({
+	taskId: z.string(),
+});
+
 export const updateTaskSchema = z.object({
 	id: z.string(),
 	title: z.string().min(1).max(255).optional(),

@@ -12,8 +12,11 @@ import {
 } from "@mimir/ui/context-menu";
 import { LabelBadge } from "@mimir/ui/label-badge";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { useTaskParams } from "@/hooks/use-task-params";
 import { queryClient, trpc } from "@/utils/trpc";
 import { ColumnIcon } from "../column-icon";
+import Loader from "../loader";
 import { Assignee, AssigneeAvatar } from "./asignee";
 import { PriorityItem } from "./priority";
 
@@ -24,14 +27,52 @@ export const TaskContextMenu = ({
 	task: RouterOutputs["tasks"]["get"]["data"][number];
 	children: React.ReactNode;
 }) => {
+	const { setParams } = useTaskParams();
+
 	const { mutateAsync: deleteTask } = useMutation(
 		trpc.tasks.delete.mutationOptions(),
 	);
 	const { mutate: updateTask } = useMutation(
 		trpc.tasks.update.mutationOptions({
+			onMutate: () => {
+				toast.loading("Updating task...", {
+					id: "update-task",
+				});
+			},
 			onSuccess: () => {
+				toast.success("Task updated", {
+					id: "update-task",
+				});
 				queryClient.invalidateQueries(trpc.tasks.get.queryOptions());
 				queryClient.invalidateQueries(trpc.tasks.get.infiniteQueryOptions());
+			},
+			onError: () => {
+				toast.error("Failed to update task", {
+					id: "update-task",
+				});
+			},
+		}),
+	);
+
+	const { mutate: cloneTask, isPending: isCloning } = useMutation(
+		trpc.tasks.clone.mutationOptions({
+			onMutate: () => {
+				toast.loading("Cloning task...", {
+					id: "clone-task",
+				});
+			},
+			onSuccess: (task) => {
+				toast.success("Task cloned", {
+					id: "clone-task",
+				});
+				queryClient.invalidateQueries(trpc.tasks.get.infiniteQueryOptions());
+				queryClient.invalidateQueries(trpc.tasks.get.queryOptions());
+				setParams({ taskId: task.id });
+			},
+			onError: () => {
+				toast.error("Failed to clone task", {
+					id: "clone-task",
+				});
 			},
 		}),
 	);
@@ -100,6 +141,14 @@ export const TaskContextMenu = ({
 							))}
 					</ContextMenuSubContent>
 				</ContextMenuSub>
+
+				<ContextMenuItem
+					onClick={() => cloneTask({ taskId: task.id })}
+					disabled={isCloning}
+				>
+					{isCloning && <Loader />}
+					Clone
+				</ContextMenuItem>
 
 				<ContextMenuSeparator />
 				<ContextMenuSub>
@@ -176,11 +225,12 @@ export const TaskContextMenu = ({
 						))}
 					</ContextMenuSubContent>
 				</ContextMenuSub>
+
 				<ContextMenuItem
 					variant="destructive"
 					onClick={handleDeleteTask.bind(null, task.id)}
 				>
-					Eliminar
+					Delete
 				</ContextMenuItem>
 			</ContextMenuContent>
 		</ContextMenu>
