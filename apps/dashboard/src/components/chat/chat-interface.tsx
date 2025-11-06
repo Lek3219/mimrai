@@ -1,22 +1,33 @@
 "use client";
-import { AIDevtools } from "@ai-sdk-tools/devtools";
 import { useChat } from "@ai-sdk-tools/store";
 import type { UIChatMessage } from "@mimir/api/ai/types";
 import { DefaultChatTransport, generateId } from "ai";
 import { useMemo } from "react";
-import { useChatParams } from "@/hooks/use-chat-params";
 import { queryClient, trpc } from "@/utils/trpc";
+import { useChatWidget } from "./chat-widget";
 import { ChatInput } from "./input";
 import { Messages } from "./messages";
 
-export const ChatInterface = ({ id }: { id?: string }) => {
-	const { chatId: chatIdParam } = useChatParams();
+export const ChatInterface = ({
+	id,
+	showMessages = true,
+}: {
+	id?: string;
+	showMessages?: boolean;
+}) => {
+	// const { chatId: chatIdParam } = useChatParams();
+	const { setChatId, chatId: chatIdParam } = useChatWidget();
 
 	// Use provided id, or get from route, or generate new one
 	const providedId = id ?? chatIdParam;
 
 	// Generate a consistent chat ID - use provided ID or generate one
-	const chatId = useMemo(() => providedId ?? generateId(), [providedId]);
+	const chatId = useMemo(() => {
+		if (providedId) return providedId;
+		const newId = generateId();
+		setChatId(newId);
+		return newId;
+	}, [providedId]);
 
 	const authenticatedFetch = useMemo(
 		() =>
@@ -67,8 +78,8 @@ export const ChatInterface = ({ id }: { id?: string }) => {
 
 	return (
 		<div className="h-full">
-			<div className="flex h-[calc(100vh-120px)] w-full flex-col overflow-hidden px-4">
-				<Messages />
+			<div className="flex w-full flex-col overflow-hidden">
+				{showMessages && <Messages />}
 				<ChatInput />
 			</div>
 		</div>

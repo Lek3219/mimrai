@@ -131,7 +131,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 					<SidebarSubscriptionStatus />
 				</div>
 			</SidebarContent>
-			<SidebarFooter className="border-t">
+			<SidebarFooter className="">
 				<NavUser user={user!} />
 			</SidebarFooter>
 		</Sidebar>

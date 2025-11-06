@@ -14,9 +14,7 @@ export const SidebarSubscriptionStatus = () => {
 		<div className="px-4 py-2">
 			<Alert className="border-none p-0">
 				{/*<InfoIcon className="stroke-yellow-600" />*/}
-				<AlertTitle className="text-yellow-600">
-					You're on a free trial
-				</AlertTitle>
+				<AlertTitle className="">You're on a free trial</AlertTitle>
 				<AlertDescription className="text-xs">
 					Your trial ends on{" "}
 					{new Date(data.trialEnd * 1000).toLocaleDateString()}.
