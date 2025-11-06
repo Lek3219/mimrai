@@ -62,6 +62,10 @@ const data: {
 					title: "Backlog",
 					url: "/dashboard/backlog",
 				},
+				{
+					title: "Recurring",
+					url: "/dashboard/recurring",
+				},
 			],
 		},
 		{

@@ -13,7 +13,7 @@ import { useTaskParams } from "@/hooks/use-task-params";
 import { useTasksFilterParams } from "@/hooks/use-tasks-filter-params";
 import { queryClient, trpc } from "@/utils/trpc";
 
-export const SchedulesList = () => {
+export const RecurringList = () => {
 	const { setParams } = useTaskParams();
 	const {
 		setParams: setFilters,
@@ -67,7 +67,7 @@ export const SchedulesList = () => {
 	}
 
 	return (
-		<div className="px-8 py-4">
+		<div>
 			<AnimatePresence>
 				<ul className="flex flex-col py-4">
 					{listData.map((task) => (

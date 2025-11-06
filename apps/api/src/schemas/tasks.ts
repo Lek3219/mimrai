@@ -55,7 +55,7 @@ export const updateTaskSchema = z.object({
 	recurring: z
 		.object({
 			frequency: z.enum(["daily", "weekly", "monthly", "yearly"]),
-			interval: z.number().min(1).max(365),
+			interval: z.coerce.number().min(1).max(365),
 			startDate: z.string().nullable().optional(),
 		})
 		.nullable()

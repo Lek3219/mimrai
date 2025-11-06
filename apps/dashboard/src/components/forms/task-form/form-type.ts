@@ -15,7 +15,10 @@ export const taskFormSchema = z.object({
 		.object({
 			frequency: z.enum(["daily", "weekly", "monthly", "yearly"]),
 			interval: z.coerce.number().min(1).max(12),
-			startDate: z.string().optional(),
+			startDate: z
+				.string()
+				.default(() => new Date().toISOString())
+				.optional(),
 		})
 		.nullable()
 		.optional(),

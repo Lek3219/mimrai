@@ -22,7 +22,7 @@ import {
 import { formatRelative } from "date-fns";
 import { CalendarSyncIcon, ChevronDownIcon } from "lucide-react";
 import { useFormContext } from "react-hook-form";
-import type { TaskFormValues } from "./form";
+import type { TaskFormValues } from "./form-type";
 
 const formatFrequency = (frequency: string) => {
 	if (frequency === "daily") {
@@ -83,9 +83,9 @@ export const Recurring = () => {
 					<ChevronDownIcon className="text-muted-foreground" />
 				</Button>
 			</PopoverTrigger>
-			<PopoverContent className="w-82 overflow-hidden p-0" align="start">
+			<PopoverContent className="overflow-hidden p-0" align="start">
 				<div className="flex flex-col">
-					<div className="order-1 flex space-x-4 p-4">
+					<div className="order-1 flex flex-col space-y-2 px-4 pb-4">
 						<FormField
 							name="recurring.frequency"
 							control={form.control}

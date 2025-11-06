@@ -54,6 +54,10 @@ export const TaskForm = ({
 			showSmartInput: !defaultValues?.id,
 			assigneeId: null,
 			...defaultValues,
+			recurring: {
+				startDate: new Date().toISOString(),
+				...defaultValues?.recurring,
+			},
 		},
 	});
 

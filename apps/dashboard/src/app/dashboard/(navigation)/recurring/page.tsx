@@ -1,10 +1,10 @@
 import { Suspense } from "react";
-import { SchedulesList } from "./schedules-list";
+import { RecurringList } from "./recurring-list";
 
 export default function Page() {
 	return (
 		<Suspense>
-			<SchedulesList />
+			<RecurringList />
 		</Suspense>
 	);
 }

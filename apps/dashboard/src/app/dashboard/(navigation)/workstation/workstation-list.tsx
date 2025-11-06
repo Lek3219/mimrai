@@ -52,14 +52,14 @@ export const WorkstationList = () => {
 									)}
 									<span className="font-medium">{task.title}</span>
 								</TableCell>
-								<TableCell>
+								<TableCell className="w-0">
 									{task.dueDate && (
 										<time className="text-xs tabular-nums">
 											{format(new Date(task.dueDate), "PP")}
 										</time>
 									)}
 								</TableCell>
-								<TableCell>
+								<TableCell className="w-0">
 									{task.column && (
 										<time className="flex items-center gap-1 tabular-nums">
 											<ColumnIcon {...task.column} className="size-3.5" />
@@ -67,7 +67,7 @@ export const WorkstationList = () => {
 										</time>
 									)}
 								</TableCell>
-								<TableCell className="flex justify-end">
+								<TableCell className="w-0">
 									{task.checklistSummary?.total > 0 && (
 										<div
 											className={cn("flex items-center text-muted-foreground", {
