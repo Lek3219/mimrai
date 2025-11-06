@@ -5,33 +5,33 @@ import { useEffect } from "react";
 import { trpc } from "@/utils/trpc";
 
 export const useUser = () => {
-  const { data } = useQuery(trpc.users.getCurrent.queryOptions());
+	const { data } = useQuery(trpc.users.getCurrent.queryOptions());
+	const { identify } = useOpenPanel();
+	useEffect(() => {
+		if (!data) return;
+		identify({
+			profileId: data.id!,
+			firstName: data.name?.split(" ")[0] || "",
+			lastName: data.name?.split(" ")[1] || "",
+			email: data.email || "",
+		});
+	}, [data]);
 
-  return data;
+	return data;
 };
 
 export const useScopes = (scopes: Scope[]) => {
-  const user = useUser();
-  const { identify } = useOpenPanel();
-  useEffect(() => {
-    if (!user) return;
-    identify({
-      profileId: user.id!,
-      firstName: user.name?.split(" ")[0] || "",
-      lastName: user.name?.split(" ")[1] || "",
-      email: user.email || "",
-    });
-  }, [user]);
+	const user = useUser();
 
-  if (!user) return false;
+	if (!user) return false;
 
-  if (scopes.length === 0) return true;
+	if (scopes.length === 0) return true;
 
-  if (!user.team) return false;
-  if (!user.team.scopes) return false;
+	if (!user.team) return false;
+	if (!user.team.scopes) return false;
 
-  if (user.team.scopes.length === 0) return false;
+	if (user.team.scopes.length === 0) return false;
 
-  // Check if user has all required scopes
-  return user.team.scopes.every((scope) => scopes.includes(scope));
+	// Check if user has all required scopes
+	return user.team.scopes.every((scope) => scopes.includes(scope));
 };
