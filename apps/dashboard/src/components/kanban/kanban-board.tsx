@@ -249,7 +249,7 @@ export function KanbanBoard() {
 
 							return (
 								<Kanban.Column
-									className="h-auto min-h-[200px] max-w-86 grow-1"
+									className="h-auto min-h-[200px] min-w-86 grow-1"
 									key={columnValue}
 									value={columnValue}
 								>
