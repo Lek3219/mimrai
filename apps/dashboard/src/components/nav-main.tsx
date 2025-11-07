@@ -78,7 +78,7 @@ export function NavMain({
 								{item.items?.length ? (
 									<>
 										<CollapsibleTrigger asChild>
-											<SidebarMenuAction className="mt-1 hover:bg-transparent data-[state=open]:rotate-90">
+											<SidebarMenuAction className="mt-0.5 hover:bg-transparent data-[state=open]:rotate-90">
 												<ChevronRight />
 												<span className="sr-only">Toggle</span>
 											</SidebarMenuAction>

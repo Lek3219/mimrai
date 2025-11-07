@@ -47,7 +47,7 @@ export const IntegrationsList = () => {
 												</Link>
 											</div>
 										) : integration.type === "whatsapp" ? (
-											<Link href={"https://wa.me/+18634347933"}>
+											<Link target="_blank" href={"https://wa.me/+18634347933"}>
 												<Button size="sm" variant={"outline"}>
 													Chat
 												</Button>

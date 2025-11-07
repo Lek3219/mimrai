@@ -11,7 +11,6 @@ import {
 	ChevronDownIcon,
 	CirclePlusIcon,
 	Layers3Icon,
-	LayersIcon,
 	PlusIcon,
 } from "lucide-react";
 import { useColumnParams } from "@/hooks/use-column-params";
@@ -25,7 +24,10 @@ export const CreateButton = () => {
 		<div>
 			<DropdownMenu>
 				<DropdownMenuTrigger asChild>
-					<Button type="button" className="w-full justify-between">
+					<Button
+						type="button"
+						className="w-full justify-between group-data-[collapsible=icon]:h-7! group-data-[collapsible=icon]:p-2!"
+					>
 						<div className="flex items-center gap-2">
 							<PlusIcon />
 							<RotatingText
