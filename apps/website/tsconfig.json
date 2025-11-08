@@ -5,7 +5,10 @@
 		"paths": {
 			"@/*": ["./src/*"],
 			"@api/*": ["../api/src/*"],
-			"@ui/*": ["../../packages/ui/src/*"]
+			"@ui/*": ["../../packages/ui/src/*"],
+			"@kanban-task": [
+				"../dashboard/src/components/kanban/kanban-task/kanban-task.tsx"
+			]
 		},
 		"strict": true,
 		"verbatimModuleSyntax": true

@@ -2,5 +2,5 @@
 @source "../../packages/ui";
 
 .section-center {
-	@apply px-4 mx-auto max-w-6xl px-4;
+	@apply px-4 mx-auto max-w-6xl w-full;
 }

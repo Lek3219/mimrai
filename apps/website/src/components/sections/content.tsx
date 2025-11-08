@@ -5,7 +5,7 @@ import { ChatWidgetWithoutMimir } from "../chat-widget";
 export const ContentSection = () => {
 	return (
 		<section className="relative flex w-screen gap-12 bg-background text-background-foreground">
-			<FloatingIcons />
+			{/* <FloatingIcons /> */}
 			<Borders />
 			<div className="px-4 py-8 sm:px-0">
 				<div className="text-base sm:text-lg">
