@@ -1,3 +1,4 @@
+import { getWebsiteUrl } from "@mimir/utils/envs";
 import { Button } from "@ui/components/ui/button";
 import { ChevronLeftIcon } from "lucide-react";
 import Image from "next/image";
@@ -12,7 +13,7 @@ export default function LoginPage() {
 			<div className="flex h-screen w-full flex-col gap-4 p-8">
 				<div className="flex justify-between">
 					<Logo className="size-8 rounded-full" />
-					<Link href="/">
+					<Link href={getWebsiteUrl()}>
 						<Button variant={"ghost"} className="">
 							<ChevronLeftIcon />
 							Back to Home
