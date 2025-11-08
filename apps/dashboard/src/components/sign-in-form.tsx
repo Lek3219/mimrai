@@ -9,6 +9,7 @@ import {
 	FormMessage,
 } from "@mimir/ui/form";
 import { Input } from "@mimir/ui/input";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -76,12 +77,16 @@ export default function SignInForm() {
 	}, [data?.user]);
 
 	return (
-		<div className="mx-auto my-auto w-full max-w-lg p-6">
-			<h1 className="mb-2 text-center font-semibold text-2xl">
+		<div className="mx-auto my-auto w-full max-w-lg p-6 text-start">
+			<h1 className="font-runic font-semibold text-3xl">
 				Nice to see you again
 			</h1>
-			<p className="mb-8 text-balance text-center text-muted-foreground">
-				Welcome back! Enter your credentials to unlock your Mimir experience.
+			<p className="mb-4 text-balance text-muted-foreground">
+				<Link href="/sign-up">
+					<Button variant="link" type="button" className="px-0">
+						Need an account? Sign Up
+					</Button>
+				</Link>
 			</p>
 			<Form {...form}>
 				<form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
@@ -127,9 +132,11 @@ export default function SignInForm() {
 			</Form>
 
 			<div className="mt-4 text-center">
-				<Button variant="link" onClick={() => router.push("/sign-up")}>
-					Need an account? Sign Up
-				</Button>
+				<Link href="/forgot-password">
+					<Button variant="link" type="button" className="px-0">
+						Forgot your password?
+					</Button>
+				</Link>
 			</div>
 		</div>
 	);
