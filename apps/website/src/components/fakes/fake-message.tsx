@@ -13,7 +13,7 @@ export const FakeMessage = ({
 }) => {
 	return (
 		<motion.div
-			drag
+			drag={false}
 			dragConstraints={{
 				top: -DEFAULT_CONSTRAINT,
 				left: -DEFAULT_CONSTRAINT,

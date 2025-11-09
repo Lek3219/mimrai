@@ -11,6 +11,7 @@ import { createRef, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { FakeMessage } from "../fakes/fake-message";
 import { FakeTask } from "../fakes/fake-tasks";
+import { Logo } from "../logo";
 
 export const MainHero = () => {
 	const constraintsRef = useRef<HTMLDivElement>(null);
@@ -20,57 +21,68 @@ export const MainHero = () => {
 			className="relative flex h-screen flex-col border"
 			ref={constraintsRef}
 		>
-			<section className="flex h-full flex-col justify-between overflow-hidden px-8 pt-8 pb-8">
-				<h1 className="font-runic text-6xl sm:text-8xl">
-					MIMR
-					<span className="text-muted-foreground">AI</span>
-				</h1>
-				<p className="max-w-sm text-base text-muted-foreground sm:text-lg">
-					Stop over-configuring. Just write what needs to be done — MIMRAI turns
-					messages into organized tasks automatically.
-				</p>
-			</section>
+			<header className="flex h-full flex-col overflow-hidden px-8 pt-8 pb-8">
+				<div className="flex flex-col items-start gap-2 space-y-4">
+					<Link href={"/"}>
+						<Logo
+							className="size-8 rounded-full bg-primary p-1"
+							width={96}
+							height={96}
+						/>
+					</Link>
+				</div>
+			</header>
 
-			<div className="-translate-y-1/2 pointer-events-none absolute inset-x-0 top-1/2">
-				{/* <div className="mx-8 w-fit space-y-4">
-					<FakeMessage
-						variant="user"
-						body="We need to fix the login bug before the release. Maybe implement OAuth?"
-					/>
-					<FakeTask
-						constraintsRef={constraintsRef}
-						title="Implement OAuth"
-						labels={["Feature"]}
-					/>
-					<FakeMessage
-						variant="assistant"
-						body="The task [Implement OAuth] has been created."
-					/>
-				</div> */}
-			</div>
+			<div className="-translate-y-1/2 pointer-events-none absolute inset-x-0 top-1/2" />
 			{/* <div className="-translate-y-1/2 absolute top-1/2 right-0 h-[80%] w-[50%] overflow-hidden rounded-l-none"> */}
-			<div className="-z-1 absolute inset-0 invert">
+			<div className="-z-5 pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,rgba(0,0,0,0),rgba(0,0,0,0.0)),url(https://grainy-gradients.vercel.app/noise.svg)] brightness-[10%] contrast-[170%]" />
+			<div className="-z-10 absolute inset-0 invert">
 				<Image
-					src={"/images/cover2.png"}
+					src={"/images/cover4.png"}
 					alt="Cover Image"
 					className="size-full object-cover"
 					width={1400}
 					height={800}
 				/>
 			</div>
-			<div className="pointer-events-none absolute inset-0">
-				<Flow className="-translate-y-[10%] pointer-events-none top-[10%] opacity-30" />
+			<div className="pointer-events-none absolute inset-0 z-10">
+				<Flow className="-translate-y-[10%] pointer-events-none top-[10%] opacity-50" />
 				<Flow
-					className="-translate-y-[60%] pointer-events-none top-[60%] opacity-30"
+					className="-translate-y-[60%] pointer-events-none top-[60%] opacity-50"
 					delay={8}
 				/>
 				<Flow
-					className="-translate-y-[100%] pointer-events-none top-[100%] opacity-30"
+					className="-translate-y-[100%] pointer-events-none top-[100%] opacity-50"
 					delay={5}
 				/>
 			</div>
-			<div className="mt-auto flex justify-between">
-				<div className="flex items-center px-8 font-mono">{"10/28/2025"}</div>
+			<div className="mt-auto flex items-end justify-between">
+				<div className="space-y-4 p-8">
+					{/* <div className="w-fit space-y-4">
+						<FakeMessage
+							variant="user"
+							body="We need to fix the login bug before the release. Maybe implement OAuth?"
+						/>
+						<FakeTask
+							constraintsRef={constraintsRef}
+							title="Implement OAuth"
+							labels={["Feature"]}
+						/>
+						<FakeMessage
+							variant="assistant"
+							body="The task [Implement OAuth] has been created."
+						/>
+					</div> */}
+					<h1 className="font-runic text-6xl sm:text-8xl">
+						MIMR
+						<span className="text-muted-foreground">AI</span>
+					</h1>
+					<p className="max-w-md text-base text-muted-foreground sm:text-lg">
+						Stop over-configuring. Just write what needs to be done — MIMRAI
+						turns messages into organized tasks automatically.
+					</p>
+				</div>
+				{/* <div className="flex items-center px-8 font-mono">{"10/28/2025"}</div> */}
 				<div className="flex divide-x">
 					<Link href={`${getAppUrl()}/sign-in`}>
 						<Button type="button">

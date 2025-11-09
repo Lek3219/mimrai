@@ -20,7 +20,7 @@ export default function Page() {
 					</Link>
 				</div>
 				<Image
-					src={"/sign-in3.png"}
+					src={"/cover4.png"}
 					width={1600}
 					height={900}
 					alt="Login Image"

@@ -1,12 +1,20 @@
 import Image from "next/image";
 
-export const Logo = ({ className }: { className?: string }) => {
+export const Logo = ({
+	className,
+	width,
+	height,
+}: {
+	className?: string;
+	width?: number;
+	height?: number;
+}) => {
 	return (
 		<Image
 			src={"/logo.png"}
 			alt="Mimir Logo"
-			width={32}
-			height={32}
+			width={width || 32}
+			height={height || 32}
 			className={className}
 		/>
 	);
