@@ -2,13 +2,27 @@
 
 import type { RouterOutputs } from "@api/trpc/routers";
 import { useQuery } from "@tanstack/react-query";
+import { Button } from "@ui/components/ui/button";
 import { Table, TableBody, TableCell, TableRow } from "@ui/components/ui/table";
 import { cn } from "@ui/lib/utils";
 import { format } from "date-fns";
-import { CheckSquareIcon } from "lucide-react";
+import {
+	CheckSquare2Icon,
+	CheckSquareIcon,
+	CookieIcon,
+	PlusIcon,
+	TicketCheckIcon,
+} from "lucide-react";
 import { motion } from "motion/react";
 import { useRouter } from "next/navigation";
 import { ColumnIcon } from "@/components/column-icon";
+import {
+	EmptyState,
+	EmptyStateAction,
+	EmptyStateDescription,
+	EmptyStateIcon,
+	EmptyStateTitle,
+} from "@/components/empty-state";
 import { Priority } from "@/components/kanban/priority";
 import { TaskContextMenu } from "@/components/kanban/task-context-menu";
 import { useTaskParams } from "@/hooks/use-task-params";
@@ -18,6 +32,7 @@ import { queryClient, trpc } from "@/utils/trpc";
 export const WorkstationList = () => {
 	const user = useUser();
 	const router = useRouter();
+	const { setParams } = useTaskParams();
 
 	const { data: tasks, isLoading } = useQuery(
 		trpc.tasks.get.queryOptions({
@@ -25,6 +40,30 @@ export const WorkstationList = () => {
 			view: "workstation",
 		}),
 	);
+
+	if (tasks?.data.length === 0 && !isLoading) {
+		return (
+			<EmptyState>
+				<EmptyStateIcon>
+					<CookieIcon className="size-full" />
+				</EmptyStateIcon>
+				<EmptyStateTitle>You get a cookie!</EmptyStateTitle>
+				<EmptyStateDescription>
+					Either you have no tasks assigned to you, or you've completed them
+					all. Take a moment to relax or check back later for new tasks.
+				</EmptyStateDescription>
+				<EmptyStateAction>
+					<Button
+						variant="outline"
+						onClick={() => setParams({ createTask: true })}
+					>
+						<PlusIcon />
+						Create a task
+					</Button>
+				</EmptyStateAction>
+			</EmptyState>
+		);
+	}
 
 	return (
 		<>

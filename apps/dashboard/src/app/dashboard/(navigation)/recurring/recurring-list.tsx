@@ -8,6 +8,12 @@ import { format } from "date-fns";
 import { Loader2Icon, PlusIcon } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useMemo } from "react";
+import {
+	EmptyState,
+	EmptyStateAction,
+	EmptyStateDescription,
+	EmptyStateTitle,
+} from "@/components/empty-state";
 import { TaskContextMenu } from "@/components/kanban/task-context-menu";
 import { useTaskParams } from "@/hooks/use-task-params";
 import { useTasksFilterParams } from "@/hooks/use-tasks-filter-params";
@@ -46,23 +52,22 @@ export const RecurringList = () => {
 
 	if (listData.length === 0 && !isLoading && !hasFilters) {
 		return (
-			<div className="flex flex-col items-start justify-center gap-2 text-center">
-				<h3 className="flex items-center gap-2 font-runic text-3xl uppercase">
-					no tasks scheduled
-				</h3>
-				<p className="max-w-lg text-balance text-start text-muted-foreground text-sm">
-					Schedule tasks to repeat at regular intervals to stay on top of your
-					work.
-				</p>
-				<Button
-					variant="default"
-					className="mt-4"
-					onClick={() => setParams({ createTask: true })}
-				>
-					<PlusIcon />
-					Create a task
-				</Button>
-			</div>
+			<EmptyState>
+				<EmptyStateTitle>No Recurring Tasks</EmptyStateTitle>
+				<EmptyStateDescription>
+					You have no recurring tasks set up. Create recurring tasks to see them
+					listed here.
+				</EmptyStateDescription>
+				<EmptyStateAction>
+					<Button
+						variant="default"
+						onClick={() => setParams({ createTask: true })}
+					>
+						<PlusIcon />
+						Create a task
+					</Button>
+				</EmptyStateAction>
+			</EmptyState>
 		);
 	}
 

@@ -66,6 +66,10 @@ const data: {
 					title: "Recurring",
 					url: "/dashboard/recurring",
 				},
+				{
+					title: "Done",
+					url: "/dashboard/done",
+				},
 			],
 		},
 		{

@@ -9,7 +9,6 @@ import { AnimatePresence, motion } from "motion/react";
 import { useMemo } from "react";
 import {
 	EmptyState,
-	EmptyStateAction,
 	EmptyStateDescription,
 	EmptyStateIcon,
 	EmptyStateTitle,
@@ -21,17 +20,22 @@ import { useTaskParams } from "@/hooks/use-task-params";
 import { useTasksFilterParams } from "@/hooks/use-tasks-filter-params";
 import { queryClient, trpc } from "@/utils/trpc";
 
-export const BacklogList = () => {
+export const DoneList = () => {
 	const { setParams } = useTaskParams();
 	const {
 		setParams: setFilters,
 		hasParams: hasFilters,
 		...filters
 	} = useTasksFilterParams();
-	const { data: backlogColumn } = useQuery(
-		trpc.columns.getBacklogColumn.queryOptions(),
+	const { data: doneColumns } = useQuery(
+		trpc.columns.get.queryOptions({
+			type: ["done"],
+		}),
 	);
-	const backlogColumnId = backlogColumn?.id;
+	const doneColumnsIds = useMemo(
+		() => doneColumns?.data.map((col) => col.id) || [],
+		[doneColumns],
+	);
 
 	const {
 		data: tasks,
@@ -44,7 +48,7 @@ export const BacklogList = () => {
 				assigneeId: filters.assigneeId ?? undefined,
 				search: filters.search ?? undefined,
 				labels: filters.labels ?? undefined,
-				columnId: backlogColumnId ? [backlogColumnId] : ["none"],
+				columnId: doneColumnsIds,
 				pageSize: 20,
 			},
 			{
@@ -61,22 +65,11 @@ export const BacklogList = () => {
 		return (
 			<EmptyState>
 				<EmptyStateIcon />
-				<EmptyStateTitle>Empty Backlog</EmptyStateTitle>
+				<EmptyStateTitle>No completed tasks</EmptyStateTitle>
 				<EmptyStateDescription>
-					Your backlog is emptier than a store in Cuba. Create tasks to see them
-					listed here.
+					You haven't completed any tasks yet. Once you mark tasks as done, they
+					will appear here.
 				</EmptyStateDescription>
-				<EmptyStateAction>
-					<Button
-						variant="default"
-						onClick={() =>
-							setParams({ createTask: true, taskColumnId: backlogColumnId })
-						}
-					>
-						<PlusIcon />
-						Create a task
-					</Button>
-				</EmptyStateAction>
 			</EmptyState>
 		);
 	}
