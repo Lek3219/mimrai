@@ -35,17 +35,17 @@ export const MainHero = () => {
 
 			<div className="-translate-y-1/2 pointer-events-none absolute inset-x-0 top-1/2" />
 			{/* <div className="-translate-y-1/2 absolute top-1/2 right-0 h-[80%] w-[50%] overflow-hidden rounded-l-none"> */}
-			<div className="-z-5 pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,rgba(0,0,0,0),rgba(0,0,0,0.0)),url(https://grainy-gradients.vercel.app/noise.svg)] brightness-[10%] contrast-[170%]" />
-			<div className="-z-10 absolute inset-0 invert">
+
+			<div className="-z-10 absolute h-[75%] invert md:inset-0 md:h-full">
 				<Image
 					src={"/images/cover4.png"}
 					alt="Cover Image"
-					className="size-full object-cover"
+					className="size-full scale-80 object-cover object-bottom md:scale-100"
 					width={1400}
 					height={800}
 				/>
 			</div>
-			<div className="pointer-events-none absolute inset-0 z-10">
+			<div className="pointer-events-none absolute inset-0 z-10 hidden md:block">
 				<Flow className="-translate-y-[10%] pointer-events-none top-[10%] opacity-50" />
 				<Flow
 					className="-translate-y-[60%] pointer-events-none top-[60%] opacity-50"
@@ -56,7 +56,8 @@ export const MainHero = () => {
 					delay={5}
 				/>
 			</div>
-			<div className="mt-auto flex items-end justify-between">
+			<div className="-z-5 pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,rgba(0,0,0,0),rgba(0,0,0,0.0)),url(https://grainy-gradients.vercel.app/noise.svg)] brightness-[10%] contrast-[170%]" />
+			<div className="mt-auto flex flex-col items-end justify-between md:flex-row">
 				<div className="space-y-4 p-8">
 					{/* <div className="w-fit space-y-4">
 						<FakeMessage
@@ -73,7 +74,7 @@ export const MainHero = () => {
 							body="The task [Implement OAuth] has been created."
 						/>
 					</div> */}
-					<h1 className="font-runic text-6xl sm:text-8xl">
+					<h1 className="-z-8 relative font-runic text-6xl text-primary sm:text-8xl">
 						MIMR
 						<span className="text-muted-foreground">AI</span>
 					</h1>
