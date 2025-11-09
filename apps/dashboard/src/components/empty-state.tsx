@@ -26,7 +26,9 @@ export const EmptyStateTitle = ({
 	children: React.ReactNode;
 }) => {
 	return (
-		<h3 className="flex items-center gap-2 text-3xl uppercase">{children}</h3>
+		<h3 className="flex items-center gap-2 font-medium font-runic text-3xl uppercase">
+			{children}
+		</h3>
 	);
 };
 

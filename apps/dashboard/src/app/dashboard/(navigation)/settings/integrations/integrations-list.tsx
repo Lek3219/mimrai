@@ -7,6 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useIntegrationParams } from "@/hooks/use-integration-params";
 import { useScopes } from "@/hooks/use-user";
+import { getSlackInstallUrl } from "@/lib/integrations";
 import { trpc } from "@/utils/trpc";
 
 export const IntegrationsList = () => {
@@ -51,6 +52,10 @@ export const IntegrationsList = () => {
 												<Button size="sm" variant={"outline"}>
 													Chat
 												</Button>
+											</Link>
+										) : integration.type === "slack" ? (
+											<Link href={getSlackInstallUrl()} target="_blank">
+												<Button size="sm">Install</Button>
 											</Link>
 										) : (
 											<Button

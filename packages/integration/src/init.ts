@@ -1,7 +1,9 @@
 import type { integrations } from "@mimir/db/schema";
 import { initMattermost, initMattermostSingle } from "./mattermost/init";
+import { initSlack } from "./slack";
 
 export const initIntegrations = async () => {
+	initSlack();
 	await Promise.all([initMattermost()]);
 };
 

@@ -413,6 +413,7 @@ export const integrations = pgTable(
 			.primaryKey()
 			.notNull(),
 		teamId: text("team_id").notNull(),
+		externalTeamId: text("external_team_id"),
 		name: text("name").notNull(),
 		type: text("type").$type<IntegrationName>().notNull(),
 		config: jsonb("config").$type<IntegrationConfig>().notNull(),

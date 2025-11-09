@@ -2,12 +2,9 @@
 
 import type { IntegrationName } from "@mimir/integration/registry";
 import { useMutation } from "@tanstack/react-query";
-import { Button } from "@ui/components/ui/button";
 import { useState } from "react";
-import { github } from "react-syntax-highlighter/dist/esm/styles/hljs";
 import z from "zod";
 import { useIntegrationParams } from "@/hooks/use-integration-params";
-import { useZodForm } from "@/hooks/use-zod-form";
 import { queryClient, trpc } from "@/utils/trpc";
 import { IntegrationGithubForm } from "./integration-github-form";
 import { IntegrationMattermostForm } from "./integration-mattermost-form";

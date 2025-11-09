@@ -6,6 +6,7 @@ import { chatRouter } from "./chat";
 import { githubRouter } from "./github";
 import { importsRouter } from "./imports";
 import { integrationsRouter } from "./integrations";
+import { slackRouter } from "./slack";
 
 const routers = new OpenAPIHono<Context>();
 
@@ -17,5 +18,6 @@ routers.route("/integrations", integrationsRouter);
 routers.route("/github", githubRouter);
 routers.route("/imports", importsRouter);
 routers.route("/attachments", attachmentsRouter);
+routers.route("/slack", slackRouter);
 
 export { routers };
