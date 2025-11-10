@@ -12,7 +12,9 @@ app.get("/oauth/callback", async (c) => {
 
 	const code = c.req.query("code");
 
-	const app = new App();
+	const app = new App({
+		signingSecret: process.env.SLACK_SIGNING_SECRET!,
+	});
 	const result = await app.client.oauth.v2.access({
 		client_id: process.env.SLACK_CLIENT_ID!,
 		client_secret: process.env.SLACK_CLIENT_SECRET!,
