@@ -1,7 +1,6 @@
 import { installIntegration } from "@db/queries/integrations";
 import { OpenAPIHono } from "@hono/zod-openapi";
-import { getSlackClient } from "@mimir/integration/slack";
-import { getAppUrl } from "@mimir/utils/envs";
+import { getApiUrl, getAppUrl } from "@mimir/utils/envs";
 import { webApi } from "@slack/bolt";
 import type { Context } from "../types";
 
@@ -17,7 +16,7 @@ app.get("/oauth/callback", async (c) => {
 		client_id: process.env.SLACK_CLIENT_ID!,
 		client_secret: process.env.SLACK_CLIENT_SECRET!,
 		code: code,
-		redirect_uri: `${getAppUrl()}/api/slack/oauth/callback`,
+		redirect_uri: `${getApiUrl()}/api/slack/oauth/callback`,
 	});
 
 	if (!result.ok) {
