@@ -22,7 +22,7 @@ import {
 } from "@mimir/db/queries/users";
 import { trackMessage } from "@mimir/events/server";
 import { getApiUrl } from "@mimir/utils/envs";
-import type { SlackEventMiddlewareArgs } from "@slack/bolt";
+import { type SlackEventMiddlewareArgs, webApi } from "@slack/bolt";
 import {
 	convertToModelMessages,
 	stepCountIs,
@@ -68,7 +68,10 @@ export const handleSlackMessage = async ({
 		externalUserId: externalUserId,
 	});
 
-	const client = getSlackClient().client;
+	// Initialize Slack WebClient with the integration's access token
+	const client = new webApi.WebClient(
+		(integration.config as { accessToken: string }).accessToken,
+	);
 
 	if (!associatedUser) {
 		const url = new URL(`${getApiUrl()}/api/integrations/associate`);
