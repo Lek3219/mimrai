@@ -49,11 +49,8 @@ app.post(verifySignature, async (c) => {
 		switch (event.event.type) {
 			case "app_mention": {
 				const typedEvent = event.event as EventFromType<"app_mention">;
-				console.log(JSON.stringify(typedEvent, null, 2));
-				// const from = typedEvent.user;
-				// const text = typedEvent.text;
 
-				await handleSlackMessage({
+				handleSlackMessage({
 					channel: typedEvent.channel,
 					externalTeamId: typedEvent.team,
 					externalUserId: typedEvent.user,

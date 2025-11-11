@@ -73,6 +73,12 @@ export const handleSlackMessage = async ({
 		(integration.config as { accessToken: string }).accessToken,
 	);
 
+	const thinkingMessage = await client.chat.postMessage({
+		channel: channel,
+		thread_ts: threadTs,
+		text: "Processing your message...",
+	});
+
 	if (!associatedUser) {
 		const url = new URL(`${getApiUrl()}/api/integrations/associate`);
 		url.searchParams.append("externalUserId", externalUserId);
@@ -93,136 +99,148 @@ export const handleSlackMessage = async ({
 		return;
 	}
 
-	const user = await getUserById(associatedUser.userId);
-	if (!user) throw new Error("Associated user not found");
+	try {
+		const user = await getUserById(associatedUser.userId);
+		if (!user) throw new Error("Associated user not found");
 
-	const userContext = await getUserContext({
-		userId: associatedUser.userId,
-		teamId: integration.teamId,
-	});
+		const userContext = await getUserContext({
+			userId: associatedUser.userId,
+			teamId: integration.teamId,
+		});
 
-	const chatId = `slack-${channel}-${threadTs || "main"}`;
-	const chat = await getChatById(chatId);
-	if (!chat) {
-		await saveChat({
+		const chatId = `slack-${channel}-${threadTs || "main"}`;
+		const chat = await getChatById(chatId);
+		if (!chat) {
+			await saveChat({
+				chatId,
+				userId: associatedUser.userId,
+			});
+		}
+
+		const relevantMessages: UIChatMessage[] = [...(chat?.messages || [])];
+		const newMessage: UIChatMessage = {
+			id: messageId,
+			role: "user",
+			parts: [{ type: "text", text: message }],
+		};
+
+		// Download and include attachments as separate message parts
+		let fileIndex = 0;
+		for (const { url, mimeType } of attachments || []) {
+			const downloadResponse = await fetch(url, {
+				headers: {
+					Authorization: `Basic ${Buffer.from(`${process.env.TWILIO_ACCOUNT_SID}:${process.env.TWILIO_AUTH_TOKEN}`).toString("base64")}`,
+				},
+			});
+			const fileBlob = await downloadResponse.blob();
+			const supabase = await createAdminClient();
+			const fileExtension = mime.extension(mimeType);
+			const fileId =
+				new URL(url).pathname.split("/").pop() || `file-${fileIndex++}`;
+			const storageFile = await supabase.storage
+				.from("vault")
+				.upload(
+					`${associatedUser.userId}/${fileId}.${fileExtension}`,
+					fileBlob,
+					{
+						upsert: true,
+					},
+				);
+			const fullPath = `${process.env.SUPABASE_URL}/storage/v1/object/public/${storageFile.data?.fullPath}`;
+			newMessage.parts.push({
+				type: "text",
+				text: `Attachment: ${fullPath}`,
+			});
+		}
+
+		relevantMessages.push(newMessage);
+
+		await saveChatMessage({
 			chatId,
 			userId: associatedUser.userId,
-		});
-	}
-
-	const relevantMessages: UIChatMessage[] = [...(chat?.messages || [])];
-	const newMessage: UIChatMessage = {
-		id: messageId,
-		role: "user",
-		parts: [{ type: "text", text: message }],
-	};
-
-	// Download and include attachments as separate message parts
-	let fileIndex = 0;
-	for (const { url, mimeType } of attachments || []) {
-		const downloadResponse = await fetch(url, {
-			headers: {
-				Authorization: `Basic ${Buffer.from(`${process.env.TWILIO_ACCOUNT_SID}:${process.env.TWILIO_AUTH_TOKEN}`).toString("base64")}`,
-			},
-		});
-		const fileBlob = await downloadResponse.blob();
-		const supabase = await createAdminClient();
-		const fileExtension = mime.extension(mimeType);
-		const fileId =
-			new URL(url).pathname.split("/").pop() || `file-${fileIndex++}`;
-		const storageFile = await supabase.storage
-			.from("vault")
-			.upload(`${associatedUser.userId}/${fileId}.${fileExtension}`, fileBlob, {
-				upsert: true,
-			});
-		const fullPath = `${process.env.SUPABASE_URL}/storage/v1/object/public/${storageFile.data?.fullPath}`;
-		newMessage.parts.push({
-			type: "text",
-			text: `Attachment: ${fullPath}`,
-		});
-	}
-
-	relevantMessages.push(newMessage);
-
-	await saveChatMessage({
-		chatId,
-		userId: associatedUser.userId,
-		message: newMessage,
-	});
-
-	setContext({
-		db: db,
-		user: userContext,
-		// @ts-expect-error
-		writer: null,
-		artifactSupport: false,
-	});
-
-	const systemPrompt = `${generateSystemPrompt(userContext)}`;
-
-	await trackMessage({
-		userId: userContext.userId,
-		source: "slack",
-		teamName: userContext.teamName ?? undefined,
-	});
-
-	const text: UIChatMessage = await new Promise((resolve, reject) => {
-		const result = streamText({
-			model: "openai/gpt-4o",
-			system: systemPrompt,
-			messages: convertToModelMessages(relevantMessages),
-			tools: {
-				...createToolRegistry(),
-			},
-			onStepFinish: async (step) => {},
-			stopWhen: (step) => {
-				// Stop if we've reached 10 steps (original condition)
-				if (stepCountIs(10)(step)) {
-					return true;
-				}
-
-				// Force stop if any tool has completed its full streaming response
-				return shouldForceStop(step);
-			},
+			message: newMessage,
 		});
 
-		const messageStream = result.toUIMessageStream({
-			sendFinish: true,
-			onFinish: ({ responseMessage }) => {
-				resolve(responseMessage as UIChatMessage);
-			},
+		setContext({
+			db: db,
+			user: userContext,
+			// @ts-expect-error
+			writer: null,
+			artifactSupport: false,
 		});
 
-		// read the stream to completion to avoid memory leaks
-		(async () => {
-			try {
-				for await (const _part of messageStream) {
-					// no-op
-				}
-			} catch (error) {
-				reject(error);
-			}
-		})();
-	});
+		const systemPrompt = `${generateSystemPrompt(userContext)}`;
 
-	await saveChatMessage({
-		chatId,
-		userId: associatedUser.userId,
-		message: text,
-	});
+		await trackMessage({
+			userId: userContext.userId,
+			source: "slack",
+			teamName: userContext.teamName ?? undefined,
+		});
 
-	const body =
-		text.parts[text.parts.length - 1]?.type === "text"
-			? (
-					text.parts[text.parts.length - 1] as UIMessage["parts"][number] & {
-						type: "text";
+		const text: UIChatMessage = await new Promise((resolve, reject) => {
+			const result = streamText({
+				model: "openai/gpt-4o",
+				system: systemPrompt,
+				messages: convertToModelMessages(relevantMessages),
+				tools: {
+					...createToolRegistry(),
+				},
+				onStepFinish: async (step) => {},
+				stopWhen: (step) => {
+					// Stop if we've reached 10 steps (original condition)
+					if (stepCountIs(10)(step)) {
+						return true;
 					}
-				).text
-			: "Sorry, I could not process your message.";
 
-	await client.chat.postMessage({
-		channel: channel,
-		thread_ts: threadTs,
-		text: body,
-	});
+					// Force stop if any tool has completed its full streaming response
+					return shouldForceStop(step);
+				},
+			});
+
+			const messageStream = result.toUIMessageStream({
+				sendFinish: true,
+				onFinish: ({ responseMessage }) => {
+					resolve(responseMessage as UIChatMessage);
+				},
+			});
+
+			// read the stream to completion to avoid memory leaks
+			(async () => {
+				try {
+					for await (const _part of messageStream) {
+						// no-op
+					}
+				} catch (error) {
+					reject(error);
+				}
+			})();
+		});
+
+		await saveChatMessage({
+			chatId,
+			userId: associatedUser.userId,
+			message: text,
+		});
+
+		const body =
+			text.parts[text.parts.length - 1]?.type === "text"
+				? (
+						text.parts[text.parts.length - 1] as UIMessage["parts"][number] & {
+							type: "text";
+						}
+					).text
+				: "Sorry, I could not process your message.";
+
+		await client.chat.update({
+			channel: channel,
+			ts: thinkingMessage.ts!,
+			text: body,
+		});
+	} catch (error) {
+		await client.chat.update({
+			channel: channel,
+			ts: thinkingMessage.ts!,
+			text: "An error occurred while processing your message",
+		});
+	}
 };
