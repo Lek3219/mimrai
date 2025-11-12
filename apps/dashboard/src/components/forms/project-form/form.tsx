@@ -28,7 +28,7 @@ export const ProjectForm = ({
 		defaultValues: {
 			name: "",
 			description: "",
-			color: "white",
+			color: "#ffffff",
 			...defaultValues,
 		},
 	});
