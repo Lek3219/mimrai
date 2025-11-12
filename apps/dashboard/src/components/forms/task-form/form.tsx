@@ -115,13 +115,12 @@ export const TaskForm = ({
 		}),
 	);
 
-	const formValues = form.watch();
-	const isDirty = form.formState.isDirty;
-	const isValid = form.formState.isValid;
-	const [debouncedValue] = useDebounceValue(formValues, 500);
+	const title = form.watch("title");
+	const [debouncedTitle] = useDebounceValue(title, 500);
 
 	useEffect(() => {
 		return () => {
+			const { isDirty, isValid } = form.formState;
 			if (isValid && isDirty) {
 				const values = form.getValues();
 				if (!values.id) return;
@@ -135,7 +134,7 @@ export const TaskForm = ({
 				});
 			}
 		};
-	}, [isValid, isDirty]);
+	}, []);
 
 	const parseMentions = (data: any) => {
 		const mentions: string[] = (data.content || []).flatMap(parseMentions);
@@ -166,7 +165,8 @@ export const TaskForm = ({
 	};
 
 	const createMode = !id;
-	const showSmartInput = createMode && formValues.showSmartInput;
+	const formShowSmartInput = form.watch("showSmartInput");
+	const showSmartInput = createMode && formShowSmartInput;
 
 	return (
 		<div className="">
@@ -208,7 +208,7 @@ export const TaskForm = ({
 									</div>
 									{createMode && (
 										<div className="px-8">
-											<TaskDuplicated title={debouncedValue.title} />
+											<TaskDuplicated title={debouncedTitle} />
 										</div>
 									)}
 								</div>

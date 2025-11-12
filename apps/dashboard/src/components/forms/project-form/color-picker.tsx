@@ -51,12 +51,12 @@ export const ProjectColorPicker = ({
 								format="hex"
 							>
 								<div className="flex items-center gap-2">
-									<div className="flex w-full flex-wrap gap-2">
+									<div className="flex w-full">
 										{presetColors.map((color) => (
 											<button
 												key={color}
 												type="button"
-												className="aspect-square size-6 rounded-xs"
+												className="mx-auto aspect-square size-6 rounded-xs"
 												style={{ backgroundColor: color }}
 												onClick={() => field.onChange(color)}
 											/>

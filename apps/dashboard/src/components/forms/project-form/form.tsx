@@ -41,7 +41,6 @@ export const ProjectForm = ({
 			onSuccess: () => {
 				queryClient.invalidateQueries(trpc.projects.get.infiniteQueryOptions());
 				toast.success("Project updated successfully", { id: "update-project" });
-				setParams(null);
 			},
 			onError: (error) => {
 				toast.error("Failed to update project", { id: "update-project" });
@@ -76,10 +75,9 @@ export const ProjectForm = ({
 		}
 	};
 
-	const { isDirty, isValid } = form.formState;
-
 	useEffect(() => {
 		return () => {
+			const { isDirty, isValid } = form.formState;
 			if (isValid && isDirty) {
 				const values = form.getValues();
 				if (!values.id) return;
@@ -91,7 +89,7 @@ export const ProjectForm = ({
 				});
 			}
 		};
-	}, [isValid, isDirty]);
+	}, []);
 
 	return (
 		<div className="space-y-4">
