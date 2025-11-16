@@ -99,6 +99,7 @@ export const users = pgTable(
 		image: text("image"),
 		locale: text("locale"),
 		teamId: text("team_id"),
+		isMentionable: boolean("is_mentionable").default(true).notNull(),
 		color: text("color").$defaultFn(() => randomColor()),
 		isSystemUser: boolean("is_system_user").default(false).notNull(),
 		dateFormat: text("date_format"),
@@ -215,6 +216,8 @@ export const tasks = pgTable(
 		columnId: text("column_id").notNull(),
 		attachments: jsonb("attachments").$type<string[]>().default([]),
 		score: integer("score").default(1).notNull(),
+		repositoryName: text("repository_name"),
+		branchName: text("branch_name"),
 		fts: tsvector("fts").generatedAlwaysAs(
 			(): SQL =>
 				sql`to_tsvector('english', coalesce("title",'') || ' ' || coalesce("description",''))`,
@@ -604,7 +607,7 @@ export const activities = pgTable(
 			columns: [table.userId],
 			foreignColumns: [users.id],
 			name: "activity_log_user_id_fkey",
-		}),
+		}).onDelete("set null"),
 		foreignKey({
 			columns: [table.teamId],
 			foreignColumns: [teams.id],

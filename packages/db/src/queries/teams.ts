@@ -1,4 +1,4 @@
-import { and, eq, ilike, ne, type SQL } from "drizzle-orm";
+import { and, eq, ilike, isNull, ne, not, or, type SQL } from "drizzle-orm";
 import { db } from "..";
 import { type plansEnum, teams, users, usersOnTeams } from "../schema";
 import { createDefaultColumns } from "./columns";
@@ -137,15 +137,25 @@ export const getMembers = async ({
 	teamId,
 	search,
 	role,
+	isMentionable,
+	includeSystemUsers,
 }: {
 	teamId: string;
 	search?: string;
 	role?: "owner" | "member";
+	isMentionable?: boolean;
+	includeSystemUsers?: boolean;
 }) => {
-	const whereClause: SQL[] = [eq(usersOnTeams.teamId, teamId)];
+	const whereClause: SQL[] = [
+		eq(usersOnTeams.teamId, teamId),
+		not(isNull(usersOnTeams.userId)),
+	];
+	const systemUsersWhereClause: SQL[] = [eq(users.isSystemUser, true)];
 
 	search && whereClause.push(ilike(users.name, `%${search}%`));
 	role && whereClause.push(eq(usersOnTeams.role, role));
+	isMentionable && whereClause.push(eq(users.isMentionable, true));
+	isMentionable && systemUsersWhereClause.push(eq(users.isMentionable, true));
 
 	const members = await db
 		.select({
@@ -157,9 +167,13 @@ export const getMembers = async ({
 			description: usersOnTeams.description,
 			role: usersOnTeams.role,
 		})
-		.from(usersOnTeams)
-		.rightJoin(users, eq(users.id, usersOnTeams.userId))
-		.where(and(...whereClause))
+		.from(users)
+		.leftJoin(usersOnTeams, eq(users.id, usersOnTeams.userId))
+		.where(
+			includeSystemUsers
+				? or(and(...whereClause), and(...systemUsersWhereClause))
+				: and(...whereClause),
+		)
 		.limit(20);
 	return members;
 };

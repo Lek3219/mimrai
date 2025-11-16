@@ -17,6 +17,7 @@ import { useTaskParams } from "@/hooks/use-task-params";
 import { queryClient, trpc } from "@/utils/trpc";
 import { ColumnIcon } from "../column-icon";
 import Loader from "../loader";
+import { ProjectIcon } from "../project-icon";
 import { Assignee, AssigneeAvatar } from "./asignee";
 import { PriorityItem } from "./priority";
 
@@ -102,6 +103,7 @@ export const TaskContextMenu = ({
 	const { data: members } = useQuery(
 		trpc.teams.getMembers.queryOptions(undefined, {
 			refetchOnMount: false,
+			refetchOnWindowFocus: false,
 		}),
 	);
 	const { data: columns } = useQuery(
@@ -109,6 +111,7 @@ export const TaskContextMenu = ({
 			{},
 			{
 				refetchOnMount: false,
+				refetchOnWindowFocus: false,
 			},
 		),
 	);
@@ -117,6 +120,17 @@ export const TaskContextMenu = ({
 			{},
 			{
 				refetchOnMount: false,
+				refetchOnWindowFocus: false,
+			},
+		),
+	);
+
+	const { data: projects } = useQuery(
+		trpc.projects.get.queryOptions(
+			{},
+			{
+				refetchOnMount: false,
+				refetchOnWindowFocus: false,
 			},
 		),
 	);
@@ -131,6 +145,7 @@ export const TaskContextMenu = ({
 		priority?: "low" | "medium" | "high";
 		labels?: string[];
 		assigneeId?: string;
+		projectId?: string;
 		columnId?: string;
 	}) => {
 		updateTask({ id: task.id, ...data });
@@ -220,6 +235,24 @@ export const TaskContextMenu = ({
 								})}
 							>
 								<PriorityItem value={level as any} />
+							</ContextMenuItem>
+						))}
+					</ContextMenuSubContent>
+				</ContextMenuSub>
+				<ContextMenuSub>
+					<ContextMenuSubTrigger className="flex items-center gap-2">
+						Project
+					</ContextMenuSubTrigger>
+					<ContextMenuSubContent className="w-32">
+						{projects?.data.map((project) => (
+							<ContextMenuItem
+								key={project.id}
+								onClick={handleUpdateTask.bind(null, {
+									projectId: project.id,
+								})}
+							>
+								<ProjectIcon {...project} />
+								{project.name}
 							</ContextMenuItem>
 						))}
 					</ContextMenuSubContent>

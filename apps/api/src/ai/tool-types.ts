@@ -3,6 +3,7 @@ import type { InferUITools } from "ai";
 import { getContext } from "./context";
 import { createSubtaskTool } from "./tools/create-subtask";
 import { createTaskTool } from "./tools/create-task";
+import { createTaskPullRequestTool } from "./tools/create-task-pull-request";
 import { getColumnsTool } from "./tools/get-columns";
 import { getLabelsTool } from "./tools/get-labels";
 import { getSubtasksTool } from "./tools/get-subtasks";
@@ -13,28 +14,29 @@ import { updateTaskTool } from "./tools/update-task";
 
 // Tool registry function - this creates the actual tool implementations
 export const createToolRegistry = () => {
-  const context = getContext();
+	const context = getContext();
 
-  return {
-    createTask: createTaskTool,
-    getColumns: getColumnsTool,
-    getTasks: getTasksTool,
-    updateTask: updateTaskTool,
-    getUsers: getUsersTool,
-    getLabels: getLabelsTool,
-    getSubtasks: getSubtasksTool,
-    updateSubtask: updateSubtaskTool,
-    createSubtask: createSubtaskTool,
-    // web_search: openai.tools.webSearch({
-    // 	searchContextSize: "medium",
-    // 	userLocation: {
-    // 		type: "approximate",
-    // 		country: context.user.country ?? undefined,
-    // 		city: context.user.city ?? undefined,
-    // 		region: context.user.region ?? undefined,
-    // 	},
-    // }),
-  };
+	return {
+		createTask: createTaskTool,
+		getColumns: getColumnsTool,
+		getTasks: getTasksTool,
+		updateTask: updateTaskTool,
+		getUsers: getUsersTool,
+		getLabels: getLabelsTool,
+		getSubtasks: getSubtasksTool,
+		updateSubtask: updateSubtaskTool,
+		createSubtask: createSubtaskTool,
+		createTaskPullRequest: createTaskPullRequestTool,
+		// web_search: openai.tools.webSearch({
+		// 	searchContextSize: "medium",
+		// 	userLocation: {
+		// 		type: "approximate",
+		// 		country: context.user.country ?? undefined,
+		// 		city: context.user.city ?? undefined,
+		// 		region: context.user.region ?? undefined,
+		// 	},
+		// }),
+	};
 };
 
 // Infer the UI tools type from the registry

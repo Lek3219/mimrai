@@ -1,8 +1,10 @@
 import { getUserContext } from "@api/ai/utils/get-user-context";
+import { createTaskPullRequest } from "@api/lib/copilot";
 import {
 	cloneTaskSchema,
 	commentTaskSchema,
 	createTaskSchema,
+	deleteTaskCommentSchema,
 	deleteTaskSchema,
 	getDuplicatedTasksSchema,
 	getTaskSubscribersSchema,
@@ -21,6 +23,7 @@ import {
 	createTask,
 	createTaskComment,
 	deleteTask,
+	deleteTaskComment,
 	getTaskById,
 	getTaskSubscribers,
 	getTasks,
@@ -30,6 +33,7 @@ import {
 	updateTaskRecurringJob,
 } from "@mimir/db/queries/tasks";
 import { getDuplicateTaskEmbedding } from "@mimir/db/queries/tasks-embeddings";
+import { handleTaskComment } from "@mimir/integration/task-comments";
 import { createRecurringTaskJob } from "@mimir/jobs/tasks/create-recurring-task-job";
 import { runs } from "@trigger.dev/sdk";
 import { generateObject } from "ai";
@@ -128,10 +132,31 @@ export const tasksRouter = router({
 	comment: protectedProcedure
 		.input(commentTaskSchema)
 		.mutation(async ({ ctx, input }) => {
-			return createTaskComment({
+			const comment = await createTaskComment({
 				taskId: input.id,
 				comment: input.comment,
+				replyTo: input.replyTo,
 				userId: ctx.user.id,
+				teamId: ctx.user.teamId!,
+				mentions: input.mentions,
+			});
+
+			// Try to handle the comment with AI integration
+			handleTaskComment({
+				taskId: input.id,
+				teamId: ctx.user.teamId!,
+				userId: ctx.user.id,
+				commentId: comment.id,
+				comment: input.comment,
+			});
+
+			return comment;
+		}),
+	deleteComment: protectedProcedure
+		.input(deleteTaskCommentSchema)
+		.mutation(async ({ ctx, input }) => {
+			return deleteTaskComment({
+				commentId: input.id,
 				teamId: ctx.user.teamId!,
 			});
 		}),

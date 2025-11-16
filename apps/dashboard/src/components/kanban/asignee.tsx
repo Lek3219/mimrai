@@ -1,4 +1,4 @@
-import { Avatar, AvatarFallback } from "@mimir/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@mimir/ui/avatar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@mimir/ui/tooltip";
 import { getContrast } from "@mimir/utils/random";
 import { UserIcon } from "lucide-react";
@@ -7,11 +7,18 @@ import { cn } from "@/lib/utils";
 type Props = {
 	name?: string;
 	email?: string;
+	image?: string | null;
 	color?: string | null;
 	className?: string;
 };
 
-export const AssigneeAvatar = ({ name, color, email, className }: Props) => {
+export const AssigneeAvatar = ({
+	name,
+	color,
+	email,
+	image,
+	className,
+}: Props) => {
 	if (!name && !email) {
 		return (
 			<div
@@ -28,16 +35,23 @@ export const AssigneeAvatar = ({ name, color, email, className }: Props) => {
 	return (
 		<Tooltip delayDuration={500}>
 			<TooltipTrigger asChild>
-				<Avatar className={cn("size-6", className)}>
-					<AvatarFallback
-						className="bg-primary text-primary-foreground"
-						style={{
-							backgroundColor: color || undefined,
-							color: color ? getContrast(color) : undefined,
-						}}
-					>
+				<Avatar
+					className={cn("size-6 bg-primary text-primary-foreground", className)}
+					style={{
+						backgroundColor: color || undefined,
+						color: color ? getContrast(color) : undefined,
+					}}
+				>
+					<AvatarFallback className="bg-transparent">
 						{name ? name.charAt(0).toUpperCase() : null}
 					</AvatarFallback>
+					{image && (
+						<AvatarImage
+							src={image}
+							alt={name}
+							className="size-full object-contain"
+						/>
+					)}
 				</Avatar>
 			</TooltipTrigger>
 			<TooltipContent>{name || email}</TooltipContent>

@@ -1,6 +1,6 @@
 import type { RouterOutputs } from "@api/trpc/routers";
 import type { SuggestionProps } from "@tiptap/suggestion";
-import { useEffect, useImperativeHandle, useState } from "react";
+import { useEffect, useImperativeHandle, useMemo, useState } from "react";
 import { AssigneeAvatar } from "@/components/kanban/asignee";
 import { cn } from "@/lib/utils";
 
@@ -9,8 +9,12 @@ type Member = RouterOutputs["teams"]["getMembers"][0];
 export const MentionList = (props: SuggestionProps<Member>) => {
 	const [selectedIndex, setSelectedIndex] = useState(0);
 
+	const items = useMemo(() => {
+		return props.items;
+	}, [props.items]);
+
 	const handleSelect = (index: number) => {
-		const item = props.items[index];
+		const item = items[index];
 		if (item) {
 			props.command({
 				id: item.id,
@@ -20,22 +24,22 @@ export const MentionList = (props: SuggestionProps<Member>) => {
 	};
 
 	const upHandler = () => {
-		setSelectedIndex(
-			(selectedIndex + props.items.length - 1) % props.items.length,
-		);
+		setSelectedIndex((selectedIndex + items.length - 1) % items.length);
 	};
 
 	const downHandler = () => {
-		setSelectedIndex((selectedIndex + 1) % props.items.length);
+		setSelectedIndex((selectedIndex + 1) % items.length);
 	};
 
 	const enterHandler = () => {
 		handleSelect(selectedIndex);
 	};
 
-	useEffect(() => setSelectedIndex(0), [props.items]);
+	useEffect(() => setSelectedIndex(0), [items]);
 
+	// @ts-expect-error
 	useImperativeHandle(props.ref, () => ({
+		// @ts-expect-error
 		onKeyDown: ({ event }) => {
 			if (event.key === "ArrowUp") {
 				upHandler();
@@ -65,13 +69,13 @@ export const MentionList = (props: SuggestionProps<Member>) => {
 
 	return (
 		<div className="relative overflow-auto border bg-popover">
-			{props.items.length === 0 ? (
+			{items.length === 0 ? (
 				<div className="px-4 py-2 text-muted-foreground text-sm">
 					No members found
 				</div>
 			) : (
 				<div className="w-full">
-					{props.items.map((item, index) => (
+					{items.map((item, index) => (
 						<button
 							key={item.id}
 							type="button"

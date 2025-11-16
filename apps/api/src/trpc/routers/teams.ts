@@ -7,6 +7,7 @@ import {
 	deleteTeamInviteSchema,
 	getInvitesByEmailSchema,
 	getMemberByIdSchema,
+	getMembersSchema,
 	getTeamInviteByIdSchema,
 	getTeamInvitesSchema,
 	removeMemberSchema,
@@ -142,13 +143,15 @@ export const teamsRouter = router({
 			}
 		}),
 
-	getMembers: protectedProcedure.query(async ({ ctx }) => {
-		const members = await getMembers({
-			teamId: ctx.user.teamId!,
-		});
-		return members;
-	}),
-
+	getMembers: protectedProcedure
+		.input(getMembersSchema.optional())
+		.query(async ({ ctx, input }) => {
+			const members = await getMembers({
+				...input,
+				teamId: ctx.user.teamId!,
+			});
+			return members;
+		}),
 	acceptInvite: protectedProcedure
 		.meta({
 			team: false,

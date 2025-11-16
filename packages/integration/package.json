@@ -14,6 +14,7 @@
     "./registry": "./src/registry.ts",
     "./logger": "./src/logger.ts",
     "./mattermost": "./src/mattermost/index.ts",
+    "./task-comments": "./src/task-comments/index.ts",
     "./slack": "./src/slack/index.ts",
     "./whatsapp": "./src/whatsapp/index.ts"
   },

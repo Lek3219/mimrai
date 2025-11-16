@@ -1,446 +1,462 @@
 import { sendNotificationJob } from "@jobs/jobs/notifications/send-notification-job";
 import {
-  and,
-  desc,
-  eq,
-  gte,
-  type InferSelectModel,
-  inArray,
-  type SQL,
-  sql,
+	and,
+	desc,
+	eq,
+	gte,
+	type InferSelectModel,
+	inArray,
+	type SQL,
+	sql,
 } from "drizzle-orm";
 import { db } from "..";
 import {
-  activities,
-  type activitySourceEnum,
-  type activityTypeEnum,
-  type checklistItems,
-  tasks,
-  users,
+	activities,
+	type activitySourceEnum,
+	type activityTypeEnum,
+	type checklistItems,
+	tasks,
+	users,
 } from "../schema";
 import { getColumnById } from "./columns";
 import {
-  notificationChannels,
-  shouldSendNotification,
+	notificationChannels,
+	shouldSendNotification,
 } from "./notification-settings";
 import { getMemberById } from "./teams";
 import { getSystemUser } from "./users";
 
 export type CreateActivityInput = {
-  userId?: string | null;
-  teamId: string;
-  groupId?: string;
-  source?: (typeof activitySourceEnum.enumValues)[number];
-  type: (typeof activityTypeEnum.enumValues)[number];
-  metadata?: Record<string, any>;
+	userId?: string | null;
+	teamId: string;
+	groupId?: string;
+	source?: (typeof activitySourceEnum.enumValues)[number];
+	type: (typeof activityTypeEnum.enumValues)[number];
+	metadata?: Record<string, any>;
 };
 
 export const createActivity = async (input: CreateActivityInput) => {
-  let userId = input.userId;
+	let userId = input.userId;
 
-  // If userId is not set, get system user id
-  if (!userId) {
-    userId = (await getSystemUser())!.id;
-  }
+	// If userId is not set, get system user id
+	if (!userId) {
+		userId = (await getSystemUser())!.id;
+	}
 
-  let metadataChanges = input.metadata?.changes;
-  if (input.groupId && userId) {
-    // Check if the last activity is the same type and from the same user
-    const [lastActivity] = await db
-      .select()
-      .from(activities)
-      .where(
-        and(
-          eq(activities.groupId, input.groupId),
-          eq(activities.userId, userId),
-          eq(activities.type, input.type),
-          gte(activities.createdAt, sql`now() - interval '30 minutes'`)
-        )
-      )
-      .orderBy(desc(activities.createdAt))
-      .limit(1);
+	let metadataChanges = input.metadata?.changes;
+	if (input.groupId && userId) {
+		// Check if the last activity is the same type and from the same user
+		const [lastActivity] = await db
+			.select()
+			.from(activities)
+			.where(
+				and(
+					eq(activities.groupId, input.groupId),
+					eq(activities.userId, userId),
+					eq(activities.type, input.type),
+					gte(activities.createdAt, sql`now() - interval '30 minutes'`),
+				),
+			)
+			.orderBy(desc(activities.createdAt))
+			.limit(1);
 
-    // Delete the last activity if it's the same type and from the same user
-    if (lastActivity?.metadata?.changes && metadataChanges) {
-      // Merge the changes
-      metadataChanges = {
-        ...lastActivity.metadata.changes,
-        ...metadataChanges,
-      };
-      await db.delete(activities).where(eq(activities.id, lastActivity.id));
-    }
-  }
+		// Delete the last activity if it's the same type and from the same user
+		if (lastActivity?.metadata?.changes && metadataChanges) {
+			// Merge the changes
+			metadataChanges = {
+				...lastActivity.metadata.changes,
+				...metadataChanges,
+			};
+			await db.delete(activities).where(eq(activities.id, lastActivity.id));
+		}
+	}
 
-  const [result] = await db
-    .insert(activities)
-    .values({
-      userId: userId,
-      teamId: input.teamId,
-      type: input.type,
-      groupId: input.groupId,
-      source: input.source,
-      metadata: {
-        ...input.metadata,
-        changes: metadataChanges,
-      },
-    })
-    .returning();
+	const [result] = await db
+		.insert(activities)
+		.values({
+			userId: userId,
+			teamId: input.teamId,
+			type: input.type,
+			groupId: input.groupId,
+			source: input.source,
+			metadata: {
+				...input.metadata,
+				changes: metadataChanges,
+			},
+		})
+		.returning();
 
-  if (input.userId && result) {
-    for (const channel of notificationChannels) {
-      const shouldSend = await shouldSendNotification(
-        userId,
-        input.teamId,
-        input.type,
-        channel
-      );
+	if (input.userId && result) {
+		for (const channel of notificationChannels) {
+			const shouldSend = await shouldSendNotification(
+				userId,
+				input.teamId,
+				input.type,
+				channel,
+			);
 
-      if (shouldSend) {
-        await sendNotificationJob.trigger({
-          activityId: result.id,
-          channel,
-        });
-      }
-    }
-  }
+			if (shouldSend) {
+				await sendNotificationJob.trigger({
+					activityId: result.id,
+					channel,
+				});
+			}
+		}
+	}
 
-  return result;
+	return result;
 };
 
 export const createTaskUpdateActivity = async ({
-  oldTask,
-  newTask,
-  userId,
-  teamId,
+	oldTask,
+	newTask,
+	userId,
+	teamId,
 }: {
-  oldTask: InferSelectModel<typeof tasks>;
-  newTask: InferSelectModel<typeof tasks>;
-  userId?: string;
-  teamId: string;
+	oldTask: InferSelectModel<typeof tasks>;
+	newTask: InferSelectModel<typeof tasks>;
+	userId?: string;
+	teamId: string;
 }) => {
-  let definedUserId = userId;
+	let definedUserId = userId;
 
-  // If userId is not set, get system user id
-  if (!definedUserId) definedUserId = (await getSystemUser())!.id;
+	// If userId is not set, get system user id
+	if (!definedUserId) definedUserId = (await getSystemUser())!.id;
 
-  const changeKeys = [
-    "title",
-    "description",
-    "columnId",
-    "dueDate",
-    "mentions",
-    "assigneeId",
-  ] as const;
-  const changes: Partial<
-    Record<(typeof changeKeys)[number], Record<string, any>>
-  > = {};
-  if (oldTask.title !== newTask.title)
-    changes.title = { value: newTask.title, oldValue: oldTask.title };
-  if (oldTask.description !== newTask.description)
-    changes.description = {
-      value: newTask.description,
-      oldValue: oldTask.description,
-    };
-  if (oldTask.columnId !== newTask.columnId) {
-    const newColumn = await getColumnById({ id: newTask.columnId, teamId });
-    changes.columnId = {
-      value: newTask.columnId,
-      display: newColumn.name,
-      columnType: newColumn.type,
-      oldValue: oldTask.columnId,
-    };
-  }
-  if (oldTask.dueDate !== newTask.dueDate)
-    changes.dueDate = { value: newTask.dueDate, oldValue: oldTask.dueDate };
-  if (oldTask.assigneeId !== newTask.assigneeId && newTask.assigneeId) {
-    const newAssignee = await getMemberById({
-      userId: newTask.assigneeId,
-      teamId,
-    });
-    changes.assigneeId = {
-      value: newTask.assigneeId,
-      display: newAssignee?.name || null,
-      oldValue: oldTask.assigneeId,
-    };
-  }
+	const changeKeys = [
+		"title",
+		"description",
+		"columnId",
+		"dueDate",
+		"mentions",
+		"assigneeId",
+	] as const;
+	const changes: Partial<
+		Record<(typeof changeKeys)[number], Record<string, any>>
+	> = {};
+	if (oldTask.title !== newTask.title)
+		changes.title = { value: newTask.title, oldValue: oldTask.title };
+	if (oldTask.description !== newTask.description)
+		changes.description = {
+			value: newTask.description,
+			oldValue: oldTask.description,
+		};
+	if (oldTask.columnId !== newTask.columnId) {
+		const newColumn = await getColumnById({ id: newTask.columnId, teamId });
+		changes.columnId = {
+			value: newTask.columnId,
+			display: newColumn.name,
+			columnType: newColumn.type,
+			oldValue: oldTask.columnId,
+		};
+	}
+	if (oldTask.dueDate !== newTask.dueDate)
+		changes.dueDate = { value: newTask.dueDate, oldValue: oldTask.dueDate };
+	if (oldTask.assigneeId !== newTask.assigneeId && newTask.assigneeId) {
+		const newAssignee = await getMemberById({
+			userId: newTask.assigneeId,
+			teamId,
+		});
+		changes.assigneeId = {
+			value: newTask.assigneeId,
+			display: newAssignee?.name || null,
+			oldValue: oldTask.assigneeId,
+		};
+	}
 
-  if (
-    oldTask.mentions?.sort().toString() !== newTask.mentions?.sort().toString()
-  ) {
-    const oldMentions = oldTask.mentions || [];
-    const newMentions = newTask.mentions || [];
-    const addedMentions = newMentions.filter((id) => !oldMentions.includes(id));
-    const removedMentions = oldMentions.filter(
-      (id) => !newMentions.includes(id)
-    );
+	if (
+		oldTask.mentions?.sort().toString() !== newTask.mentions?.sort().toString()
+	) {
+		const oldMentions = oldTask.mentions || [];
+		const newMentions = newTask.mentions || [];
+		const addedMentions = newMentions.filter((id) => !oldMentions.includes(id));
+		const removedMentions = oldMentions.filter(
+			(id) => !newMentions.includes(id),
+		);
 
-    changes.mentions = {
-      value: newTask.mentions,
-      added: addedMentions,
-      removed: removedMentions,
-      oldValue: oldTask.mentions,
-    };
-  }
+		changes.mentions = {
+			value: newTask.mentions,
+			added: addedMentions,
+			removed: removedMentions,
+			oldValue: oldTask.mentions,
+		};
+	}
 
-  if (changes.assigneeId) {
-    await createActivity({
-      userId: definedUserId,
-      teamId,
-      groupId: newTask.id,
-      type: "task_assigned",
-      metadata: {
-        title: newTask.title,
-        assigneeName: changes.assigneeId.display,
-        subscribers: newTask.subscribers,
-      },
-    });
-    delete changes.assigneeId;
-  }
+	if (changes.assigneeId) {
+		await createActivity({
+			userId: definedUserId,
+			teamId,
+			groupId: newTask.id,
+			type: "task_assigned",
+			metadata: {
+				title: newTask.title,
+				assigneeName: changes.assigneeId.display,
+				subscribers: newTask.subscribers,
+			},
+		});
+		delete changes.assigneeId;
+	}
 
-  if (changes.columnId) {
-    // Track task column changed activity
-    await createActivity({
-      userId: definedUserId,
-      teamId,
-      groupId: newTask.id,
-      type: "task_column_changed",
-      metadata: {
-        fromColumnId: changes.columnId.oldValue,
-        toColumnId: changes.columnId.value,
-        toColumnName: changes.columnId.display,
-        toColumnType: changes.columnId.columnType,
-        title: newTask.title,
-        subscribers: newTask.subscribers,
-      },
-    });
+	if (changes.columnId) {
+		// Track task column changed activity
+		await createActivity({
+			userId: definedUserId,
+			teamId,
+			groupId: newTask.id,
+			type: "task_column_changed",
+			metadata: {
+				fromColumnId: changes.columnId.oldValue,
+				toColumnId: changes.columnId.value,
+				toColumnName: changes.columnId.display,
+				toColumnType: changes.columnId.columnType,
+				title: newTask.title,
+				subscribers: newTask.subscribers,
+			},
+		});
 
-    if (changes.columnId.columnType === "done") {
-      // Track task completed activity
-      await createActivity({
-        userId: newTask.assigneeId ?? definedUserId,
-        teamId,
-        groupId: newTask.id,
-        type: "task_completed",
-        metadata: {
-          fromColumnId: changes.columnId.oldValue,
-          toColumnId: changes.columnId.value,
-          toColumnName: changes.columnId.display,
-          toColumnType: changes.columnId.columnType,
-          title: newTask.title,
-          subscribers: newTask.subscribers,
-        },
-      });
-    } else {
-      // Delete task completed activity for the same task since only one can exist
-      await db
-        .delete(activities)
-        .where(
-          and(
-            eq(activities.groupId, newTask.id),
-            eq(activities.type, "task_completed")
-          )
-        );
-    }
+		if (changes.columnId.columnType === "done") {
+			// Track task completed activity
+			await createActivity({
+				userId: newTask.assigneeId ?? definedUserId,
+				teamId,
+				groupId: newTask.id,
+				type: "task_completed",
+				metadata: {
+					fromColumnId: changes.columnId.oldValue,
+					toColumnId: changes.columnId.value,
+					toColumnName: changes.columnId.display,
+					toColumnType: changes.columnId.columnType,
+					title: newTask.title,
+					subscribers: newTask.subscribers,
+				},
+			});
+		} else {
+			// Delete task completed activity for the same task since only one can exist
+			await db
+				.delete(activities)
+				.where(
+					and(
+						eq(activities.groupId, newTask.id),
+						eq(activities.type, "task_completed"),
+					),
+				);
+		}
 
-    delete changes.columnId;
-  }
+		delete changes.columnId;
+	}
 
-  // Create mention activities
-  if (changes.mentions) {
-    const mentionChanges = changes.mentions;
-    for (const mentionedUserId of mentionChanges.added || []) {
-      const mentionedUser = await getMemberById({
-        userId: mentionedUserId,
-        teamId,
-      });
-      await createActivity({
-        userId: definedUserId,
-        teamId,
-        groupId: newTask.id,
-        type: "mention",
-        source: "task",
-        metadata: {
-          title: newTask.title,
-          mentionedUserId,
-          mentionedUserName: mentionedUser?.name || null,
-        },
-      });
-    }
+	// Create mention activities
+	if (changes.mentions) {
+		const mentionChanges = changes.mentions;
+		for (const mentionedUserId of mentionChanges.added || []) {
+			const mentionedUser = await getMemberById({
+				userId: mentionedUserId,
+				teamId,
+			});
+			await createActivity({
+				userId: definedUserId,
+				teamId,
+				groupId: newTask.id,
+				type: "mention",
+				source: "task",
+				metadata: {
+					title: newTask.title,
+					mentionedUserId,
+					mentionedUserName: mentionedUser?.name || null,
+				},
+			});
+		}
 
-    delete changes.mentions;
-  }
+		delete changes.mentions;
+	}
 
-  if (Object.keys(changes).length === 0) {
-    return null;
-  }
+	if (Object.keys(changes).length === 0) {
+		return null;
+	}
 
-  const activity = await createActivity({
-    userId,
-    teamId,
-    groupId: newTask.id,
-    type: "task_updated",
-    metadata: {
-      changes,
-      title: newTask.title,
-      subscribers: newTask.subscribers,
-    },
-  });
+	const activity = await createActivity({
+		userId,
+		teamId,
+		groupId: newTask.id,
+		type: "task_updated",
+		metadata: {
+			changes,
+			title: newTask.title,
+			subscribers: newTask.subscribers,
+		},
+	});
 
-  return activity;
+	return activity;
 };
 
 export const getActivities = async ({
-  teamId,
-  type,
-  cursor,
-  groupId,
-  pageSize,
+	teamId,
+	type,
+	cursor,
+	groupId,
+	pageSize,
 }: {
-  teamId?: string;
-  type?: (typeof activityTypeEnum.enumValues)[number][];
-  groupId?: string;
-  cursor?: string;
-  pageSize?: number;
+	teamId?: string;
+	type?: (typeof activityTypeEnum.enumValues)[number][];
+	groupId?: string;
+	cursor?: string;
+	pageSize?: number;
 }) => {
-  const whereClause: SQL[] = [];
+	const whereClause: SQL[] = [];
 
-  teamId && whereClause.push(eq(activities.teamId, teamId));
-  type && whereClause.push(inArray(activities.type, type));
-  groupId && whereClause.push(eq(activities.groupId, groupId));
+	teamId && whereClause.push(eq(activities.teamId, teamId));
+	type && whereClause.push(inArray(activities.type, type));
+	groupId && whereClause.push(eq(activities.groupId, groupId));
 
-  // Convert cursor to offset
-  const offset = cursor ? Number.parseInt(cursor, 10) : 0;
+	// Convert cursor to offset
+	const offset = cursor ? Number.parseInt(cursor, 10) : 0;
 
-  const data = await db
-    .select({
-      id: activities.id,
-      type: activities.type,
-      createdAt: activities.createdAt,
-      metadata: activities.metadata,
-      userId: activities.userId,
-      user: {
-        id: users.id,
-        name: users.name,
-        email: users.email,
-        color: users.color,
-      },
-      groupId: activities.groupId,
-      teamId: activities.teamId,
-    })
-    .from(activities)
-    .where(and(...whereClause))
-    .leftJoin(users, eq(activities.userId, users.id))
-    .orderBy(desc(activities.createdAt))
-    .limit(pageSize ?? 20)
-    .offset(offset);
+	const data = await db
+		.select({
+			id: activities.id,
+			type: activities.type,
+			createdAt: activities.createdAt,
+			metadata: activities.metadata,
+			userId: activities.userId,
+			user: {
+				id: users.id,
+				name: users.name,
+				email: users.email,
+				color: users.color,
+			},
+			groupId: activities.groupId,
+			teamId: activities.teamId,
+		})
+		.from(activities)
+		.where(and(...whereClause))
+		.leftJoin(users, eq(activities.userId, users.id))
+		.orderBy(desc(activities.createdAt))
+		.limit(pageSize ?? 20)
+		.offset(offset);
 
-  // Calculate next cursor
-  const nextCursor =
-    data && data.length === pageSize
-      ? (offset + pageSize).toString()
-      : undefined;
+	// Calculate next cursor
+	const nextCursor =
+		data && data.length === pageSize
+			? (offset + pageSize).toString()
+			: undefined;
 
-  return {
-    meta: {
-      cursor: nextCursor ?? null,
-      hasPreviousPage: offset > 0,
-      hasNextPage: data && data.length === pageSize,
-    },
-    data,
-  };
+	return {
+		meta: {
+			cursor: nextCursor ?? null,
+			hasPreviousPage: offset > 0,
+			hasNextPage: data && data.length === pageSize,
+		},
+		data,
+	};
 };
 
 export const getActivityById = async (id: string) => {
-  const [activity] = await db
-    .select()
-    .from(activities)
-    .where(eq(activities.id, id))
-    .limit(1);
+	const [activity] = await db
+		.select()
+		.from(activities)
+		.where(eq(activities.id, id))
+		.limit(1);
 
-  return activity;
+	return activity;
 };
 
 export const createChecklistItemActivity = async ({
-  checklistItem,
-  oldChecklistItem,
-  userId,
+	checklistItem,
+	oldChecklistItem,
+	userId,
 }: {
-  checklistItem: InferSelectModel<typeof checklistItems>;
-  oldChecklistItem?: InferSelectModel<typeof checklistItems>;
-  userId?: string;
+	checklistItem: InferSelectModel<typeof checklistItems>;
+	oldChecklistItem?: InferSelectModel<typeof checklistItems>;
+	userId?: string;
 }) => {
-  let definedUserId = userId;
+	let definedUserId = userId;
 
-  // If userId is not set, get system user id
-  if (!definedUserId) definedUserId = (await getSystemUser())!.id;
+	// If userId is not set, get system user id
+	if (!definedUserId) definedUserId = (await getSystemUser())!.id;
 
-  if (checklistItem.taskId) {
-    const [task] = await db
-      .select()
-      .from(tasks)
-      .where(
-        and(
-          eq(tasks.id, checklistItem.taskId),
-          eq(tasks.teamId, checklistItem.teamId)
-        )
-      )
-      .limit(1);
+	if (checklistItem.taskId) {
+		const [task] = await db
+			.select()
+			.from(tasks)
+			.where(
+				and(
+					eq(tasks.id, checklistItem.taskId),
+					eq(tasks.teamId, checklistItem.teamId),
+				),
+			)
+			.limit(1);
 
-    if (!task) return;
+		if (!task) return;
 
-    if (oldChecklistItem) {
-      const changes: Partial<
-        Record<"title" | "isCompleted", Record<string, any>>
-      > = {};
-      if (oldChecklistItem.isCompleted !== checklistItem.isCompleted) {
-        changes.isCompleted = {
-          value: checklistItem.isCompleted,
-          oldValue: oldChecklistItem.isCompleted,
-        };
-      }
+		if (oldChecklistItem) {
+			const changes: Partial<
+				Record<"title" | "isCompleted", Record<string, any>>
+			> = {};
+			if (oldChecklistItem.isCompleted !== checklistItem.isCompleted) {
+				changes.isCompleted = {
+					value: checklistItem.isCompleted,
+					oldValue: oldChecklistItem.isCompleted,
+				};
+			}
 
-      if (changes.isCompleted?.value && !changes.isCompleted?.oldValue) {
-        await createActivity({
-          userId: definedUserId,
-          teamId: checklistItem.teamId,
-          groupId: checklistItem.taskId,
-          type: "checklist_item_completed",
-          metadata: {
-            checklistItemId: checklistItem.id,
-            title: task.title,
-            subscribers: task.subscribers,
-          },
-          source: "checklist_item",
-        });
+			if (changes.isCompleted?.value && !changes.isCompleted?.oldValue) {
+				await createActivity({
+					userId: definedUserId,
+					teamId: checklistItem.teamId,
+					groupId: checklistItem.taskId,
+					type: "checklist_item_completed",
+					metadata: {
+						checklistItemId: checklistItem.id,
+						title: task.title,
+						subscribers: task.subscribers,
+					},
+					source: "checklist_item",
+				});
 
-        delete changes.isCompleted;
-      } else if (changes.isCompleted?.oldValue && !changes.isCompleted?.value) {
-        // Delete checklist item completed activity for the same checklist item since only one can exist
-        await db
-          .delete(activities)
-          .where(
-            and(
-              eq(activities.groupId, checklistItem.taskId),
-              sql`${activities.metadata}->>'checklistItemId' = ${checklistItem.id}`,
-              eq(activities.type, "checklist_item_completed")
-            )
-          );
+				delete changes.isCompleted;
+			} else if (changes.isCompleted?.oldValue && !changes.isCompleted?.value) {
+				// Delete checklist item completed activity for the same checklist item since only one can exist
+				await db
+					.delete(activities)
+					.where(
+						and(
+							eq(activities.groupId, checklistItem.taskId),
+							sql`${activities.metadata}->>'checklistItemId' = ${checklistItem.id}`,
+							eq(activities.type, "checklist_item_completed"),
+						),
+					);
 
-        delete changes.isCompleted;
-      }
-    } else {
-      await createActivity({
-        userId: definedUserId,
-        teamId: checklistItem.teamId,
-        groupId: checklistItem.taskId,
-        type: "checklist_item_created",
-        metadata: {
-          checklistItemId: checklistItem.id,
-          title: task.title,
-          subscribers: task.subscribers,
-        },
-        source: "checklist_item",
-      });
-    }
-  }
+				delete changes.isCompleted;
+			}
+		} else {
+			await createActivity({
+				userId: definedUserId,
+				teamId: checklistItem.teamId,
+				groupId: checklistItem.taskId,
+				type: "checklist_item_created",
+				metadata: {
+					checklistItemId: checklistItem.id,
+					title: task.title,
+					subscribers: task.subscribers,
+				},
+				source: "checklist_item",
+			});
+		}
+	}
+};
+
+export const deleteActivity = async ({
+	id,
+	teamId,
+}: {
+	id: string;
+	teamId?: string;
+}) => {
+	const whereClause: SQL[] = [eq(activities.id, id)];
+	teamId && whereClause.push(eq(activities.teamId, teamId));
+	const [data] = await db
+		.delete(activities)
+		.where(and(...whereClause))
+		.returning();
+	return data;
 };

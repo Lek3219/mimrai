@@ -5,26 +5,57 @@ import { useRef, useState } from "react";
 import { Editor } from "@/components/editor";
 import { queryClient, trpc } from "@/utils/trpc";
 
-export const CommentInput = ({ taskId }: { taskId: string }) => {
+export const CommentInput = ({
+	taskId,
+	replyTo,
+	autoFocus = false,
+}: {
+	taskId: string;
+	replyTo?: string;
+	autoFocus?: boolean;
+}) => {
 	const editorRef = useRef<EditorInstance | null>(null);
 	const [comment, setComment] = useState("");
 
 	const { mutate: commentTask } = useMutation(
 		trpc.tasks.comment.mutationOptions({
-			onSuccess: () => {
+			onSuccess: (newComment) => {
 				queryClient.invalidateQueries(
-					trpc.activities.get.queryOptions({ groupId: taskId }),
+					trpc.activities.get.queryOptions({ groupId: replyTo ?? taskId }),
 				);
+				queryClient.invalidateQueries(
+					trpc.activities.get.infiniteQueryOptions({
+						groupId: replyTo ?? taskId,
+					}),
+				);
+
+				// Invalidate after a delay to try to ensure a response is fetched
+				setTimeout(() => {
+					queryClient.invalidateQueries(
+						trpc.activities.get.infiniteQueryOptions({
+							groupId: newComment?.id,
+						}),
+					);
+				}, 5000);
 			},
 		}),
 	);
 
-	const handleSubmit = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+	const handleSubmit = (e: React.KeyboardEvent<HTMLDivElement>) => {
 		if (comment.trim().length === 0) return;
-		commentTask({ id: taskId, comment });
+		const mentions = parseMentions(editorRef.current?.getJSON() || {});
+		commentTask({ id: taskId, comment, mentions, replyTo });
 		setComment("");
 		editorRef.current?.commands.clearContent();
 		editorRef.current?.commands.focus();
+	};
+
+	const parseMentions = (data: any) => {
+		const mentions: string[] = (data.content || []).flatMap(parseMentions);
+		if (data.type === "mention") {
+			mentions.push(data.attrs.id);
+		}
+		return mentions;
 	};
 
 	return (
@@ -39,10 +70,10 @@ export const CommentInput = ({ taskId }: { taskId: string }) => {
 			<Editor
 				value={comment}
 				ref={editorRef}
-				autoFocus={false}
+				autoFocus={autoFocus}
 				onChange={(e) => setComment(e)}
 				placeholder="Leave a comment..."
-				className="min-h-16 border border-input bg-accent px-4 py-2"
+				className="border border-input bg-accent px-4 py-2 [&_div]:min-h-[60px]"
 			/>
 		</div>
 	);

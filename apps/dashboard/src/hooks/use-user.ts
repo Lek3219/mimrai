@@ -8,11 +8,11 @@ export const useUser = () => {
 	const { data } = useQuery(trpc.users.getCurrent.queryOptions());
 	const { identify } = useOpenPanel();
 	useEffect(() => {
-		if (!data) return;
+		if (!data || !data.id) return;
 		identify({
 			profileId: data.id!,
-			firstName: data.name?.split(" ")[0] || "",
-			lastName: data.name?.split(" ")[1] || "",
+			firstName: data.name?.split(" ")?.[0] || "",
+			lastName: data.name?.split(" ")?.[1] || "",
 			email: data.email || "",
 		});
 	}, [data]);

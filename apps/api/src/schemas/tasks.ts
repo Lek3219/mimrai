@@ -1,5 +1,6 @@
 import { priorityEnum } from "@db/schema";
 import z from "zod";
+import { mention } from "../../../../packages/notifications/src/types";
 import { paginationSchema } from "./base";
 
 export enum TaskView {
@@ -33,6 +34,8 @@ export const createTaskSchema = z.object({
 	dueDate: z.string().nullable().optional(),
 	projectId: z.string().optional().nullable(),
 	mentions: z.array(z.string()).nullable().optional(),
+	repositoryName: z.string().nullable().optional(),
+	branchName: z.string().nullable().optional(),
 	recurring: z
 		.object({
 			startDate: z.string().optional(),
@@ -60,6 +63,8 @@ export const updateTaskSchema = z.object({
 	labels: z.array(z.string()).nullable().optional(),
 	mentions: z.array(z.string()).nullable().optional(),
 	projectId: z.string().optional().nullable(),
+	repositoryName: z.string().nullable().optional(),
+	branchName: z.string().nullable().optional(),
 	recurring: z
 		.object({
 			frequency: z.enum(["daily", "weekly", "monthly", "yearly"]),
@@ -80,6 +85,12 @@ export type DeleteTaskInput = z.infer<typeof deleteTaskSchema>;
 export const commentTaskSchema = z.object({
 	id: z.string(),
 	comment: z.string().min(1).max(5000),
+	replyTo: z.string().nullable().optional(),
+	mentions: z.array(z.string()).nullable().optional(),
+});
+
+export const deleteTaskCommentSchema = z.object({
+	id: z.string(),
 });
 
 export const smartCompleteSchema = z.object({

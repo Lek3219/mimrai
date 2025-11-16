@@ -151,7 +151,7 @@ export const getSystemUser = async () => {
 		const [newSystemUser] = await db
 			.insert(users)
 			.values({
-				name: "System",
+				name: "Mimir",
 				email: "system@mimrai.com",
 				isSystemUser: true,
 				createdAt: new Date(),
@@ -187,4 +187,12 @@ export const updateUser = async ({
 		.returning();
 
 	return record;
+};
+
+export const getMentionableSystemUsers = async () => {
+	const systemUsers = await db
+		.select()
+		.from(users)
+		.where(and(eq(users.isSystemUser, true), eq(users.isMentionable, true)));
+	return systemUsers;
 };

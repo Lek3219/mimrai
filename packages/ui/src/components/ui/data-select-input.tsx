@@ -24,6 +24,7 @@ export const DataSelectInput = <
 	renderItem,
 	renderValue,
 	renderClear,
+	before,
 	clearable,
 	className,
 	showChevron = true,
@@ -45,6 +46,7 @@ export const DataSelectInput = <
 	placeholder?: string;
 	queryOptions: UseQueryOptions<TFn, TError, T, TQueryKey>;
 	value: V;
+	before?: React.ReactNode;
 	onChange: (value: V) => void;
 	getValue: (item: T[number]) => string;
 	getLabel: (item?: T[number]) => string;
@@ -82,21 +84,24 @@ export const DataSelectInput = <
 					)}
 					{...buttonProps}
 				>
-					{Array.isArray(value) && value.length > 0 ? (
-						renderMultiple ? (
-							renderMultiple(multipleValues)
+					<div className="flex items-center gap-2">
+						{before}
+						{Array.isArray(value) && value.length > 0 ? (
+							renderMultiple ? (
+								renderMultiple(multipleValues)
+							) : (
+								"Render multiple not implemented"
+							)
+						) : singleValue ? (
+							(renderValue?.(singleValue) ??
+							renderItem?.(singleValue) ??
+							getLabel(singleValue))
 						) : (
-							"Render multiple not implemented"
-						)
-					) : singleValue ? (
-						(renderValue?.(singleValue) ??
-						renderItem?.(singleValue) ??
-						getLabel(singleValue))
-					) : (
-						<span className="font-normal text-muted-foreground">
-							{placeholder ?? "Select..."}
-						</span>
-					)}
+							<span className="font-normal text-muted-foreground">
+								{placeholder ?? "Select..."}
+							</span>
+						)}
+					</div>
 
 					{showChevron ? (
 						<ChevronDownIcon className="ml-2 size-4 shrink-0 opacity-50" />

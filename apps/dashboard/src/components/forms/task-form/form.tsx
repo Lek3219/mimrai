@@ -1,10 +1,10 @@
 "use client";
 import { Button } from "@mimir/ui/button";
 import { Form } from "@mimir/ui/form";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { Editor as EditorInstance } from "@tiptap/react";
 import { format } from "date-fns";
-import { Loader2 } from "lucide-react";
+import { ClipboardIcon, Link2Icon, Loader2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useDebounceValue } from "usehooks-ts";
@@ -27,6 +27,7 @@ import { Labels } from "./labels";
 import { Priority } from "./priority";
 import { ProjectSelect } from "./project-select";
 import { Recurring } from "./recurring";
+import { RepositorySelect } from "./repository-select";
 import { SmartInput } from "./smart-input";
 import { SubscribersList } from "./subscribers-list";
 import { Title } from "./title";
@@ -47,6 +48,7 @@ export const TaskForm = ({
 	const [lastSavedDate, setLastSavedDate] = useState<Date>(new Date());
 	const { setParams } = useTaskParams();
 	const queryClient = useQueryClient();
+
 	const form = useZodForm(taskFormSchema, {
 		defaultValues: {
 			title: "",
@@ -60,6 +62,18 @@ export const TaskForm = ({
 	});
 
 	const id = form.watch("id");
+
+	const { data: isGithubConnected } = useQuery(
+		trpc.integrations.getByType.queryOptions(
+			{
+				type: "github",
+			},
+			{
+				select: (data) => data.isInstalled,
+				placeholderData: (data) => data,
+			},
+		),
+	);
 
 	const { mutate: removeTaskFromPullRequestPlan } = useMutation(
 		trpc.github.removeTrasksFromPullRequestPlan.mutationOptions({
@@ -111,6 +125,10 @@ export const TaskForm = ({
 						groupId: task.id,
 					}),
 				);
+
+				form.reset(undefined, {
+					keepValues: true,
+				});
 			},
 		}),
 	);
@@ -154,7 +172,6 @@ export const TaskForm = ({
 				id: data.id,
 				mentions,
 			});
-			setParams(null);
 		} else {
 			// Create new task
 			createTask({
@@ -227,6 +244,7 @@ export const TaskForm = ({
 												<ColumnSelect />
 												<ProjectSelect />
 												<Recurring />
+												{isGithubConnected && <RepositorySelect />}
 											</div>
 										</div>
 
@@ -236,13 +254,28 @@ export const TaskForm = ({
 												<Attachments />
 											</div>
 
-											<div className="flex items-center gap-2">
+											<div className="flex flex-wrap items-center justify-end gap-2">
 												{id && (
 													<span className="mr-2 text-muted-foreground text-xs">
 														Last saved at {format(lastSavedDate, "PP, p")}
 													</span>
 												)}
-
+												{id && (
+													<Button
+														variant={"ghost"}
+														size="icon"
+														type="button"
+														aria-label="Copy task link"
+														onClick={() => {
+															navigator.clipboard.writeText(
+																window.location.href,
+															);
+															toast.success("Task link copied to clipboard");
+														}}
+													>
+														<Link2Icon />
+													</Button>
+												)}
 												<Button
 													type="submit"
 													variant={"default"}
@@ -259,6 +292,7 @@ export const TaskForm = ({
 													)}
 													{id ? "Save Changes" : "Create Task"}
 												</Button>
+
 												{id && <ActionsMenu />}
 											</div>
 										</div>

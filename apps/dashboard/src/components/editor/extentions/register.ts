@@ -83,7 +83,10 @@ const extensions = ({
 		suggestion: {
 			items: async ({ query }) => {
 				const members = await queryClient.fetchQuery(
-					trpc.teams.getMembers.queryOptions(),
+					trpc.teams.getMembers.queryOptions({
+						includeSystemUsers: true,
+						isMentionable: true,
+					}),
 				);
 				return members
 					.filter((member) =>

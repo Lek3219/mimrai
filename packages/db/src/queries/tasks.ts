@@ -27,7 +27,11 @@ import {
 	users,
 } from "../schema";
 import { unionArray } from "../utils/array";
-import { createActivity, createTaskUpdateActivity } from "./activities";
+import {
+	createActivity,
+	createTaskUpdateActivity,
+	deleteActivity,
+} from "./activities";
 import { upsertTaskEmbedding } from "./tasks-embeddings";
 
 type TaskLabel = {
@@ -176,6 +180,8 @@ export const getTasks = async ({
 				color: users.color,
 			},
 			columnId: tasks.columnId,
+			repositoryName: tasks.repositoryName,
+			branchName: tasks.branchName,
 			order: tasks.order,
 			priority: tasks.priority,
 			dueDate: tasks.dueDate,
@@ -271,6 +277,8 @@ export const createTask = async ({
 	teamId: string;
 	order?: number;
 	priority?: "low" | "medium" | "high" | "urgent";
+	repositoryName?: string;
+	branchName?: string;
 	dueDate?: string;
 	attachments?: string[];
 	mentions?: string[];
@@ -358,6 +366,8 @@ export const updateTask = async ({
 	teamId?: string;
 	order?: number;
 	priority?: "low" | "medium" | "high" | "urgent";
+	repositoryName?: string;
+	branchName?: string;
 	dueDate?: string;
 	attachments?: string[];
 	mentions?: string[];
@@ -471,6 +481,8 @@ export const getTaskById = async (id: string, teamId?: string) => {
 			columnId: tasks.columnId,
 			order: tasks.order,
 			priority: tasks.priority,
+			repositoryName: tasks.repositoryName,
+			branchName: tasks.branchName,
 			dueDate: tasks.dueDate,
 			createdAt: tasks.createdAt,
 			updatedAt: tasks.updatedAt,
@@ -551,14 +563,18 @@ export const createDefaultTasks = async ({
 
 export const createTaskComment = async ({
 	taskId,
+	replyTo,
 	userId,
 	teamId,
 	comment,
+	mentions = [],
 }: {
 	taskId: string;
 	userId: string;
 	teamId?: string;
+	replyTo?: string;
 	comment: string;
+	mentions?: string[];
 }) => {
 	const whereClause: SQL[] = [eq(tasks.id, taskId)];
 
@@ -574,22 +590,40 @@ export const createTaskComment = async ({
 		throw new Error("Task not found");
 	}
 
-	await db
+	const [newTask] = await db
 		.update(tasks)
 		.set({
-			subscribers: unionArray(task.subscribers, [userId]),
+			subscribers: unionArray(task.subscribers, [userId, ...mentions]),
 		})
-		.where(and(...whereClause));
+		.where(and(...whereClause))
+		.returning();
 
-	createActivity({
+	if (!newTask) {
+		throw new Error("Failed to add comment to task");
+	}
+
+	const activity = await createActivity({
 		userId,
 		teamId: task.teamId,
 		type: "task_comment",
-		groupId: task.id,
-		metadata: { comment, title: task.title, subscribers: task.subscribers },
+		groupId: replyTo ?? task.id,
+		metadata: { comment, title: task.title, subscribers: newTask.subscribers },
 	});
 
-	return task;
+	return activity;
+};
+
+export const deleteTaskComment = async ({
+	teamId,
+	commentId,
+}: {
+	teamId?: string;
+	commentId: string;
+}) => {
+	return deleteActivity({
+		id: commentId,
+		teamId,
+	});
 };
 
 export const getTaskByTitle = async ({

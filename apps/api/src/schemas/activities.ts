@@ -7,3 +7,7 @@ export const getActivitiesSchema = z.object({
 	pageSize: z.number().min(1).max(100).optional(),
 	type: z.array(z.enum(activityTypeEnum.enumValues)).optional(),
 });
+
+export const deleteActivitySchema = z.object({
+	id: z.string(),
+});

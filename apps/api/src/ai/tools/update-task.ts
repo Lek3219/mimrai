@@ -1,3 +1,4 @@
+import { updateTask } from "@db/queries/tasks";
 import { tasks } from "@db/schema";
 import { tool } from "ai";
 import { and, eq } from "drizzle-orm";
@@ -63,21 +64,17 @@ export const updateTaskTool = tool({
 			const { db, user } = getContext();
 
 			yield { type: "text", text: `Updating task: ${input.title}` };
-			const [updatedTask] = await db
-				.update(tasks)
-				.set({
-					title: input.title,
-					description: input.description,
-					dueDate: input.dueDate
-						? new Date(input.dueDate).toISOString()
-						: undefined,
-					columnId: input.columnId,
-					assigneeId: input.assigneeId,
-					teamId: user.teamId,
-					priority: input.priority,
-				})
-				.where(and(eq(tasks.id, input.id), eq(tasks.teamId, user.teamId)))
-				.returning();
+
+			const updatedTask = await updateTask({
+				title: input.title,
+				description: input.description,
+				dueDate: input.dueDate,
+				columnId: input.columnId,
+				assigneeId: input.assigneeId,
+				teamId: user.teamId,
+				priority: input.priority,
+				id: input.id,
+			});
 
 			yield { type: "text", text: `Task updated: ${updatedTask.title}` };
 		} catch (error) {

@@ -12,15 +12,15 @@ export const integrationsRegistry = {
 			teamNotificationChannelId: z.string().optional(),
 		}),
 	},
-	// github: {
-	// 	name: "GitHub",
-	// 	type: "github" as const,
-	// 	description: "GitHub integration",
-	// 	configSchema: z.object({
-	// 		token: z.string().min(1, "Token ID is required"),
-	// 		installationId: z.string().min(1, "Installation ID is required"),
-	// 	}),
-	// },
+	github: {
+		name: "GitHub",
+		type: "github" as const,
+		description: "GitHub integration",
+		configSchema: z.object({
+			token: z.string().min(1, "Token ID is required"),
+			installationId: z.string().min(1, "Installation ID is required"),
+		}),
+	},
 	whatsapp: {
 		name: "WhatsApp",
 		type: "whatsapp" as const,

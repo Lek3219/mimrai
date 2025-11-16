@@ -52,6 +52,7 @@ export function Editor({
 		onFocus,
 		autofocus: autoFocus,
 		onUpdate: ({ editor }) => {
+			// @ts-expect-error
 			if (ref) ref.current = editor;
 			onChange?.(editor.getHTML());
 			onUpdate?.(editor);

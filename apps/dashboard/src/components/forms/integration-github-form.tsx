@@ -1,16 +1,5 @@
-import { Alert, AlertDescription, AlertTitle } from "@mimir/ui/alert";
 import { Button } from "@mimir/ui/button";
-import {
-	Form,
-	FormControl,
-	FormField,
-	FormItem,
-	FormLabel,
-	FormMessage,
-} from "@mimir/ui/form";
-import { Input } from "@mimir/ui/input";
-import { getApiUrl } from "@mimir/utils/envs";
-import { CheckCircle2Icon, Loader2Icon, XCircleIcon } from "lucide-react";
+import { Form } from "@mimir/ui/form";
 import z from "zod";
 import { useUser } from "@/hooks/use-user";
 import { useZodForm } from "@/hooks/use-zod-form";

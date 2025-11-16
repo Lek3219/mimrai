@@ -165,6 +165,7 @@ export const handleWhatsappMessage = async ({
 			messages: convertToModelMessages(relevantMessages),
 			tools: {
 				...createToolRegistry(),
+				// @ts-expect-error
 				getOrSetIntegrationTeam: getOrSetIntegrationTeamTool,
 			},
 			onStepFinish: async (step) => {},
