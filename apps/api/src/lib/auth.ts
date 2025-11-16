@@ -1,10 +1,18 @@
 import { db } from "@db/index";
-import { account, session, users, verification } from "@mimir/db/schema";
+import {
+	account,
+	session,
+	users,
+	verification,
+	waitlist,
+} from "@mimir/db/schema";
 import { EmailVerificationEmail } from "@mimir/email/emails/email-verification";
 import { ResetPasswordEmail } from "@mimir/email/emails/reset-password";
 import { getAppUrl, getEmailFrom, getWebsiteUrl } from "@mimir/utils/envs";
 import { type BetterAuthOptions, betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { APIError, createAuthMiddleware } from "better-auth/api";
+import { eq } from "drizzle-orm";
 import { resend } from "./resend";
 
 export const auth = betterAuth<BetterAuthOptions>({
@@ -17,6 +25,27 @@ export const auth = betterAuth<BetterAuthOptions>({
 			users,
 		},
 	}),
+	hooks: {
+		before: createAuthMiddleware(async (ctx) => {
+			if (ctx.path !== "/sign-up/email") {
+				return;
+			}
+
+			const [waitlistEntry] = await db
+				.select()
+				.from(waitlist)
+				.where(eq(waitlist.email, ctx.body.email))
+				.limit(1);
+
+			if (!waitlistEntry || !waitlistEntry.authorized) {
+				throw new APIError(
+					403,
+					"Sign up is currently by invitation only. Please join our waitlist at " +
+						getWebsiteUrl(),
+				);
+			}
+		}),
+	},
 	trustedOrigins: (process.env.ALLOWED_API_ORIGINS || "").split(","),
 	emailVerification: {
 		async sendVerificationEmail({ user, url }, request) {
