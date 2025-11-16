@@ -2,6 +2,7 @@ import { db } from "@db/index";
 import {
 	account,
 	session,
+	userInvites,
 	users,
 	verification,
 	waitlist,
@@ -37,12 +38,21 @@ export const auth = betterAuth<BetterAuthOptions>({
 				.where(eq(waitlist.email, ctx.body.email))
 				.limit(1);
 
+			const [invitationEntry] = await db
+				.select()
+				.from(userInvites)
+				.where(eq(userInvites.email, ctx.body.email))
+				.limit(1);
+
+			// If the user is not on the waitlist or not authorized, and has no invitation, block sign up
 			if (!waitlistEntry || !waitlistEntry.authorized) {
-				throw new APIError(
-					403,
-					"Sign up is currently by invitation only. Please join our waitlist at " +
-						getWebsiteUrl(),
-				);
+				if (!invitationEntry) {
+					throw new APIError(
+						403,
+						"Sign up is currently by invitation only. Please join our waitlist at " +
+							getWebsiteUrl(),
+					);
+				}
 			}
 		}),
 	},
