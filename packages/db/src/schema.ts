@@ -202,7 +202,7 @@ export const tasks = pgTable(
 			.$defaultFn(() => randomUUID())
 			.primaryKey()
 			.notNull(),
-		permalinkId: text("permalink_id"),
+		permalinkId: text("permalink_id").notNull().unique(),
 		title: text("title").notNull(),
 		sequence: integer("sequence"),
 		description: text("description"),
@@ -258,6 +258,7 @@ export const tasks = pgTable(
 		),
 		index("tasks_order_index").on(table.order),
 		index("tasks_sequence_index").on(table.sequence),
+		index("tasks_permalink_id_index").on(table.permalinkId),
 		foreignKey({
 			columns: [table.assigneeId],
 			foreignColumns: [users.id],

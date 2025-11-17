@@ -589,24 +589,27 @@ export const createDefaultTasks = async ({
 		},
 	];
 
-	const data = await db
-		.insert(tasks)
-		.values(
-			defaultTasks.map((task, index) => ({
-				...task,
+	let index = 1;
+	for (const d of defaultTasks) {
+		index++;
+		const data = await db
+			.insert(tasks)
+			.values({
+				...d,
 				columnId,
 				teamId,
 				assigneeId,
+				permalinkId: await generateTaskPermalinkId(),
 				order: index,
-			})),
-		)
-		.returning();
+			})
+			.returning();
 
-	for (const task of data) {
-		await db.insert(labelsOnTasks).values({ taskId: task.id, labelId });
+		for (const task of data) {
+			await db.insert(labelsOnTasks).values({ taskId: task.id, labelId });
+		}
 	}
 
-	return data;
+	return [];
 };
 
 export const createTaskComment = async ({
