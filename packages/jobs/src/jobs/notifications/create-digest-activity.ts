@@ -1,7 +1,7 @@
 import { getDb } from "@jobs/init";
 import { createActivity } from "@mimir/db/queries/activities";
 import { columns, tasks, teams } from "@mimir/db/schema";
-import { getTaskUrl } from "@mimir/utils/tasks";
+import { getTaskPermalink } from "@mimir/utils/tasks";
 import { schemaTask } from "@trigger.dev/sdk";
 import { generateText } from "ai";
 import { format } from "date-fns";
@@ -94,7 +94,7 @@ ${pendingTasks
 			? format(task.tasks.dueDate, "MMMM do, yyyy")
 			: "No due date"
 	}
-	- Link: ${getTaskUrl(task.tasks.id, team.id)}`,
+	- Link: ${getTaskPermalink(task.tasks.permalinkId)}`,
 	)
 	.join("\n")}
 
