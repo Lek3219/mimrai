@@ -6,6 +6,9 @@
 		"baseUrl": ".",
 		"esModuleInterop": true,
 		"strictNullChecks": false,
+		"verbatimModuleSyntax": true,
+		"module": "esnext",
+		"moduleResolution": "bundler",
 		"paths": {
 			"@jobs/*": ["src/*"]
 		},

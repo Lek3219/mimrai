@@ -575,6 +575,9 @@ export const activityTypeEnum = pgEnum("activity_type", [
 	"checklist_item_updated",
 	"mention",
 	"resume_generated",
+	"daily_digest",
+	"daily_pulse",
+	"daily_end_of_day",
 ]);
 
 export const activitySourceEnum = pgEnum("activity_source", [

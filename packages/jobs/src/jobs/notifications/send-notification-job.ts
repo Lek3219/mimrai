@@ -15,12 +15,12 @@ export const sendNotificationJob = schemaTask({
 		concurrencyLimit: 5,
 	},
 	run: async (payload, ctx) => {
-		await tags.add(`channel_${payload.channel}`);
+		await tags.add(`channel:${payload.channel}`);
 		const { activityId } = payload;
 
 		const activity = await getActivityById(activityId);
 		if (!activity) throw new Error("Activity not found");
-		await tags.add(`type_${activity.type}`);
+		await tags.add(`type:${activity.type}`);
 		if (!activity.userId) throw new Error("Activity has no userId");
 
 		const user = await getUserById(activity.userId);

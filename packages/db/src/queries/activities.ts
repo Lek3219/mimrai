@@ -96,10 +96,15 @@ export const createActivity = async (input: CreateActivityInput) => {
 			);
 
 			if (shouldSend) {
-				await sendNotificationJob.trigger({
-					activityId: result.id,
-					channel,
-				});
+				await sendNotificationJob.trigger(
+					{
+						activityId: result.id,
+						channel,
+					},
+					{
+						tags: [`channel:${channel}`, `type:${input.type}`],
+					},
+				);
 			}
 		}
 	}

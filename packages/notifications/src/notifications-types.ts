@@ -38,6 +38,13 @@ export const allNotificationTypes: NotificationType[] = [
 		order: 1,
 	},
 	{
+		type: "daily_digest",
+		channels: ["mattermost", "whatsapp"],
+		showInSettings: true,
+		category: "resumes",
+		order: 2,
+	},
+	{
 		type: "mention",
 		channels: ["mattermost"],
 		showInSettings: true,

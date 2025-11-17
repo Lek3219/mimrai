@@ -1,5 +1,6 @@
 export * from "./checklist-item-completed";
 export * from "./checklist-item-created";
+export * from "./daily-digest";
 export * from "./mention";
 export * from "./resume-generated";
 export * from "./task-assigned";
