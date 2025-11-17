@@ -83,7 +83,7 @@ export const createDigestActivityJob = schemaTask({
 ⏱️ You have ${pendingCount.count} pending tasks.
 🔥 ${pendingCount.high} high-priority
 
-Here are your top tasks:
+${pendingTasks.length > 0 ? "Here are your top tasks:" : "No tasks pending!"}
 ${pendingTasks
 	.map(
 		(task, index) =>
