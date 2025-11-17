@@ -102,7 +102,13 @@ export const createActivity = async (input: CreateActivityInput) => {
 						channel,
 					},
 					{
-						tags: [`channel:${channel}`, `type:${input.type}`],
+						tags: [
+							`channel:${channel}`,
+							`type:${input.type}`,
+							`teamId:${input.teamId}`,
+							`userId:${userId}`,
+							`activityId:${result.id}`,
+						],
 					},
 				);
 			}

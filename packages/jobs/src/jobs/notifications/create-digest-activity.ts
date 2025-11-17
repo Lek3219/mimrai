@@ -68,6 +68,7 @@ export const createDigestActivityJob = schemaTask({
       <team-context>
         - Team Name: ${team.name}
         - Team description: ${team.description || "No description"}
+				- Locale: ${team.locale || "en-US"}
       </team-context>
       `,
 		});
