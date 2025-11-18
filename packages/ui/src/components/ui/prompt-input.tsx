@@ -89,6 +89,7 @@ function PromptInput({
 						"cursor-text border border-input bg-background p-2 shadow-xl",
 						className,
 					)}
+					id="prompt-input"
 					onClick={() => textareaRef.current?.focus()}
 				>
 					{children}
