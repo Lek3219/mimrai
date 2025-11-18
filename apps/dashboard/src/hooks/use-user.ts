@@ -9,6 +9,7 @@ export const useUser = () => {
 	const { identify } = useOpenPanel();
 	useEffect(() => {
 		if (!data || !data.id) return;
+		if (process.env.NODE_ENV === "development") return;
 		identify({
 			profileId: data.id!,
 			firstName: data.name?.split(" ")?.[0] || "",

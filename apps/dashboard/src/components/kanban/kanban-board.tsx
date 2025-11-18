@@ -229,7 +229,7 @@ export function KanbanBoard() {
 				getItemValue={(item) => item.id}
 			>
 				<AnimatePresence>
-					<Kanban.Board className="flex w-screen items-stretch gap-4 overflow-x-auto">
+					<Kanban.Board className="flex items-stretch gap-4 overflow-x-auto">
 						{Object.entries(columnsData).map(([columnValue, tasks]) => {
 							const column = columns?.data.find(
 								(col) => col.name === columnValue,

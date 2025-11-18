@@ -191,7 +191,7 @@ app.post("/", async (c) => {
 						isWebSearchMessage,
 					),
 					messages: convertToModelMessages(originalMessages),
-					// temperature: 0.7,
+					temperature: 0.7,
 					stopWhen: (step) => {
 						// Stop if we've reached 10 steps (original condition)
 						if (stepCountIs(10)(step)) {

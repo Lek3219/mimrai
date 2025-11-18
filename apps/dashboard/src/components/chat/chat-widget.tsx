@@ -14,8 +14,10 @@ import { ChatInterface } from "./chat-interface";
 
 export type ChatContainerState = {
 	chatId?: string;
+	title?: string;
 	show: boolean;
 	toggle: (value?: boolean) => void;
+	setTitle: (title: string) => void;
 	setChatId: (chatId: string) => void;
 };
 
@@ -32,6 +34,7 @@ export const useChatWidget = create<ChatContainerState>()((set, get) => ({
 		set({ show: value !== undefined ? value : !get().show });
 	},
 	setChatId: (chatId) => set({ chatId }),
+	setTitle: (title) => set({ title }),
 }));
 
 export const ChatWidget = () => {
@@ -39,7 +42,7 @@ export const ChatWidget = () => {
 	const lastPathname = useRef<string>(pathname);
 	const containerRef = useRef<HTMLDivElement>(null);
 	const [hover, setHover] = useState(false);
-	const { show, toggle, chatId, setChatId } = useChatWidget();
+	const { show, toggle, chatId, setChatId, setTitle } = useChatWidget();
 
 	useEffect(() => {
 		if (pathname !== lastPathname.current) {
@@ -68,6 +71,10 @@ export const ChatWidget = () => {
 	);
 
 	useEffect(() => {
+		setTitle(initialMessages?.title || "");
+	}, [initialMessages]);
+
+	useEffect(() => {
 		if (!isFetched) return;
 		if (!containerRef.current) return;
 
@@ -93,7 +100,7 @@ export const ChatWidget = () => {
 			textarea?.removeEventListener("click", handleClick);
 			textarea?.removeEventListener("focus", handleClick);
 		};
-	}, [isFetched]);
+	}, [isFetched, chatId]);
 
 	useEffect(() => {
 		if (typeof window === "undefined") return;
