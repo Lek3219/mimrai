@@ -1,3 +1,4 @@
+// Utility functions for generating random values
 export const randomColor = () => {
 	// const hlsColors = [
 	// 	"hsla(210, 100%, 20%, 1.00)", // Blue
