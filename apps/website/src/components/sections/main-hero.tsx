@@ -1,16 +1,10 @@
 "use client";
 
-import { getAppUrl } from "@mimir/utils/envs";
-import { Badge } from "@ui/components/ui/badge";
-import { Button } from "@ui/components/ui/button";
-import { ChevronRight } from "lucide-react";
 import { motion, useAnimationFrame } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
 import { createRef, useRef } from "react";
 import { cn } from "@/lib/utils";
-import { FakeMessage } from "../fakes/fake-message";
-import { FakeTask } from "../fakes/fake-tasks";
 import { WaitlistForm } from "../forms/waitlist-form";
 import { Logo } from "../logo";
 
@@ -41,7 +35,7 @@ export const MainHero = () => {
 				<Image
 					src={"/images/cover4.png"}
 					alt="Cover Image"
-					className="size-full scale-100 object-cover object-bottom"
+					className="size-full scale-100 object-cover object-top"
 					width={1400}
 					height={800}
 				/>

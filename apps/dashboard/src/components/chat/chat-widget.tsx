@@ -88,7 +88,7 @@ export const ChatWidget = () => {
 			toggle(true);
 		};
 
-		const textarea = containerRef.current?.querySelector("textarea");
+		const textarea = containerRef.current?.querySelector("#prompt-input");
 		textarea?.addEventListener("mouseenter", handleMouseEnter);
 		textarea?.addEventListener("mouseleave", handleMouseLeave);
 		textarea?.addEventListener("click", handleClick);
