@@ -25,6 +25,7 @@ export const ChatInput = () => {
 
 	const handleSubmit = () => {
 		if (value.trim() === "") return;
+		if (status === "streaming") return;
 		sendMessage({
 			text: value.trim(),
 		});

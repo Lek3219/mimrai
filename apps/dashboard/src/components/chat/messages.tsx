@@ -44,7 +44,10 @@ export const Messages = () => {
 											</Message>
 										);
 									default: {
-										if (part.type.startsWith("tool-")) {
+										if (
+											part.type.startsWith("tool-") &&
+											(part as any)?.output?.text
+										) {
 											return (
 												<Fragment key={`${message.id}-${index}`}>
 													<Message from={message.role}>

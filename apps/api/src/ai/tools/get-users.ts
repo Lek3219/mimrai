@@ -16,8 +16,6 @@ export const getUsersTool = tool({
 	execute: async function* ({ search }) {
 		const { db, user } = getContext();
 
-		yield { text: "Retrieving users..." };
-
 		const result = await getMembers({
 			teamId: user.teamId,
 			search,
@@ -29,7 +27,6 @@ export const getUsersTool = tool({
 		}
 
 		yield {
-			text: `Found ${result.length} users.`,
 			data: result,
 		};
 	},

@@ -27,7 +27,7 @@ export const KanbanTask = ({
 	return (
 		<motion.div
 			className={cn(
-				"flex min-h-14 cursor-pointer flex-col rounded-none border bg-secondary transition-background hover:bg-secondary/80",
+				"flex min-h-14 cursor-pointer flex-col rounded-none bg-secondary transition-background hover:bg-secondary/80",
 				{
 					"opacity-50!": task.column?.type === "done",
 				},
@@ -86,7 +86,7 @@ export const KanbanTask = ({
 						{task.checklistSummary?.total > 0 && (
 							<div
 								className={cn(
-									"flex h-5.5 items-center border font-medium text-muted-foreground text-xs",
+									"flex h-5.5 items-center border px-2 font-medium text-muted-foreground text-xs",
 									{
 										"bg-primary px-2 text-primary-foreground":
 											task.checklistSummary.completed ===
