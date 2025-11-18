@@ -470,10 +470,6 @@ export const getTaskByPermalinkId = async (
 	permalinkId: string,
 	userId?: string,
 ) => {
-	console.log({
-		permalinkId,
-		userId,
-	});
 	const whereClause: SQL[] = [
 		or(eq(tasks.permalinkId, permalinkId), eq(tasks.id, permalinkId))!,
 	];
