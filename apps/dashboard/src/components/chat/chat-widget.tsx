@@ -173,7 +173,7 @@ export const ChatWidget = () => {
 							},
 						)}
 					>
-						<div className="h-full w-[50vw] bg-transparent">
+						<div className="h-full w-3xl bg-transparent">
 							{isFetched && <ChatInterface showMessages={show} id={chatId} />}
 						</div>
 					</div>

@@ -1,6 +1,6 @@
 import { Provider as ChatProvider } from "@ai-sdk-tools/store";
 import { Suspense } from "react";
-import { KanbanBoard } from "@/components/kanban/kanban-board";
+import { Board } from "@/components/kanban/board/board";
 
 type Props = {
 	searchParams: Promise<{
@@ -16,7 +16,7 @@ export default function DashboardPage({ searchParams }: Props) {
 					{/*<ChatContainer chatId={chatId} />*/}
 					<div className="h-full w-full overflow-hidden">
 						<Suspense>
-							<KanbanBoard />
+							<Board />
 						</Suspense>
 					</div>
 				</div>
