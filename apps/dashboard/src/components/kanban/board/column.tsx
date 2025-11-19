@@ -28,7 +28,7 @@ export function BoardColumn({ column, columnName, tasks }: BoardColumnProps) {
 
 	return (
 		<Kanban.Column
-			className="h-auto min-h-[200px] min-w-86 max-w-86 grow-1 bg-muted/50"
+			className="h-auto min-h-[200px] min-w-86 max-w-86 grow-1 bg-muted/10"
 			value={columnName}
 		>
 			<ColumnContextMenu column={column}>
@@ -94,7 +94,7 @@ export function BoardColumn({ column, columnName, tasks }: BoardColumnProps) {
 				))}
 				<div
 					className={cn(
-						"pointer-events-none absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity duration-200",
+						"pointer-events-none absolute inset-0 flex items-center justify-center border bg-black/50 opacity-0 transition-opacity duration-200",
 						{
 							"opacity-100":
 								overColumnName === columnName && Boolean(activeTaskId),
