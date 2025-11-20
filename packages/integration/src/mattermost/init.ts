@@ -462,11 +462,6 @@ export const initMattermostSingle = async (
 									});
 
 									console.log(`genering response for thread ${threadId}`);
-									await trackMessage({
-										userId: userContext.userId,
-										source: "mattermost",
-										teamName: userContext.teamName ?? undefined,
-									});
 
 									const thinkingPost = await client.createPost({
 										channel_id: typedData.post.channel_id,
@@ -477,7 +472,7 @@ export const initMattermostSingle = async (
 									const systemMessage: UIChatMessage = await new Promise(
 										(resolve, reject) => {
 											const result = streamText({
-												model: "openai/gpt-5",
+												model: "openai/gpt-4o",
 												system: systemPrompt,
 												messages: convertToModelMessages(allMessages),
 												tools: {
@@ -495,6 +490,17 @@ export const initMattermostSingle = async (
 												},
 												onError: (error) => {
 													console.error(error);
+												},
+												onFinish: async ({ usage }) => {
+													await trackMessage({
+														userId: userContext.userId,
+														source: "mattermost",
+														model: "openai/gpt-4o",
+														teamId: integration.teamId,
+														teamName: userContext.teamName ?? undefined,
+														input: usage.inputTokens,
+														output: usage.outputTokens,
+													});
 												},
 											});
 

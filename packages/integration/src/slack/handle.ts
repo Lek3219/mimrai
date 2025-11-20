@@ -171,12 +171,6 @@ export const handleSlackMessage = async ({
 
 		const systemPrompt = `${generateSystemPrompt(userContext)}`;
 
-		await trackMessage({
-			userId: userContext.userId,
-			source: "slack",
-			teamName: userContext.teamName ?? undefined,
-		});
-
 		const text: UIChatMessage = await new Promise((resolve, reject) => {
 			const result = streamText({
 				model: "openai/gpt-4o",
@@ -194,6 +188,17 @@ export const handleSlackMessage = async ({
 
 					// Force stop if any tool has completed its full streaming response
 					return shouldForceStop(step);
+				},
+				onFinish: async ({ usage }) => {
+					await trackMessage({
+						userId: userContext.userId,
+						source: "slack",
+						teamName: userContext.teamName ?? undefined,
+						teamId: userContext.teamId,
+						model: "openai/gpt-4o",
+						input: usage.inputTokens,
+						output: usage.outputTokens,
+					});
 				},
 			});
 

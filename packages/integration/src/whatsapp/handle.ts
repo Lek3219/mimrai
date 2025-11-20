@@ -152,12 +152,6 @@ export const handleWhatsappMessage = async ({
 	//   body: "Thinking...",
 	// });
 
-	await trackMessage({
-		userId: userContext.userId,
-		source: "whatsapp",
-		teamName: userContext.teamName ?? undefined,
-	});
-
 	const text: UIChatMessage = await new Promise((resolve, reject) => {
 		const result = streamText({
 			model: "openai/gpt-4o",
@@ -165,7 +159,6 @@ export const handleWhatsappMessage = async ({
 			messages: convertToModelMessages(relevantMessages),
 			tools: {
 				...createToolRegistry(),
-				// @ts-expect-error
 				getOrSetIntegrationTeam: getOrSetIntegrationTeamTool,
 			},
 			onStepFinish: async (step) => {},
@@ -177,6 +170,17 @@ export const handleWhatsappMessage = async ({
 
 				// Force stop if any tool has completed its full streaming response
 				return shouldForceStop(step);
+			},
+			onFinish: async ({ usage }) => {
+				await trackMessage({
+					userId: userContext.userId,
+					source: "whatsapp",
+					teamName: userContext.teamName ?? undefined,
+					teamId: userContext.teamId,
+					model: "openai/gpt-4o",
+					input: usage.inputTokens,
+					output: usage.outputTokens,
+				});
 			},
 		});
 

@@ -20,6 +20,7 @@ import {
 	saveChat,
 	saveChatMessage,
 } from "@mimir/db/queries/chats";
+import { trackMessage } from "@mimir/events/server";
 import { logger } from "@mimir/logger";
 import {
 	convertToModelMessages,
@@ -214,6 +215,17 @@ app.post("/", async (c) => {
 								error instanceof Error
 									? error.message
 									: String(JSON.stringify(error)),
+						});
+					},
+					onFinish: ({ usage }) => {
+						trackMessage({
+							userId: userContext.userId,
+							source: "web",
+							teamName: userContext.teamName ?? undefined,
+							teamId: userContext.teamId,
+							model: "openai/gpt-4o",
+							input: usage.inputTokens,
+							output: usage.outputTokens,
 						});
 					},
 				});
