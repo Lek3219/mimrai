@@ -123,6 +123,7 @@ export const handleWhatsappMessage = async ({
 				return "There was an error processing your message.";
 			},
 			onFinish: ({ responseMessage }) => {
+				console.log("Finished processing message:", responseMessage);
 				resolve(responseMessage as UIChatMessage);
 			},
 		});
