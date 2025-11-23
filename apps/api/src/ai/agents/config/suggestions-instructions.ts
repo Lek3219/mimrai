@@ -1,3 +1,4 @@
+export const suggestionsInstructions = `
 <instructions>
 Generate 4 brief follow-up suggestions (2-3 words each, max 5 words).
 
@@ -38,3 +39,4 @@ What NOT to suggest:
 IMPORTANT: Users will offten send messages related to issues, features, or simply tasks related to their business activities. Focus on task/project management context only.
 </rules>
 </instructions>
+`.trim();

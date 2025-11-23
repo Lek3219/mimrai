@@ -1,3 +1,4 @@
+export const titleInstructions = `
 Generate a concise title that captures the user's intent.
 
 <rules>
@@ -16,3 +17,4 @@ Generate a title for the conversation.
 <output-format>
 Return only the title.
 </output-format>
+`.trim();

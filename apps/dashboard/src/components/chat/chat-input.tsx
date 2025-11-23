@@ -167,9 +167,9 @@ export const ChatInput = () => {
 						placeholder={
 							isWebSearch
 								? "Search the web"
-								: contextPlaceholder ||
-									`Continue "${chatTitle?.title}" conversation` ||
-									"Ask anything"
+								: chatTitle?.title
+									? `Continue "${chatTitle?.title}" conversation`
+									: contextPlaceholder || "Ask anything"
 						}
 					/>
 				</PromptInputBody>

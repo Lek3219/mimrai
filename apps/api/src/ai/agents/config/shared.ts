@@ -8,21 +8,9 @@ import {
 } from "@api/ai/utils/format-context-items";
 import { db } from "@db/index";
 import { DrizzleProvider } from "./drizzle-provider";
-
-const memoryTemplate = readFileSync(
-	join(process.cwd(), "src/ai/agents/config/memory-template.md"),
-	"utf-8",
-);
-
-const suggestionsInstructions = readFileSync(
-	join(process.cwd(), "src/ai/agents/config/suggestions-instructions.md"),
-	"utf-8",
-);
-
-const titleInstructions = readFileSync(
-	join(process.cwd(), "src/ai/agents/config/title-instructions.md"),
-	"utf-8",
-);
+import { memoryTemplate } from "./memory-template";
+import { suggestionsInstructions } from "./suggestions-instructions";
+import { titleInstructions } from "./title-instructions";
 
 export function formatContextForLLM(context: AppContext): string {
 	return `<team-info>

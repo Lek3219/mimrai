@@ -1,3 +1,4 @@
+export const memoryTemplate = `
 <user-profile>
 Name: [Learn from conversation]
 Role: [CEO, CFO, Finance Manager, etc.]
@@ -7,3 +8,4 @@ Role: [CEO, CFO, Finance Manager, etc.]
 Style: [Formal vs casual, technical vs simplified]
 Tone: [Professional, friendly, analytical, etc.]
 </communication-preferences>
+`.trim();
