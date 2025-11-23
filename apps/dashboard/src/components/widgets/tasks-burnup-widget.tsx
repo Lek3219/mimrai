@@ -100,7 +100,7 @@ export const TasksBurnupWidget = () => {
 							type={"monotone"}
 							fill="url(#fillTaskCreatedCount)"
 							stroke="var(--chart-4)"
-							stackId={"a"}
+							stackId={"b"}
 						/>
 					</AreaChart>
 				</ChartContainer>
