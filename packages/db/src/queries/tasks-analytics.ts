@@ -248,7 +248,7 @@ export const getTasksCompletionRate = async ({
 			completedCount: sql<number>`COUNT(${activities.id})`,
 		})
 		.from(seriesDates)
-		.innerJoin(
+		.leftJoin(
 			activities,
 			and(
 				eq(sql`DATE(${activities.createdAt})`, sql`DATE(created_at.date)`),
