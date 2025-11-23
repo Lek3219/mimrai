@@ -136,7 +136,6 @@ export const ChatInput = () => {
 					</PromptInputAttachments>
 					<PromptInputTextarea
 						ref={textareaRef}
-						autoFocus
 						onChange={handleInputChange}
 						onKeyDown={(e) => {
 							// Handle Enter key for commands
