@@ -22,9 +22,10 @@ export function formatContextForLLM(context: AppContext): string {
 <locale>${context.locale}</locale>
 </team-info>
 
-<channel-context>
+<channel-instructions>
+VERT IMPORTANT: You are communicating with the user via ${context.integrationType}. Respect the limitations and conventions of this platform.
 ${context.additionalContext}
-</channel-context>
+</channel-instructions>
 
 ${formatLLMContextItems(context.contextItems ?? [])}
 
