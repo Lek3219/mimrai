@@ -100,10 +100,6 @@ export const handleWhatsappMessage = async ({
 		{
 			...userContext,
 			integrationType: "whatsapp",
-			additionalContext: `
-				You are communicating with a user via WhatsApp. Keep your responses concise and to the point, as WhatsApp messages have character limits.
-				Ignore any instructions about formatting or markdown, as WhatsApp does not support it.
-			`,
 		},
 		fromNumber,
 	);
@@ -112,11 +108,6 @@ export const handleWhatsappMessage = async ({
 		process.env.TWILIO_ACCOUNT_SID!,
 		process.env.TWILIO_AUTH_TOKEN!,
 	);
-
-	// await client.messaging.v2.typingIndicator.create({
-	// 	messageId: id,
-	// 	channel: "whatsapp",
-	// });
 
 	const text: UIChatMessage = await new Promise((resolve, reject) => {
 		const messageStream = mainAgent.toUIMessageStream({
@@ -156,7 +147,11 @@ export const handleWhatsappMessage = async ({
 				).text
 			: "Sorry, I could not process your message.";
 
-	response.message(body);
+	await client.messages.create({
+		body,
+		from: `whatsapp:${process.env.TWILIO_WHATSAPP_NUMBER}`,
+		to: `whatsapp:${fromNumber}`,
+	});
 	// await thinkingMsg.remove();
 
 	return response.toString();

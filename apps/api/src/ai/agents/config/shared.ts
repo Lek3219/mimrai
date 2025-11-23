@@ -24,6 +24,25 @@ export function formatContextForLLM(context: AppContext): string {
 
 <channel-instructions>
 VERT IMPORTANT: You are communicating with the user via ${context.integrationType}. Respect the limitations and conventions of this platform.
+
+${
+	context.integrationType === "web"
+		? `
+	- When presenting repeated structured data (lists of items, multiple entries, time series), always use markdown tables
+	- Tables make data scannable and easier to compare - use them for any data with 2+ rows
+	`
+		: context.integrationType === "whatsapp"
+			? `
+	- Keep your responses concise and to the point, as WhatsApp messages have character limits.
+	- Truncate overly long responses. 2000 characters is the maximum length for a WhatsApp message. THIS IS VERY IMPORTANT otherwise the message will not be delivered.
+	- Do no use markdown or any special formatting, as WhatsApp does not support it.
+	- Use simple lists with dashes or numbers for multiple items.
+	- Keep large list responses to a maximum of 5 items.
+	- Share links as full URLs without hyperlinking or any special formatting.
+	`
+			: ""
+}
+
 ${context.additionalContext}
 </channel-instructions>
 
@@ -43,8 +62,6 @@ export const COMMON_AGENT_RULES = `<behavior-rules>
 - Provide specific numbers and actionable insights
 - Explain your reasoning
 - Lead with the most important information first
-- When presenting repeated structured data (lists of items, multiple entries, time series), always use markdown tables
-- Tables make data scannable and easier to compare - use them for any data with 2+ rows
 </behavior-rules>`;
 
 export interface AppContext {
@@ -62,6 +79,7 @@ export interface AppContext {
 	teamId: string;
 	artifactSupport?: boolean;
 	additionalContext: string;
+	integrationType: "web" | "slack" | "whatsapp" | "mattermost";
 	contextItems?: Array<ContextItem>;
 	// Allow additional properties to satisfy Record<string, unknown> constraint
 	[key: string]: unknown;
@@ -91,6 +109,7 @@ export function buildAppContext(
 		teamId: context.teamId,
 		artifactSupport: context.artifactSupport ?? false,
 		additionalContext: context.additionalContext ?? "",
+		integrationType: context.integrationType,
 		contextItems: context.contextItems ?? [],
 	};
 }
