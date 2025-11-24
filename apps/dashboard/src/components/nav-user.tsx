@@ -34,6 +34,8 @@ export function NavUser({
 	const { isMobile } = useSidebar();
 	if (!user) return null;
 
+	console.log("Rendering NavUser for", user);
+
 	return (
 		<SidebarMenu>
 			<SidebarMenuItem>

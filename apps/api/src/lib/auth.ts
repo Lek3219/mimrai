@@ -28,7 +28,7 @@ export const auth = betterAuth<BetterAuthOptions>({
 	}),
 	hooks: {
 		before: createAuthMiddleware(async (ctx) => {
-			if (ctx.path !== "/sign-up/email") {
+			if (!ctx.path.startsWith("/sign-up")) {
 				return;
 			}
 
@@ -88,6 +88,16 @@ export const auth = betterAuth<BetterAuthOptions>({
 					token,
 				}),
 			});
+		},
+	},
+	socialProviders: {
+		google: {
+			clientId: process.env.GOOGLE_CLIENT_ID || "",
+			clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+		},
+		github: {
+			clientId: process.env.GITHUB_CLIENT_ID || "",
+			clientSecret: process.env.GITHUB_CLIENT_SECRET || "",
 		},
 	},
 	user: {

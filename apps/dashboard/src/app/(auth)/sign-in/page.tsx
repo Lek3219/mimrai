@@ -9,8 +9,8 @@ import SignInForm from "@/components/sign-in-form";
 
 export default function LoginPage() {
 	return (
-		<div className="grid grid-cols-2">
-			<div className="flex h-screen w-full flex-col gap-4 p-8">
+		<div className="grid md:grid-cols-2">
+			<div className="hidden h-screen w-full flex-col gap-4 p-8 md:flex">
 				<div className="flex justify-between">
 					<Logo className="size-8 rounded-full" />
 					<Link href={getWebsiteUrl()}>
@@ -28,9 +28,11 @@ export default function LoginPage() {
 					className="h-screen w-full rounded-lg object-cover"
 				/>
 			</div>
-			<Suspense>
-				<SignInForm />
-			</Suspense>
+			<div className="relative flex h-screen flex-col">
+				<Suspense>
+					<SignInForm />
+				</Suspense>
+			</div>
 		</div>
 	);
 }

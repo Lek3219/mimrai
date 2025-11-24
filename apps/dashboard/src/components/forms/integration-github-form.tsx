@@ -1,5 +1,6 @@
 import { Button } from "@mimir/ui/button";
 import { Form } from "@mimir/ui/form";
+import { getApiUrl } from "@mimir/utils/envs";
 import z from "zod";
 import { useUser } from "@/hooks/use-user";
 import { useZodForm } from "@/hooks/use-zod-form";
@@ -41,10 +42,12 @@ export const IntegrationGithubForm = ({
 		// redirectUrl.searchParams.append("teamId", user?.team?.id!);
 		// url.searchParams.append("redirect_uri", redirectUrl.toString());
 		// window.open(url.toString(), "_blank", "noopener,noreferrer");
-
 		const url = new URL(
 			`https://github.com/apps/${process.env.NEXT_PUBLIC_GITHUB_APP_NAME}/installations/new`,
 		);
+		const redirectUrl = new URL(`${getApiUrl()}/webhooks/github/setup`);
+		url.searchParams.append("redirect_uri", redirectUrl.toString());
+		console.log("Opening URL:", url.toString());
 		window.open(url.toString(), "_blank", "noopener,noreferrer");
 	};
 
@@ -56,7 +59,7 @@ export const IntegrationGithubForm = ({
 		<Form {...form}>
 			<form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
 				<Button type="button" onClick={handleAuthorize}>
-					Authorize GitHub
+					Install
 				</Button>
 			</form>
 		</Form>
