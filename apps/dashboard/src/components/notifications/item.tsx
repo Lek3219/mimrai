@@ -25,8 +25,7 @@ export const NotificationItem = ({
 	status = "unread",
 	icon: Icon,
 }: NotificationItemProps) => {
-	const { selectedIds, toggleSelection, clearSelection } =
-		useNotificationStore();
+	const { selectedIds, toggleSelection } = useNotificationStore();
 
 	const { mutate: bulkUpdate } = useMutation(
 		trpc.activities.bulkUpdate.mutationOptions({}),
@@ -52,14 +51,14 @@ export const NotificationItem = ({
 					}}
 				>
 					<div
+						className={cn("size-2 rounded-full", {
+							"bg-primary": status === "unread",
+							"bg-transparent": status !== "unread",
+						})}
+					/>
+					<div
 						className={cn(
-							"flex size-9 items-center justify-center rounded-full",
-							{
-								"bg-muted": status === "read",
-								"bg-primary text-primary-foreground": status === "unread",
-								"bg-secondary/50 text-secondary-foreground":
-									status === "archived",
-							},
+							"flex size-9 items-center justify-center rounded-full bg-muted",
 						)}
 					>
 						{Icon && <Icon className="size-4" />}
