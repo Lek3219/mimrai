@@ -1,6 +1,8 @@
 import { roleScopes } from "@api/lib/scopes";
 import { switchTeamSchema, updateUserProfileSchema } from "@api/schemas/users";
 import { protectedProcedure, router } from "@api/trpc/init";
+import { teamCache } from "@mimir/cache/teams-cache";
+import { userCache } from "@mimir/cache/users-cache";
 import {
 	getCurrentUser,
 	switchTeam,
@@ -32,6 +34,8 @@ export const usersRouter = router({
 		.input(switchTeamSchema)
 		.mutation(async ({ ctx, input }) => {
 			const user = await switchTeam(ctx.user.id, input.teamId);
+			await userCache.delete(ctx.user.id);
+			await teamCache.delete(`${ctx.user.id}:${input.teamId}`);
 			return user;
 		}),
 
