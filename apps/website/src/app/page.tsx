@@ -1,10 +1,19 @@
-import { MainHero } from "@/components/sections/main-hero";
+import { FeaturesGrid } from "@/components/sections/features-grid";
+import { Hero } from "@/components/sections/hero";
+import { OpenSource } from "@/components/sections/open-source";
+import { ProductSection } from "@/components/sections/product-section";
+import { Showcase } from "@/components/sections/showcase";
+import { TrustedBy } from "@/components/sections/trusted-by";
 
 export default function Home() {
 	return (
 		<>
-			<MainHero />
-			{/* <ContentSection /> */}
+			<Hero />
+			<TrustedBy />
+			<ProductSection />
+			<FeaturesGrid />
+			<Showcase />
+			<OpenSource />
 		</>
 	);
 }

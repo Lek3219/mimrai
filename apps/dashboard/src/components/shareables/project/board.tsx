@@ -12,12 +12,25 @@ export const ProjectBoardShareable = ({
 		(groups, task) => {
 			const column = task.column.name || "Uncategorized";
 			if (!groups[column]) {
-				groups[column] = [];
+				groups[column] = {
+					tasks: [],
+					order: task.column.order || 0,
+				};
 			}
-			groups[column].push(task);
+			groups[column].tasks.push(task);
 			return groups;
 		},
-		{} as Record<string, typeof tasks.data>,
+		{} as Record<
+			string,
+			{
+				tasks: typeof tasks.data;
+				order: number;
+			}
+		>,
+	);
+
+	const sortedColumns = Object.entries(groupedTasks).sort(
+		([, a], [, b]) => b.order - a.order,
 	);
 
 	const findColumnByName = (name: string) => {
@@ -32,14 +45,14 @@ export const ProjectBoardShareable = ({
 
 	return (
 		<div className="my-8">
-			{Object.entries(groupedTasks).map(([columnName, columnTasks]) => (
+			{sortedColumns.map(([columnName, columnTasks]) => (
 				<div key={columnName} style={{ marginBottom: "2rem" }}>
 					<h3 className="mb-2 flex items-center gap-2 font-medium text-sm">
 						{renderColumnIcon(columnName)}
 						{columnName}
 					</h3>
 					<ul className="space-y-2">
-						{columnTasks.map((task) => (
+						{columnTasks.tasks.map((task) => (
 							<li
 								key={task.id}
 								className="flex flex-col gap-1 bg-secondary px-2 py-2 text-sm"

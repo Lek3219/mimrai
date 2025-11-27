@@ -1,4 +1,5 @@
 import type { RouterOutputs } from "@api/trpc/routers";
+import { Progress } from "@/app/dashboard/(navigation)/projects/projects-list";
 import { ProjectIcon } from "@/components/project-icon";
 import { Response } from "../../chat/response";
 import { ProjectBoardShareable } from "./board";
@@ -16,35 +17,9 @@ export const ProjectShareable = ({
 				<ProjectIcon {...project} />
 				<h1 className="font-medium font-runic text-2xl">{project.name}</h1>
 			</div>
-			<div className="flex flex-wrap gap-2" />
-			{project.description ? (
-				<Response>{project.description}</Response>
-			) : (
-				<span className="text-muted-foreground">No description provided.</span>
-			)}
-			<ProjectBoardShareable tasks={tasks} />
-		</div>
-	);
-};
 
-export const ProjectShareableOgImage = ({
-	project,
-}: {
-	project: NonNullable<RouterOutputs["projects"]["getById"]>;
-}) => {
-	return (
-		<div
-			style={{
-				fontSize: 64,
-				background: "white",
-				width: "100%",
-				height: "100%",
-				display: "flex",
-				alignItems: "center",
-				justifyContent: "center",
-			}}
-		>
-			{project.name}
+			{project.description && <Response>{project.description}</Response>}
+			<ProjectBoardShareable tasks={tasks} />
 		</div>
 	);
 };

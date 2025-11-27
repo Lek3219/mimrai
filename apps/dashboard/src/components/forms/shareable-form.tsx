@@ -175,21 +175,23 @@ export const ShareableForm = ({
 				)}
 
 				{id && (
-					<button
-						type="button"
-						className="group w-full"
-						onClick={() => handleCopy(getShareablePermalink(id))}
-					>
-						<Alert>
-							{isCopied ? (
-								<CopyCheckIcon className="zoom-in-50 size-3.5 animate-in duration-200" />
-							) : (
-								<CopyIcon className="size-3 text-muted-foreground! group-hover:text-foreground!" />
-							)}
+					<div>
+						<button
+							type="button"
+							className="group w-full"
+							onClick={() => handleCopy(getShareablePermalink(id))}
+						>
+							<Alert>
+								{isCopied ? (
+									<CopyCheckIcon className="zoom-in-50 size-3.5 animate-in duration-200" />
+								) : (
+									<CopyIcon className="size-3 text-muted-foreground! group-hover:text-foreground!" />
+								)}
 
-							<AlertDescription>{getShareablePermalink(id)}</AlertDescription>
-						</Alert>
-					</button>
+								<AlertDescription>{getShareablePermalink(id)}</AlertDescription>
+							</Alert>
+						</button>
+					</div>
 				)}
 
 				<div className="flex justify-end gap-2">

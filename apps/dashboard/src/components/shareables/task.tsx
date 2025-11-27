@@ -42,26 +42,3 @@ export const TaskShareable = ({
 		</div>
 	);
 };
-
-export const TaskShareableOgImage = ({
-	task,
-}: {
-	task: NonNullable<RouterOutputs["tasks"]["getById"]>;
-}) => {
-	return (
-		<div
-			style={{
-				fontSize: 64,
-				background: "white",
-				width: "100%",
-				height: "100%",
-				display: "flex",
-				alignItems: "center",
-				justifyContent: "center",
-			}}
-		>
-			<LayersIcon />
-			{task.title}
-		</div>
-	);
-};

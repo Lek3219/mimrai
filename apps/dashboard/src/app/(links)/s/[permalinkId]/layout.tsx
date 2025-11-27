@@ -13,22 +13,24 @@ export default async function Layout({
 
 	return (
 		<div>
-			<header className="container mx-auto mb-4 flex items-center justify-between px-6 py-4">
-				<div className="flex items-center gap-8">
-					<Logo className="rounded-full" />
-					<div className="flex gap-2">
-						<Link href={`${getWebsiteUrl()}`}>
-							<Button size={"sm"} variant={"ghost"}>
-								Home
-							</Button>
-						</Link>
+			<header className="mb-4 flex border-b px-6 py-4">
+				<div className="container mx-auto flex items-center justify-between">
+					<div className="flex items-center gap-8">
+						<Logo className="rounded-full" />
+						<div className="flex gap-2">
+							<Link href={`${getWebsiteUrl()}`}>
+								<Button size={"sm"} variant={"ghost"}>
+									Home
+								</Button>
+							</Link>
+						</div>
 					</div>
+					{!session?.user && (
+						<Button size={"sm"} variant={"secondary"}>
+							Sign in
+						</Button>
+					)}
 				</div>
-				{!session?.user && (
-					<Button size={"sm"} variant={"secondary"}>
-						Sign in
-					</Button>
-				)}
 			</header>
 			<div className="container mx-auto max-w-4xl px-4 py-12">{children}</div>
 		</div>
