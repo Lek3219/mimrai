@@ -47,12 +47,6 @@ export const Navbar: React.FC = () => {
 						How it works
 					</Link>
 					<Link
-						href="#pricing"
-						className="text-sm text-zinc-400 transition-colors hover:text-white"
-					>
-						Pricing
-					</Link>
-					<Link
 						href="https://github.com/mimrai-org/mimrai"
 						target="_blank"
 						rel="noopener noreferrer"
