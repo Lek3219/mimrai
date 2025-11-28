@@ -26,6 +26,7 @@ export const PlanSelectSheet = () => {
 	const forceOpen =
 		subscription &&
 		subscription.status !== "active" &&
+		!subscription.trialEnd &&
 		!pathname.startsWith("/dashboard/settings");
 
 	const isOpen = Boolean(selectPlan || forceOpen);
