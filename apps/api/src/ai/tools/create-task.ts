@@ -86,7 +86,7 @@ export const createTaskTool = tool({
 			});
 
 			const result = await generateObject({
-				model: openai("gpt-4o-mini"),
+				model: openai("gpt-4o"),
 				schema: z.object({
 					assigneeId: z
 						.string()

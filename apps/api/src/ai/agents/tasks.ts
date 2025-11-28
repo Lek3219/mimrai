@@ -16,7 +16,7 @@ import { updateTaskTool } from "../tools/update-task";
 
 export const tasksAgent = createAgent({
 	name: "tasks",
-	model: openai("gpt-4o-mini"),
+	model: openai("gpt-4o"),
 	temperature: 0.3,
 	instructions: (
 		ctx,

@@ -9,7 +9,7 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@ui/components/ui/dialog";
-import { Settings2Icon, SettingsIcon } from "lucide-react";
+import { Settings2Icon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { PlanList } from "@/app/dashboard/(navigation)/settings/billing/plan-list";
@@ -26,6 +26,7 @@ export const PlanSelectSheet = () => {
 	const forceOpen =
 		subscription &&
 		subscription.status !== "active" &&
+		subscription.status !== "trialing" &&
 		!pathname.startsWith("/dashboard/settings");
 
 	const isOpen = Boolean(selectPlan || forceOpen);

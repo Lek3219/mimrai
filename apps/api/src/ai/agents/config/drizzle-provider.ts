@@ -8,6 +8,7 @@ import type {
 import type { UIChatMessage } from "@api/ai/types";
 import type { Database } from "@db/index";
 import { chatMessages, chats, users, workingMemory } from "@db/schema";
+import { convertToModelMessages, type UIMessagePart } from "ai";
 import { and, desc, eq, like, sql } from "drizzle-orm";
 
 export class DrizzleProvider implements MemoryProvider {

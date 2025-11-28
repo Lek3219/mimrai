@@ -425,6 +425,7 @@ export const initMattermostSingle = async (
 												chatId: threadId,
 												userId: associetedUser.userId,
 												message,
+												role: message.role,
 												createdAt: new Date(createdAt).toISOString(),
 											}),
 										);

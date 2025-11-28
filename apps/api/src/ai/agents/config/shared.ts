@@ -144,7 +144,7 @@ export const createAgent = (config: AgentConfig<AppContext>) => {
 					instructions: titleInstructions,
 				},
 				generateSuggestions: {
-					enabled: true,
+					enabled: false,
 					model: "gpt-4.1-nano",
 					limit: 4,
 					instructions: suggestionsInstructions,
