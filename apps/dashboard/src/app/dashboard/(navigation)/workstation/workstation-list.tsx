@@ -1,21 +1,25 @@
 "use client";
 
-import type { RouterOutputs } from "@api/trpc/routers";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { Button } from "@ui/components/ui/button";
-import { DialogTrigger } from "@ui/components/ui/dialog";
-import { Table, TableBody, TableCell, TableRow } from "@ui/components/ui/table";
-import { cn } from "@ui/lib/utils";
-import { format } from "date-fns";
+import { Checkbox } from "@ui/components/ui/checkbox";
 import {
-	CheckSquare2Icon,
-	CheckSquareIcon,
-	CookieIcon,
-	PlusIcon,
-	TicketCheckIcon,
-} from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
+	Collapsible,
+	CollapsibleContent,
+	CollapsibleTrigger,
+} from "@ui/components/ui/collapsible";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from "@ui/components/ui/dropdown-menu";
+import { cn } from "@ui/lib/utils";
+import { ChevronRightIcon, CookieIcon, PlusIcon } from "lucide-react";
+import { AnimatePresence } from "motion/react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { Response } from "@/components/chat/response";
 import { ColumnIcon } from "@/components/column-icon";
 import {
 	EmptyState,
@@ -24,13 +28,11 @@ import {
 	EmptyStateIcon,
 	EmptyStateTitle,
 } from "@/components/empty-state";
-import { Priority } from "@/components/kanban/priority";
 import { TaskContextMenu } from "@/components/kanban/task-context-menu";
 import { TaskItem } from "@/components/task-item";
 import { useTaskParams } from "@/hooks/use-task-params";
 import { useUser } from "@/hooks/use-user";
 import { queryClient, trpc } from "@/utils/trpc";
-import { WorkConfirmDialogTrigger } from "./work-confirm-dialog";
 
 export const WorkstationList = () => {
 	const user = useUser();
@@ -41,6 +43,38 @@ export const WorkstationList = () => {
 		trpc.tasks.get.queryOptions({
 			assigneeId: user?.id ? [user?.id] : [],
 			view: "workstation",
+		}),
+	);
+
+	const { data: columns } = useQuery(
+		trpc.columns.get.queryOptions(
+			{},
+			{
+				refetchOnMount: false,
+				refetchOnWindowFocus: false,
+			},
+		),
+	);
+
+	const { mutate: updateTask } = useMutation(
+		trpc.tasks.update.mutationOptions({
+			onMutate: () => {
+				toast.loading("Updating task...", {
+					id: "update-task",
+				});
+			},
+			onSuccess: () => {
+				toast.success("Task updated", {
+					id: "update-task",
+				});
+				queryClient.invalidateQueries(trpc.tasks.get.queryOptions());
+				queryClient.invalidateQueries(trpc.tasks.get.infiniteQueryOptions());
+			},
+			onError: () => {
+				toast.error("Failed to update task", {
+					id: "update-task",
+				});
+			},
 		}),
 	);
 
@@ -69,7 +103,7 @@ export const WorkstationList = () => {
 	}
 
 	return (
-		<ul className="flex flex-col">
+		<ul className="flex flex-col gap-4">
 			{tasks?.data.length === 0 && !isLoading && (
 				<div className="mt-8 flex flex-col items-start justify-center gap-2 text-center">
 					<h3 className="text-2xl text-muted-foreground">
@@ -83,12 +117,69 @@ export const WorkstationList = () => {
 			<AnimatePresence>
 				{tasks?.data.map((task) => (
 					<TaskContextMenu task={task} key={task.id}>
-						<li className="group flex items-center gap-2 transition-all">
-							<div className="w-full transition-all duration-300">
+						<li className="group gap-2 border px-4 transition-all hover:bg-accent/50">
+							<div className="flex w-full items-center gap-4 transition-all duration-300">
+								<DropdownMenu>
+									<DropdownMenuTrigger asChild>
+										<Checkbox checked={task.column.type === "done"} />
+									</DropdownMenuTrigger>
+									<DropdownMenuContent>
+										{columns?.data
+											?.filter((column) => column.id !== task.columnId)
+											.map((column) => (
+												<DropdownMenuItem
+													key={column.id}
+													onClick={() => {
+														updateTask({ id: task.id, columnId: column.id });
+													}}
+												>
+													<ColumnIcon type={column.type} className="size-4" />
+													{column.name}
+												</DropdownMenuItem>
+											))}
+									</DropdownMenuContent>
+								</DropdownMenu>
 								{/* <WorkConfirmDialogTrigger asChild taskId={task.id}> */}
-								<TaskItem task={task} dialog={false} />
+								<TaskItem
+									task={task}
+									className="border-0 px-0 hover:bg-transparent"
+								/>
+
 								{/* </WorkConfirmDialogTrigger> */}
 							</div>
+							{task.checklistSummary?.checklist?.length! > 0 && (
+								<div className="space-y-2 pb-4">
+									<Collapsible className="group/checklist">
+										<CollapsibleTrigger className="flex items-center gap-2 text-muted-foreground hover:text-foreground">
+											<div className="transition-all group-data-[state=open]/checklist:rotate-90">
+												<ChevronRightIcon className="size-4" />
+												<span className="sr-only">Toggle</span>
+											</div>
+											<div className="font-medium text-sm">Checklist</div>
+										</CollapsibleTrigger>
+										<CollapsibleContent>
+											<div className="ml-6">
+												{task.checklistSummary?.checklist?.map((checklist) => (
+													<div
+														key={checklist.id}
+														className="flex items-center gap-2 py-2.5 text-muted-foreground text-sm"
+													>
+														<Checkbox checked={checklist.isCompleted} />
+														<Response
+															className={cn({
+																"text-muted-foreground line-through":
+																	checklist.isCompleted,
+															})}
+														>
+															{checklist.description}
+														</Response>
+													</div>
+												))}
+											</div>
+										</CollapsibleContent>
+									</Collapsible>
+								</div>
+							)}
 						</li>
 					</TaskContextMenu>
 				))}

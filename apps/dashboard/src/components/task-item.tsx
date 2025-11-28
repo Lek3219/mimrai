@@ -75,7 +75,7 @@ export const TaskItem = ({
 				)}
 				<h3 className="font-medium">{task.title}</h3>
 			</div>
-			<div className="flex flex-wrap items-center justify-end gap-2">
+			<div className="hidden flex-wrap items-center justify-end gap-2 md:flex">
 				{properties.map((property) => (
 					<Fragment key={property}>
 						{propertiesComponents[property](task)}
