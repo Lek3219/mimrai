@@ -6,7 +6,7 @@ export const acceptTaskSuggestionSchema = z.object({
 });
 
 export const rejectTaskSuggestionSchema = z.object({
-	id: z.string(),
+	id: z.string().optional(),
 });
 
 export const getTasksSuggestionsSchema = z.object({

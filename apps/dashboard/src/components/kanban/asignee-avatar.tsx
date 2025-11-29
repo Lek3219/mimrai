@@ -37,7 +37,7 @@ export const AssigneeAvatar = ({
 			<TooltipTrigger asChild>
 				<Avatar className={cn("size-6", className)}>
 					<AvatarFallback
-						className="bg-primary text-primary-foreground"
+						className="bg-primary text-primary-foreground text-xs"
 						style={{
 							backgroundColor: color || undefined,
 							color: color ? getContrast(color) : undefined,

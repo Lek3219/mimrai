@@ -11,13 +11,13 @@ export const NavNotifications = () => {
 		<Link href="/dashboard/notifications">
 			<Button
 				size={"sm"}
-				className="relative size-9 rounded-full"
+				className="relative size-8 rounded-full"
 				type="button"
 				variant={"secondary"}
 			>
 				<BellIcon />
 				{data && (
-					<div className="absolute top-0 right-0 size-2.5 rounded-full bg-primary" />
+					<div className="absolute top-0 right-0 size-2 rounded-full bg-primary" />
 				)}
 			</Button>
 		</Link>

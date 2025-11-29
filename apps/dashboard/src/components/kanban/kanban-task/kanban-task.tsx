@@ -3,6 +3,7 @@ import { LabelBadge } from "@mimir/ui/label-badge";
 import { format } from "date-fns";
 import { BoxIcon, CheckSquareIcon } from "lucide-react";
 import { motion } from "motion/react";
+import { ColumnIcon } from "@/components/column-icon";
 import { ProjectIcon } from "@/components/project-icon";
 import { useTaskParams } from "@/hooks/use-task-params";
 import { cn } from "@/lib/utils";
@@ -47,7 +48,7 @@ export const KanbanTask = ({
 			{...props}
 		>
 			<div className="p-3">
-				<div className="flex h-full grow-1 flex-col justify-between gap-2">
+				<div className="flex h-full grow-1 flex-col justify-between gap-0.5">
 					<div className="flex items-center justify-between gap-2">
 						<span className={"flex items-start gap-1 text-sm"}>
 							{task.sequence !== null && (
@@ -55,15 +56,23 @@ export const KanbanTask = ({
 									{task.sequence}
 								</span>
 							)}
-							<span className="break-words font-medium">{task.title}</span>
+							<div className="flex items-start gap-2">
+								<div className="break-words font-medium text-sm">
+									{task.title}
+								</div>
+							</div>
 						</span>
 						<KanbanAssignee task={task} />
 					</div>
 
-					<div className="mt-2 flex flex-wrap items-center gap-2">
-						{task.priority && <Priority value={task.priority} />}
+					<div className="mt-2 flex flex-wrap items-center gap-1">
+						{task.priority && (
+							<div className="flex items-center">
+								<Priority value={task.priority} />
+							</div>
+						)}
 						{task.project && (
-							<div className="flex h-5.5 items-center gap-1 border px-2 font-medium text-xs">
+							<div className="flex h-5.5 items-center gap-1 border border-border/50 px-2 font-medium text-xs">
 								<ProjectIcon className="size-3.5" {...task.project} />
 								{task.project.name}
 							</div>
@@ -71,19 +80,24 @@ export const KanbanTask = ({
 						{task.labels?.length > 0 && (
 							<div className="flex flex-wrap gap-1">
 								{task.labels?.slice(0, 3).map((label) => (
-									<LabelBadge key={label.id} {...label} variant="outline" />
+									<LabelBadge
+										key={label.id}
+										{...label}
+										variant="outline"
+										className="border-border/50"
+									/>
 								))}
 							</div>
 						)}
 						{task.dueDate && (
-							<time className="flex h-5.5 items-center border px-2 font-medium text-xs tabular-nums">
+							<time className="flex h-5.5 items-center border border-border/50 px-2 font-medium text-xs tabular-nums">
 								{format(new Date(task.dueDate), "PP")}
 							</time>
 						)}
 						{task.checklistSummary?.total > 0 && (
 							<div
 								className={cn(
-									"flex h-5.5 items-center border px-2 font-medium text-muted-foreground text-xs",
+									"flex h-5.5 items-center border border-border/50 px-2 font-medium text-muted-foreground text-xs",
 									{
 										"bg-primary px-2 text-primary-foreground":
 											task.checklistSummary.completed ===

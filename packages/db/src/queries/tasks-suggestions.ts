@@ -95,16 +95,20 @@ export const rejectTaskSuggestion = async ({
 	id,
 	teamId,
 }: {
-	id: string;
+	id?: string;
 	teamId?: string;
 }) => {
-	const whereClause: SQL[] = [eq(taskSuggestions.id, id)];
+	const whereClause: SQL[] = [];
+
+	if (id) {
+		whereClause.push(eq(taskSuggestions.id, id));
+	}
 
 	if (teamId) {
 		whereClause.push(eq(taskSuggestions.teamId, teamId));
 	}
 
-	const [updatedSuggestion] = await db
+	const updatedSuggestion = await db
 		.update(taskSuggestions)
 		.set({
 			status: "rejected",

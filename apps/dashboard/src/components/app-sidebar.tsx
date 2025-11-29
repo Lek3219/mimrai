@@ -117,8 +117,6 @@ const data: {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-	const user = useUser();
-
 	return (
 		<Sidebar variant="sidebar" {...props}>
 			<SidebarHeader className="flex h-[65px] flex-col items-center justify-center border-b">
@@ -140,7 +138,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 				</div>
 			</SidebarContent>
 			<SidebarFooter className="">
-				<NavUser user={user!} />
+				{/* <NavUser user={user!} /> */}
 			</SidebarFooter>
 		</Sidebar>
 	);

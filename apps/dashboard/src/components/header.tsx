@@ -2,6 +2,8 @@
 
 import { SidebarTrigger } from "@ui/components/ui/sidebar";
 import { NavNotifications } from "./nav-notifications";
+import { NavSuggestions } from "./nav-suggestions";
+import { NavUser } from "./nav-user";
 
 export default function Header() {
 	return (
@@ -10,8 +12,10 @@ export default function Header() {
 				<div className="flex w-full items-center justify-between">
 					<SidebarTrigger />
 
-					<div className="flex items-center gap-2">
+					<div className="flex items-center gap-4">
+						<NavSuggestions />
 						<NavNotifications />
+						<NavUser />
 					</div>
 				</div>
 			</div>

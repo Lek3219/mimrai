@@ -18,11 +18,12 @@ import {
 	type Transition,
 } from "motion/react";
 import { toast } from "sonner";
+import { useTaskSuggestionsParams } from "@/hooks/use-tasks-suggestions-params";
 import { queryClient, trpc } from "@/utils/trpc";
 import Loader from "../loader";
 
 const suggestionContainerVariant = {
-	initial: { x: 340 },
+	initial: { x: 100 },
 	hover: { x: 4 },
 	exit: { x: "120%" },
 };
@@ -45,6 +46,8 @@ const transition = {
 } satisfies Transition;
 
 export const TasksSuggestions = () => {
+	const { showTaskSuggestions, setParams } = useTaskSuggestionsParams();
+
 	const { data } = useQuery(
 		trpc.tasksSuggestions.get.queryOptions({
 			status: ["pending"],
@@ -102,7 +105,9 @@ export const TasksSuggestions = () => {
 						pageSize: 5,
 					}),
 					(oldData) => {
-						return oldData?.filter((suggestion) => suggestion.id !== data?.id);
+						return oldData?.filter((suggestion) =>
+							data.find((s) => s.id === suggestion.id),
+						);
 					},
 				);
 			},
@@ -117,82 +122,129 @@ export const TasksSuggestions = () => {
 	const isLoading = isAccepting || isDismissing;
 
 	return (
-		<div className="pointer-events-none fixed right-0">
-			<div className="flex w-[400px] flex-col gap-4 text-sm">
-				<AnimatePresence mode="popLayout">
-					{data?.map((suggestion) => {
-						const Icon = suggestionIcon[suggestion.payload.type];
-						return (
-							<motion.div
-								key={suggestion.id}
-								variants={suggestionContainerVariant}
-								initial="initial"
-								exit={"exit"}
-								transition={transition}
-								layout
-								whileHover={"hover"}
-								className="group pointer-events-auto border bg-background/50 p-4 backdrop-blur-xl"
-							>
-								<div className="flex items-center gap-4">
-									<div>
-										<Icon className="size-4 text-muted-foreground" />
-									</div>
-									<motion.div
-										variants={suggestionContentVariant}
-										className="flex-1 overflow-hidden text-ellipsis"
-									>
-										<div className="mb-2">
-											<span className="text-muted-foreground text-xs">
-												<SparklesIcon className="mr-2 inline-block size-3" />
-												Suggested{" "}
-												{formatRelative(
-													new Date(suggestion.createdAt!),
-													new Date(),
-												)}
-											</span>
-										</div>
-										{suggestion.content}
-									</motion.div>
-								</div>
-								<motion.div
-									variants={suggestionActionsVariant}
-									transition={transition}
-									className="flex items-end justify-end gap-2 overflow-hidden"
+		<AnimatePresence>
+			{showTaskSuggestions && (
+				<motion.div
+					initial={{
+						right: -500,
+					}}
+					animate={{
+						right: 0,
+					}}
+					exit={{
+						right: -500,
+					}}
+					transition={{
+						type: "spring",
+						duration: 0.4,
+						bounce: 0.2,
+					}}
+					className="pointer-events-none fixed top-[100px] right-0"
+				>
+					<div className="flex w-[400px] flex-col gap-4 text-sm">
+						<div className="pointer-events-auto flex justify-end gap-4 px-4">
+							{data && data.length > 1 && (
+								<button
+									type="button"
+									className="flex items-center text-muted-foreground text-xs hover:text-foreground"
+									onClick={() => {
+										dismissSuggestion({});
+									}}
 								>
-									<div className="flex gap-2">
-										<Button
-											size="sm"
-											disabled={isLoading}
-											onClick={() =>
-												acceptSuggestion({
-													id: suggestion.id,
-												})
-											}
+									Dismiss all
+								</button>
+							)}
+							<button
+								type="button"
+								className="flex items-center text-muted-foreground text-xs hover:text-foreground"
+								onClick={() => setParams({ showTaskSuggestions: false })}
+							>
+								<XIcon className="mr-1 inline-block size-3" />
+								Close
+							</button>
+						</div>
+
+						{data && data.length === 0 && (
+							<div className="pointer-events-auto w-fit self-end border bg-background/50 p-4 text-center text-muted-foreground text-sm backdrop-blur-xl">
+								No task suggestions available
+							</div>
+						)}
+						<AnimatePresence mode="popLayout">
+							{data?.map((suggestion) => {
+								const Icon = suggestionIcon[suggestion.payload.type];
+								return (
+									<motion.div
+										key={suggestion.id}
+										variants={suggestionContainerVariant}
+										initial="initial"
+										exit={"exit"}
+										transition={transition}
+										layout
+										whileHover={"hover"}
+										className="group pointer-events-auto border bg-background/50 p-4 backdrop-blur-xl"
+									>
+										<div className="flex items-center gap-4">
+											<div>
+												<Icon className="size-4 text-muted-foreground" />
+											</div>
+											<motion.div
+												variants={suggestionContentVariant}
+												className="flex-1 overflow-hidden text-ellipsis"
+											>
+												<div className="mb-2">
+													<span className="text-muted-foreground text-xs">
+														<SparklesIcon className="mr-2 inline-block size-3" />
+														Suggested{" "}
+														{formatRelative(
+															new Date(suggestion.createdAt!),
+															new Date(),
+														)}
+													</span>
+												</div>
+												{suggestion.content}
+											</motion.div>
+										</div>
+										<motion.div
+											variants={suggestionActionsVariant}
+											transition={transition}
+											className="flex items-end justify-end gap-2 overflow-hidden"
 										>
-											{isAccepting ? <Loader /> : <CheckIcon />}
-											Accept
-										</Button>
-										<Button
-											variant="ghost"
-											disabled={isLoading}
-											size="sm"
-											onClick={() =>
-												dismissSuggestion({
-													id: suggestion.id,
-												})
-											}
-										>
-											{isDismissing ? <Loader /> : <XIcon />}
-											Dismiss
-										</Button>
-									</div>
-								</motion.div>
-							</motion.div>
-						);
-					})}
-				</AnimatePresence>
-			</div>
-		</div>
+											<div className="flex gap-2">
+												<Button
+													size="sm"
+													disabled={isLoading}
+													onClick={() =>
+														acceptSuggestion({
+															id: suggestion.id,
+														})
+													}
+												>
+													{isAccepting ? <Loader /> : <CheckIcon />}
+													Accept
+												</Button>
+												<Button
+													variant="ghost"
+													disabled={isLoading}
+													size="sm"
+													onClick={() =>
+														dismissSuggestion({
+															id: suggestion.id,
+														})
+													}
+												>
+													{isDismissing ? <Loader /> : <XIcon />}
+													Dismiss
+												</Button>
+											</div>
+										</motion.div>
+									</motion.div>
+								);
+							})}
+						</AnimatePresence>
+					</div>
+				</motion.div>
+			)}
+		</AnimatePresence>
 	);
 };
 

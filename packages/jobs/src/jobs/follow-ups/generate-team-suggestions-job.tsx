@@ -105,7 +105,7 @@ export const generateTeamSuggestionsJob = schemaTask({
 		inactiveTasks
 			.map(
 				(t) =>
-					`- [${t.tasks.id}] "${t.tasks.title}" in column [${t.columns.id}] "${t.columns.name}" assigned to userId ${t.tasks.assigneeId}, last updated at ${t.tasks.updatedAt}`,
+					`- [${t.tasks.id}] "${t.tasks.title}" in column [${t.columns.id}] "${t.columns.name}" assigned to userId ${t.tasks.assigneeId}, last updated at ${t.tasks.updatedAt}, priority: ${t.tasks.priority}`,
 			)
 			.join("\n") || "No inactive tasks."
 	}
@@ -115,7 +115,7 @@ export const generateTeamSuggestionsJob = schemaTask({
 		overdueTasks
 			.map(
 				(t) =>
-					`- [${t.tasks.id}] "${t.tasks.title}" in column [${t.columns.id}] "${t.columns.name}" assigned to userId ${t.tasks.assigneeId}, due at ${t.tasks.dueDate}`,
+					`- [${t.tasks.id}] "${t.tasks.title}" in column [${t.columns.id}] "${t.columns.name}" assigned to userId ${t.tasks.assigneeId}, due at ${t.tasks.dueDate}, priority: ${t.tasks.priority}`,
 			)
 			.join("\n") || "No overdue tasks."
 	}
@@ -125,7 +125,7 @@ export const generateTeamSuggestionsJob = schemaTask({
 		unassignedTasks
 			.map(
 				(t) =>
-					`- [${t.tasks.id}] "${t.tasks.title}" in column "${t.columns.name}"`,
+					`- [${t.tasks.id}] "${t.tasks.title}" in column "${t.columns.name}", created at ${t.tasks.createdAt}, priority: ${t.tasks.priority}`,
 			)
 			.join("\n") || "No unassigned tasks."
 	}
