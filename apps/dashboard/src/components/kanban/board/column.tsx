@@ -92,9 +92,11 @@ export function BoardColumn({ column, columnName, tasks }: BoardColumnProps) {
 						</Kanban.Item>
 					</TaskContextMenu>
 				))}
+
+				{/* Drag overlay */}
 				<div
 					className={cn(
-						"pointer-events-none absolute inset-0 flex items-center justify-center border bg-black/50 opacity-0 transition-opacity duration-200",
+						"pointer-events-none absolute inset-0 flex items-center justify-center border bg-black/80 opacity-0 backdrop-blur-none transition-opacity duration-200",
 						{
 							"opacity-100":
 								overColumnName === columnName && Boolean(activeTaskId),

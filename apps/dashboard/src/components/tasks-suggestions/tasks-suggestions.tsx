@@ -1,33 +1,48 @@
 "use client";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Button } from "@ui/components/ui/button";
+import { formatRelative } from "date-fns";
 import {
 	CheckIcon,
 	CircleDashedIcon,
 	MessageSquareIcon,
+	SparklesIcon,
 	UserIcon,
 	XIcon,
 } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
+import {
+	AnimatePresence,
+	type AnimationGeneratorType,
+	type Easing,
+	motion,
+	type Transition,
+} from "motion/react";
 import { toast } from "sonner";
 import { queryClient, trpc } from "@/utils/trpc";
 import Loader from "../loader";
 
 const suggestionContainerVariant = {
-	initial: { x: 300 },
-	hover: { x: 0 },
+	initial: { x: 340 },
+	hover: { x: 4 },
 	exit: { x: "120%" },
 };
 
 const suggestionActionsVariant = {
 	initial: { height: 0, opacity: 0 },
-	hover: { height: "auto", opacity: 1, marginTop: 8 },
+	hover: { height: "auto", opacity: 1, marginTop: 12 },
 };
 
 const suggestionContentVariant = {
-	initial: { height: 38, width: 300 },
+	initial: { height: "auto", width: 300 },
 	hover: { height: "auto", width: "auto" },
 };
+
+const transition = {
+	type: "spring" as AnimationGeneratorType,
+	ease: "easeInOut" as Easing,
+	duration: 0.3,
+	bounce: 0,
+} satisfies Transition;
 
 export const TasksSuggestions = () => {
 	const { data } = useQuery(
@@ -113,6 +128,7 @@ export const TasksSuggestions = () => {
 								variants={suggestionContainerVariant}
 								initial="initial"
 								exit={"exit"}
+								transition={transition}
 								layout
 								whileHover={"hover"}
 								className="group pointer-events-auto border bg-background/50 p-4 backdrop-blur-xl"
@@ -125,38 +141,51 @@ export const TasksSuggestions = () => {
 										variants={suggestionContentVariant}
 										className="flex-1 overflow-hidden text-ellipsis"
 									>
+										<div className="mb-2">
+											<span className="text-muted-foreground text-xs">
+												<SparklesIcon className="mr-2 inline-block size-3" />
+												Suggested{" "}
+												{formatRelative(
+													new Date(suggestion.createdAt!),
+													new Date(),
+												)}
+											</span>
+										</div>
 										{suggestion.content}
 									</motion.div>
 								</div>
 								<motion.div
 									variants={suggestionActionsVariant}
-									className="flex justify-end gap-2 overflow-hidden"
+									transition={transition}
+									className="flex items-end justify-end gap-2 overflow-hidden"
 								>
-									<Button
-										size="sm"
-										disabled={isLoading}
-										onClick={() =>
-											acceptSuggestion({
-												id: suggestion.id,
-											})
-										}
-									>
-										{isAccepting ? <Loader /> : <CheckIcon />}
-										Accept
-									</Button>
-									<Button
-										variant="outline"
-										disabled={isLoading}
-										size="sm"
-										onClick={() =>
-											dismissSuggestion({
-												id: suggestion.id,
-											})
-										}
-									>
-										{isDismissing ? <Loader /> : <XIcon />}
-										Dismiss
-									</Button>
+									<div className="flex gap-2">
+										<Button
+											size="sm"
+											disabled={isLoading}
+											onClick={() =>
+												acceptSuggestion({
+													id: suggestion.id,
+												})
+											}
+										>
+											{isAccepting ? <Loader /> : <CheckIcon />}
+											Accept
+										</Button>
+										<Button
+											variant="ghost"
+											disabled={isLoading}
+											size="sm"
+											onClick={() =>
+												dismissSuggestion({
+													id: suggestion.id,
+												})
+											}
+										>
+											{isDismissing ? <Loader /> : <XIcon />}
+											Dismiss
+										</Button>
+									</div>
 								</motion.div>
 							</motion.div>
 						);

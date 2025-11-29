@@ -5,7 +5,7 @@ import { getTaskPermalink } from "@mimir/utils/tasks";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { Editor as EditorInstance } from "@tiptap/react";
 import { format } from "date-fns";
-import { ClipboardIcon, Link2Icon, Loader2, SparklesIcon } from "lucide-react";
+import { Link2Icon, Loader2, SparklesIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useDebounceValue } from "usehooks-ts";
@@ -194,7 +194,7 @@ export const TaskForm = ({
 		<div className="">
 			{showSmartInput ? (
 				<SmartInput
-					onFinish={(data) => {
+					onFinish={({ title, ...data }) => {
 						form.reset(
 							{
 								...defaultValues,
@@ -209,8 +209,8 @@ export const TaskForm = ({
 						);
 
 						// If title was generated, set it in the form and trigger validation
-						if (data.title) {
-							form.setValue("title", data.title, {
+						if (title) {
+							form.setValue("title", title, {
 								shouldDirty: true,
 								shouldValidate: true,
 							});
