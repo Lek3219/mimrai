@@ -1,3 +1,4 @@
+import { PopoverClose } from "@radix-ui/react-popover";
 import { Button } from "@ui/components/ui/button";
 import { Calendar } from "@ui/components/ui/calendar";
 import {
@@ -20,7 +21,7 @@ import {
 	SelectValue,
 } from "@ui/components/ui/select";
 import { formatRelative } from "date-fns";
-import { CalendarSyncIcon, ChevronDownIcon } from "lucide-react";
+import { CalendarSyncIcon, ChevronDownIcon, XIcon } from "lucide-react";
 import { useFormContext } from "react-hook-form";
 import type { TaskFormValues } from "./form-type";
 
@@ -85,7 +86,25 @@ export const Recurring = () => {
 			</PopoverTrigger>
 			<PopoverContent className="overflow-hidden p-0" align="start">
 				<div className="flex flex-col">
-					<div className="order-1 flex flex-col space-y-2 px-4 pb-4">
+					<div className="w-auto">
+						<Calendar
+							className="w-full"
+							mode="single"
+							selected={
+								recurring?.startDate
+									? new Date(recurring?.startDate)
+									: new Date()
+							}
+							captionLayout="dropdown"
+							onSelect={(date) => {
+								form.setValue("recurring.startDate", date?.toISOString(), {
+									shouldDirty: true,
+									shouldValidate: true,
+								});
+							}}
+						/>
+					</div>
+					<div className="flex flex-col space-y-2 px-4 pb-4">
 						<FormField
 							name="recurring.frequency"
 							control={form.control}
@@ -154,24 +173,24 @@ export const Recurring = () => {
 								</FormItem>
 							)}
 						/>
-					</div>
-					<div className="w-auto">
-						<Calendar
-							className="w-full"
-							mode="single"
-							selected={
-								recurring?.startDate
-									? new Date(recurring?.startDate)
-									: new Date()
-							}
-							captionLayout="dropdown"
-							onSelect={(date) => {
-								form.setValue("recurring.startDate", date?.toISOString(), {
-									shouldDirty: true,
-									shouldValidate: true,
-								});
-							}}
-						/>
+						{recurring?.startDate && (
+							<PopoverClose asChild>
+								<Button
+									variant="destructive"
+									size="sm"
+									className="w-full text-xs"
+									onClick={() => {
+										form.setValue("recurring", null, {
+											shouldDirty: true,
+											shouldValidate: true,
+										});
+									}}
+								>
+									<XIcon />
+									Remove Recurrence
+								</Button>
+							</PopoverClose>
+						)}
 					</div>
 				</div>
 			</PopoverContent>

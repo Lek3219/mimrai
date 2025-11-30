@@ -63,7 +63,7 @@ export const KanbanTask = ({
 						<div className="break-words font-medium text-sm">{task.title}</div>
 					</div>
 
-					<div className="mt-2 flex flex-wrap items-center gap-1">
+					<div className="mt-2 flex flex-wrap items-center gap-1.5">
 						{task.priority && (
 							<div className="flex items-center">
 								<Priority value={task.priority} />
@@ -95,7 +95,7 @@ export const KanbanTask = ({
 						{task.checklistSummary?.total > 0 && (
 							<div
 								className={cn(
-									"flex h-5.5 items-center px-2 font-medium text-muted-foreground text-xs",
+									"flex h-5.5 items-center rounded-sm px-2 font-medium text-muted-foreground text-xs",
 									{
 										"bg-primary px-2 text-primary-foreground":
 											task.checklistSummary.completed ===

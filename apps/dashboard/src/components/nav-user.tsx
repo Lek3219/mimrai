@@ -10,8 +10,8 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@ui/components/ui/dropdown-menu";
-import { SidebarMenuButton, useSidebar } from "@ui/components/ui/sidebar";
-import { ChevronsUpDown, LogOut } from "lucide-react";
+import { useSidebar } from "@ui/components/ui/sidebar";
+import { LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/hooks/use-user";
 import { authClient } from "@/lib/auth-client";
@@ -46,7 +46,7 @@ export function NavUser() {
 				</Avatar>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent
-				className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-none"
+				className="w-(--radix-dropdown-menu-trigger-width) min-w-56"
 				side={isMobile ? "bottom" : "bottom"}
 				align="end"
 				sideOffset={4}

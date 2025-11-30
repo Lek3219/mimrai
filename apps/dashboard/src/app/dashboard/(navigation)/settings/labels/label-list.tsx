@@ -52,6 +52,7 @@ export const LabelList = () => {
 							onClick={() => setParams({ createLabel: true })}
 						>
 							<PlusIcon />
+							Add Label
 						</Button>
 					</div>
 				</div>

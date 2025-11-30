@@ -66,7 +66,7 @@ export const PlanList = () => {
 					return null;
 				}
 				return (
-					<div key={plan.slug} className="flex flex-col border p-4">
+					<div key={plan.slug} className="flex flex-col rounded-sm border p-4">
 						<div className="space-y-1">
 							<h3 className="font-medium text-base">{plan.name}</h3>
 							<span className="text-xl">
