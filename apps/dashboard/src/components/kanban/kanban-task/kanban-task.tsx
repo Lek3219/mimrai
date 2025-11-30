@@ -50,25 +50,25 @@ export const KanbanTask = ({
 			<div className="p-3">
 				<div className="flex h-full grow-1 flex-col justify-between gap-0.5">
 					<div className="flex items-center justify-between gap-2">
-						<div className={"flex items-start gap-1 text-xs"}>
-							{task.priority && (
-								<div className="flex items-center">
-									<Priority value={task.priority} />
-								</div>
-							)}
+						<div className={"flex items-center gap-1 text-xs"}>
 							{task.sequence !== null && (
-								<span className="mr-2 font-mono text-muted-foreground tabular-nums">
+								<span className="mr-2 text-muted-foreground tabular-nums">
 									{task.sequence}
 								</span>
 							)}
 						</div>
 						<KanbanAssignee task={task} />
 					</div>
-					<div className="flex items-start gap-2">
+					<div className="flex items-center gap-2">
 						<div className="break-words font-medium text-sm">{task.title}</div>
 					</div>
 
 					<div className="mt-2 flex flex-wrap items-center gap-1">
+						{task.priority && (
+							<div className="flex items-center">
+								<Priority value={task.priority} />
+							</div>
+						)}
 						{task.project && (
 							<div className="flex h-5.5 items-center gap-1 rounded-sm border border-border/50 px-2 font-medium text-xs">
 								<ProjectIcon className="size-3.5" {...task.project} />

@@ -122,7 +122,7 @@ export const ChatWidget = () => {
 		>
 			<div
 				className={cn("absolute inset-0 transition-all duration-300", {
-					"pointer-events-auto bg-background opacity-100": show,
+					"pointer-events-auto bg-sidebar-inset opacity-100": show,
 					"pointer-events-none opacity-0": !show,
 				})}
 			>
