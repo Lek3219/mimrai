@@ -12,6 +12,7 @@ export const useUser = () => {
 		if (process.env.NODE_ENV === "development") return;
 		identify({
 			profileId: data.id!,
+			avatar: data.image || "",
 			firstName: data.name?.split(" ")?.[0] || "",
 			lastName: data.name?.split(" ")?.[1] || "",
 			email: data.email || "",

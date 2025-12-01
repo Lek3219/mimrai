@@ -92,10 +92,6 @@ export const handleSlackMessage = async ({
 
 		const chatId = `slack-${channel}-${threadTs || "main"}`;
 
-		const unsavedMessages: {
-			message: UIChatMessage;
-			createdAt: string;
-		}[] = [];
 		const userMessage: UIChatMessage = {
 			id: messageId,
 			role: "user",
@@ -167,6 +163,13 @@ export const handleSlackMessage = async ({
 						}
 					).text
 				: "Sorry, I could not process your message.";
+
+		trackMessage({
+			userId: associatedUser.userId,
+			teamId: integration.teamId,
+			teamName: userContext.teamName ?? "",
+			source: "slack",
+		});
 
 		await client.chat.update({
 			channel: channel,

@@ -2,7 +2,6 @@
 import { Card, CardContent, CardDescription, CardHeader } from "@mimir/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { trpc } from "@/utils/trpc";
-import { AutopilotSettingsForm } from "./autopilot-settings-form";
 import { EnableAutopilotSettingsForm } from "./enable-autopilot-settings-form copy";
 
 export const EnableAutopilotSettings = () => {

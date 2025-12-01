@@ -169,6 +169,13 @@ export const handleWhatsappMessage = async ({
 				).text
 			: "Sorry, I could not process your message.";
 
+	trackMessage({
+		userId: user.id,
+		teamId: userContext.teamId,
+		teamName: userContext.teamName ?? "",
+		source: "whatsapp",
+	});
+
 	await client.messages.create({
 		body,
 		from: `whatsapp:${process.env.TWILIO_WHATSAPP_NUMBER}`,

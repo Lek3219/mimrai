@@ -493,6 +493,13 @@ export const initMattermostSingle = async (
 										},
 									);
 
+									trackMessage({
+										userId: associetedUser.userId,
+										teamId: integration.teamId,
+										teamName: team?.name,
+										source: "mattermost",
+									});
+
 									// Post the response back to the thread
 									await client.updatePost({
 										...thinkingPost,

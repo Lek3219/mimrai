@@ -55,7 +55,7 @@ export const ProjectBoardShareable = ({
 						{columnTasks.tasks.map((task) => (
 							<li
 								key={task.id}
-								className="flex flex-col gap-1 bg-secondary px-2 py-2 text-sm"
+								className="flex flex-col gap-2 rounded-sm bg-secondary px-2 py-2 text-sm"
 							>
 								<h4
 									className={cn("font-medium", {
@@ -65,7 +65,9 @@ export const ProjectBoardShareable = ({
 								>
 									{task.title}
 								</h4>
-								{propertiesComponents.checklist(task)}
+								<div className="flex flex-wrap gap-2">
+									{propertiesComponents.checklist(task)}
+								</div>
 							</li>
 						))}
 					</ul>

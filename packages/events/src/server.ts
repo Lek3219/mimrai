@@ -17,7 +17,7 @@ export const trackMessage = async ({
 	userId: string;
 	teamId: string;
 	teamName?: string;
-	model: string;
+	model?: string;
 	source: string;
 	input?: number;
 	output?: number;
