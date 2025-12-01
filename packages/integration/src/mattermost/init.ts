@@ -33,9 +33,12 @@ export const initMattermost = async () => {
 	}
 };
 
-export const safeMessage = (text: string) => {
+export const safeMessage = (text: string, botUsername: string) => {
 	const safeLength = text.length > 3000 ? `${text.slice(0, 3000)}...` : text;
-	const safeText = safeLength.replace(/@/g, "@\u200b"); // prevent mentions
+	// remove bot mentions
+	const safeText = safeLength
+		.replace(new RegExp(`@${botUsername}`, "g"), "")
+		.trim();
 	return safeText;
 };
 
@@ -238,7 +241,7 @@ export const initMattermostSingle = async (
 										parts: [
 											{
 												type: "text",
-												text: safeMessage(typedData.post.message),
+												text: safeMessage(typedData.post.message, me.username),
 											},
 										],
 									};
@@ -327,7 +330,7 @@ export const initMattermostSingle = async (
 											// Simple heuristic: include messages that are not too long
 											if (post.message.split(" ").length < 100) {
 												message.parts.push({
-													text: safeMessage(post.message),
+													text: safeMessage(post.message, me.username),
 													type: "text",
 												});
 											}
@@ -403,7 +406,7 @@ export const initMattermostSingle = async (
 											if (post.message.split(" ").length < 100) {
 												// Simple heuristic: include messages that are not too long
 												message.parts.push({
-													text: safeMessage(post.message),
+													text: safeMessage(post.message, me.username),
 													type: "text",
 												});
 											}

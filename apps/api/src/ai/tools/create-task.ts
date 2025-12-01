@@ -29,13 +29,6 @@ export const createTaskToolSchema = z.object({
 		.array(z.url())
 		.optional()
 		.describe("List of attachment URLs for the task"),
-
-	forceCreate: z
-		.boolean()
-		.optional()
-		.describe(
-			"If you already asked for confirmation about duplicate tasks and the user wants to create a new one, set this to true to force creation",
-		),
 });
 
 export const createTaskTool = tool({
@@ -48,29 +41,6 @@ export const createTaskTool = tool({
 			yield {
 				text: `Creating task: ${input.title}`,
 			};
-
-			if (!input.forceCreate) {
-				const [taskExist] = await getDuplicateTaskEmbedding({
-					task: {
-						title: input.title,
-						description: input.description,
-					},
-					teamId: teamId,
-					threshold: 0.9,
-				});
-
-				if (taskExist) {
-					yield {
-						type: "text",
-						text: `A similar task already exists: ${taskExist.title}`,
-						suggestion:
-							"Think about creating a checklist item or updating the existing one.",
-						taskId: taskExist.id,
-						taskLink: getTaskPermalink(taskExist.permalinkId),
-					};
-					return;
-				}
-			}
 
 			const columns = await getColumns({
 				pageSize: 10,

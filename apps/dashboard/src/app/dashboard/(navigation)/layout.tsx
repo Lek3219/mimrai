@@ -24,9 +24,9 @@ export default function DashboardLayout({
 						<TasksSuggestions />
 
 						{/* Add a noise background */}
-						<div className="pointer-events-none fixed inset-0 z-0">
+						<div className="pointer-events-none fixed inset-0 z-0 size-full overflow-hidden">
 							<svg
-								className="h-full w-full"
+								className="size-full"
 								preserveAspectRatio="xMidYMid slice"
 								xmlns="http://www.w3.org/2000/svg"
 							>
@@ -41,6 +41,7 @@ export default function DashboardLayout({
 								<rect
 									width="100%"
 									height="100%"
+									className="size-full"
 									filter="url(#noiseFilter)"
 									opacity="0.03"
 								/>
