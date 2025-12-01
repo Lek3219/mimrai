@@ -1,6 +1,7 @@
 import { openai } from "@ai-sdk/openai";
 import { TZDate } from "@date-fns/tz";
 import { getDb } from "@jobs/init";
+import { createActivity } from "@mimir/db/queries/activities";
 import { createTaskSuggestion } from "@mimir/db/queries/tasks-suggestions";
 import {
 	autopilotSettings,
@@ -266,27 +267,27 @@ export const generateTeamSuggestionsJob = schemaTask({
 		console.log(prompt);
 		console.log(output.object);
 
-		// const followUpPromises = [];
-		// for (const followUp of output.object.followUps) {
-		// 	// Create notification for the user
-		// 	followUpPromises.push(
-		// 		createActivity({
-		// 			userId: followUp.userId,
-		// 			teamId: payload.teamId,
-		// 			type: "follow_up",
-		// 			groupId: followUp.userId,
-		// 			metadata: {
-		// 				message: followUp.message,
-		// 			},
-		// 		}),
-		// 	);
-		// }
-		// try {
-		// 	// Await all follow-up activity creations
-		// 	await Promise.all(followUpPromises);
-		// } catch (error) {
-		// 	logger.error("Error creating follow-up activities", { error });
-		// }
+		const followUpPromises = [];
+		for (const followUp of output.object.followUps) {
+			// Create notification for the user
+			followUpPromises.push(
+				createActivity({
+					userId: followUp.userId,
+					teamId: payload.teamId,
+					type: "follow_up",
+					groupId: followUp.userId,
+					metadata: {
+						message: followUp.message,
+					},
+				}),
+			);
+		}
+		try {
+			// Await all follow-up activity creations
+			await Promise.all(followUpPromises);
+		} catch (error) {
+			logger.error("Error creating follow-up activities", { error });
+		}
 
 		for (const suggestion of output.object.suggestions) {
 			// Create task updates based on the suggestions
