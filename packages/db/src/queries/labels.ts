@@ -1,17 +1,21 @@
+import { randomColor } from "@mimir/utils/random";
 import { and, count, eq, type SQL } from "drizzle-orm";
 import { db } from "..";
 import { labels, labelsOnTasks, tasks } from "../schema";
 
 export const createLabel = async (input: {
 	name: string;
-	color: string;
+	color?: string;
 	description?: string;
 	teamId: string;
 }) => {
+	const color = input.color || randomColor();
+
 	const [label] = await db
 		.insert(labels)
 		.values({
 			...input,
+			color,
 		})
 		.returning();
 
