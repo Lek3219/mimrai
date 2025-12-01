@@ -105,8 +105,8 @@ export const TasksSuggestions = () => {
 						pageSize: 5,
 					}),
 					(oldData) => {
-						return oldData?.filter((suggestion) =>
-							data.find((s) => s.id === suggestion.id),
+						return oldData?.filter(
+							(suggestion) => !data.find((s) => s.id === suggestion.id),
 						);
 					},
 				);
