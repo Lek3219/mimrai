@@ -28,7 +28,7 @@ export function BoardColumn({ column, columnName, tasks }: BoardColumnProps) {
 
 	return (
 		<Kanban.Column
-			className="min-h-[200px] min-w-72 max-w-86 grow-1 rounded-sm"
+			className="min-h-[200px] min-w-86 max-w-86 grow-1 rounded-sm"
 			value={columnName}
 		>
 			<ColumnContextMenu column={column}>
@@ -70,7 +70,7 @@ export function BoardColumn({ column, columnName, tasks }: BoardColumnProps) {
 					</div>
 				</div>
 			</ColumnContextMenu>
-			<div className="h-[calc(100vh-195px)] grow-1 overflow-y-auto">
+			<div className="h-[calc(100vh-195px)] grow-1 overflow-y-auto px-2">
 				<div className="relative h-full space-y-2">
 					{tasks.map((task) => (
 						<TaskContextMenu task={task} key={task.id}>
