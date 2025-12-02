@@ -350,6 +350,7 @@ export const createTask = async ({
 		.insert(tasks)
 		.values({
 			...input,
+			milestoneId: input.projectId === null ? null : input.milestoneId,
 			sequence,
 			permalinkId,
 			order,
@@ -459,6 +460,7 @@ export const updateTask = async ({
 		.update(tasks)
 		.set({
 			...input,
+			milestoneId: input.projectId === null ? null : input.milestoneId,
 			updatedAt: new Date().toISOString(),
 			subscribers: unionArray(oldTask.subscribers, [
 				input.assigneeId,
