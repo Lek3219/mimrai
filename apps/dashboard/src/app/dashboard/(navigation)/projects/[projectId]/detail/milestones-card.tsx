@@ -9,8 +9,15 @@ import {
 	DropdownMenuTrigger,
 } from "@ui/components/ui/dropdown-menu";
 import { format } from "date-fns";
-import { Ellipsis, PencilIcon, PlusIcon, TrashIcon } from "lucide-react";
+import {
+	Ellipsis,
+	ExternalLinkIcon,
+	PencilIcon,
+	PlusIcon,
+	TrashIcon,
+} from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
+import Link from "next/link";
 import { useMemo } from "react";
 import { MilestoneForm } from "@/components/forms/milestone-form";
 import { MilestoneIcon } from "@/components/milestone-icon";
@@ -64,9 +71,17 @@ export const MilestonesCard = ({ projectId }: { projectId: string }) => {
 							return (
 								<motion.li
 									key={milestone.id}
-									initial={{ opacity: 0, height: 0 }}
-									animate={{ opacity: 1, height: "auto" }}
-									exit={{ opacity: 0, height: 0 }}
+									variants={{
+										initial: { opacity: 0, height: 0 },
+										animate: { opacity: 1, height: "auto" },
+										hover: {
+											opacity: 1,
+										},
+									}}
+									initial={"initial"}
+									animate={"animate"}
+									exit={"initial"}
+									whileHover={"hover"}
 									transition={{ duration: 0.2 }}
 								>
 									{milestoneId === milestone.id ? (
@@ -86,7 +101,24 @@ export const MilestonesCard = ({ projectId }: { projectId: string }) => {
 													{percentage}% of {total}
 												</span>
 											</div>
-											<div className="flex items-center gap-1">
+											<div className="flex items-center gap-2 text-xs">
+												<Link href={`./milestones/${milestone.id}/tasks`}>
+													<motion.button
+														type="button"
+														variants={{
+															hover: {
+																opacity: 1,
+															},
+															initial: {
+																opacity: 0,
+															},
+														}}
+														className="flex items-center gap-1 text-muted-foreground hover:text-foreground"
+													>
+														<ExternalLinkIcon className="size-3.5" />
+														See Tasks
+													</motion.button>
+												</Link>
 												{milestone.dueDate && (
 													<span className="text-muted-foreground">
 														{format(new Date(milestone.dueDate), "MMM dd")}
