@@ -25,6 +25,7 @@ import {
 	columns,
 	labels,
 	labelsOnTasks,
+	milestones,
 	projects,
 	pullRequestPlan,
 	shareable,
@@ -206,6 +207,12 @@ export const getTasks = async ({
 			sequence: tasks.sequence,
 			projectId: tasks.projectId,
 			permalinkId: tasks.permalinkId,
+			milestoneId: tasks.milestoneId,
+			milestone: {
+				id: milestones.id,
+				name: milestones.name,
+				color: milestones.color,
+			},
 			project: {
 				id: projects.id,
 				name: projects.name,
@@ -258,6 +265,7 @@ export const getTasks = async ({
 		.leftJoin(users, eq(tasks.assigneeId, users.id))
 		.leftJoin(checklistSubquery, eq(checklistSubquery.taskId, tasks.id))
 		.leftJoin(projects, eq(tasks.projectId, projects.id))
+		.leftJoin(milestones, eq(tasks.milestoneId, milestones.id))
 		.leftJoin(
 			pullRequestPlan,
 			and(
@@ -319,6 +327,7 @@ export const createTask = async ({
 	description?: string;
 	assigneeId?: string;
 	columnId: string;
+	milestoneId?: string | null;
 	teamId: string;
 	order?: number;
 	priority?: "low" | "medium" | "high" | "urgent";
@@ -327,7 +336,7 @@ export const createTask = async ({
 	dueDate?: string;
 	attachments?: string[];
 	mentions?: string[];
-	projectId?: string;
+	projectId?: string | null;
 	userId?: string;
 	recurring?: {
 		startDate?: string;
@@ -422,7 +431,8 @@ export const updateTask = async ({
 	attachments?: string[];
 	mentions?: string[];
 	userId?: string;
-	projectId?: string;
+	projectId?: string | null;
+	milestoneId?: string | null;
 	recurring?: {
 		startDate?: string;
 		frequency: "daily" | "weekly" | "monthly" | "yearly";
@@ -569,6 +579,12 @@ export const getTaskById = async (id: string, userId?: string) => {
 				name: projects.name,
 				color: projects.color,
 			},
+			milestoneId: tasks.milestoneId,
+			milestone: {
+				id: milestones.id,
+				name: milestones.name,
+				color: milestones.color,
+			},
 			assignee: {
 				id: users.id,
 				name: users.name,
@@ -618,6 +634,7 @@ export const getTaskById = async (id: string, userId?: string) => {
 		.leftJoin(labelsSubquery, eq(labelsSubquery.taskId, tasks.id))
 		.leftJoin(users, eq(tasks.assigneeId, users.id))
 		.leftJoin(projects, eq(tasks.projectId, projects.id))
+		.leftJoin(milestones, eq(tasks.milestoneId, milestones.id))
 		.leftJoin(
 			pullRequestPlan,
 			and(

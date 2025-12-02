@@ -13,7 +13,9 @@ import {
 	TooltipContent,
 	TooltipTrigger,
 } from "@ui/components/ui/tooltip";
+import { router } from "better-auth/api";
 import { BoxIcon, LayersIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useMemo } from "react";
 import { toast } from "sonner";
 import {
@@ -28,6 +30,7 @@ import { useProjectParams } from "@/hooks/use-project-params";
 import { queryClient, trpc } from "@/utils/trpc";
 
 export const ProjectsList = () => {
+	const router = useRouter();
 	const { setParams } = useProjectParams();
 	const { data, isLoading } = useInfiniteQuery(
 		trpc.projects.get.infiniteQueryOptions(
@@ -86,13 +89,14 @@ export const ProjectsList = () => {
 				<ContextMenu key={project.id}>
 					<ContextMenuTrigger asChild>
 						<li
-							className="flex w-full flex-wrap justify-between rounded-sm bg-background p-4 text-sm transition-colors last:border-0 hover:bg-background/80"
+							className="flex w-full flex-wrap justify-between px-4 py-4 text-sm transition-colors last:border-0 hover:bg-card/80"
 							onClick={() => {
 								queryClient.setQueryData(
 									trpc.projects.getById.queryKey({ id: project.id }),
 									project,
 								);
-								setParams({ projectId: project.id });
+								router.push(`/dashboard/projects/${project.id}`);
+								// setParams({ projectId: project.id });
 							}}
 						>
 							<div className="flex items-center gap-2">
@@ -136,9 +140,11 @@ export const ProjectsList = () => {
 export const Progress = ({
 	completed,
 	inProgress,
+	color,
 }: {
 	completed: number;
 	inProgress: number;
+	color?: string | null;
 }) => {
 	const total = completed + inProgress;
 	const percentage = total === 0 ? 0 : Math.round((completed / total) * 100);
@@ -148,8 +154,11 @@ export const Progress = ({
 			<TooltipTrigger className="w-full">
 				<div className="h-1.5 w-full overflow-hidden rounded-full bg-input">
 					<div
-						className="h-full bg-primary transition-all duration-500"
-						style={{ width: `${percentage}%` }}
+						className="h-full transition-all duration-500"
+						style={{
+							width: `${percentage}%`,
+							backgroundColor: color ?? "var(--primary)",
+						}}
 					/>
 				</div>
 			</TooltipTrigger>

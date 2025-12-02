@@ -74,7 +74,7 @@ export const RecurringList = () => {
 	return (
 		<div>
 			<AnimatePresence>
-				<ul className="flex flex-col">
+				<ul className="flex flex-col gap-2 py-4">
 					{listData.map((task) => (
 						<TaskContextMenu key={task.id} task={task}>
 							<li>

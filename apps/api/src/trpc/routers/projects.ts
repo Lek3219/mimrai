@@ -8,6 +8,7 @@ import {
 	createProject,
 	deleteProject,
 	getProjectById,
+	getProjectProgress,
 	getProjects,
 	updateProject,
 } from "@mimir/db/queries/projects";
@@ -55,6 +56,15 @@ export const projectsRouter = router({
 		.input(z.object({ id: z.string() }))
 		.mutation(async ({ ctx, input }) => {
 			return deleteProject({
+				projectId: input.id,
+				teamId: ctx.user.teamId,
+			});
+		}),
+
+	getProgress: protectedProcedure
+		.input(z.object({ id: z.string() }))
+		.query(async ({ ctx, input }) => {
+			return getProjectProgress({
 				projectId: input.id,
 				teamId: ctx.user.teamId,
 			});

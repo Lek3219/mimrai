@@ -1,9 +1,9 @@
 import type { RouterOutputs } from "@mimir/api/trpc";
 import { LabelBadge } from "@mimir/ui/label-badge";
 import { format } from "date-fns";
-import { BoxIcon, CheckSquareIcon, CircleCheckIcon } from "lucide-react";
+import { CircleCheckIcon } from "lucide-react";
 import { motion } from "motion/react";
-import { ColumnIcon } from "@/components/column-icon";
+import { MilestoneIcon } from "@/components/milestone-icon";
 import { ProjectIcon } from "@/components/project-icon";
 import { useTaskParams } from "@/hooks/use-task-params";
 import { cn } from "@/lib/utils";
@@ -28,7 +28,7 @@ export const KanbanTask = ({
 	return (
 		<motion.div
 			className={cn(
-				"flex min-h-14 cursor-pointer flex-col rounded-sm bg-background transition-colors hover:bg-background/80",
+				"flex min-h-14 cursor-pointer flex-col rounded-sm border bg-card transition-colors hover:bg-card/80 dark:border-0",
 				{
 					"opacity-50!": task.column?.type === "done",
 				},
@@ -73,6 +73,12 @@ export const KanbanTask = ({
 							<div className="flex h-5.5 items-center gap-1 rounded-sm border border-border/50 px-2 font-medium text-xs">
 								<ProjectIcon className="size-3.5" {...task.project} />
 								{task.project.name}
+							</div>
+						)}
+						{task.milestone && (
+							<div className="flex h-5.5 items-center gap-1 rounded-sm border border-border/50 px-2 font-medium text-xs">
+								<MilestoneIcon className="size-3.5" {...task.milestone} />
+								{task.milestone.name}
 							</div>
 						)}
 						{task.labels?.length > 0 && (

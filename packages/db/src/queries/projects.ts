@@ -1,6 +1,6 @@
 import { and, eq, inArray, notInArray, type SQL, sql } from "drizzle-orm";
 import { db } from "..";
-import { columns, projects, tasks } from "../schema";
+import { columns, projects, tasks, users } from "../schema";
 
 export const getProjects = async ({
 	teamId,
@@ -163,4 +163,71 @@ export const updateProject = async ({
 		})
 		.where(and(...whereClause));
 	return result;
+};
+
+export const getProjectProgress = async ({
+	projectId,
+	teamId,
+}: {
+	projectId: string;
+	teamId?: string;
+}) => {
+	const whereClause: SQL[] = [eq(projects.id, projectId)];
+	if (teamId) whereClause.push(eq(projects.teamId, teamId));
+
+	const [overall] = await db
+		.select({
+			completed:
+				sql<number>`COUNT(${tasks.id}) FILTER (WHERE ${columns.type} = 'done')`.as(
+					"completed",
+				),
+			inProgress:
+				sql<number>`COUNT(${tasks.id}) FILTER (WHERE ${columns.type} NOT IN ('done'))`.as(
+					"in_progress",
+				),
+		})
+		.from(projects)
+		.leftJoin(tasks, eq(projects.id, tasks.projectId))
+		.leftJoin(columns, eq(tasks.columnId, columns.id))
+		.where(and(...whereClause))
+		.groupBy(projects.id)
+		.limit(1);
+
+	const members = await db
+		.select({
+			id: users.id,
+			name: users.name,
+			email: users.email,
+			color: users.color,
+			image: users.image,
+			completed:
+				sql<number>`COUNT(${tasks.id}) FILTER (WHERE ${columns.type} = 'done')`.as(
+					"completed",
+				),
+			inProgress:
+				sql<number>`COUNT(${tasks.id}) FILTER (WHERE ${columns.type} NOT IN ('done'))`.as(
+					"in_progress",
+				),
+		})
+		.from(projects)
+		.leftJoin(tasks, eq(projects.id, tasks.projectId))
+		.leftJoin(columns, eq(tasks.columnId, columns.id))
+		.leftJoin(users, eq(tasks.assigneeId, users.id))
+		.where(and(...whereClause))
+		.groupBy(users.id);
+
+	return {
+		overall,
+		members: members?.map((member) => ({
+			id: member.id,
+			name: member.name,
+			email: member.email,
+			color: member.color,
+			image: member.image,
+			progress: {
+				completed: member.completed ? Number(member.completed) : 0,
+				inProgress: member.inProgress ? Number(member.inProgress) : 0,
+			},
+		})),
+	};
 };

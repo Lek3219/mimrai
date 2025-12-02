@@ -11,6 +11,7 @@ import { githubRouter } from "./github";
 import { importsRouter } from "./imports";
 import { integrationsRouter } from "./integrations";
 import { labelsRouter } from "./labels";
+import { milestonesRouter } from "./milestones";
 import { notificationSettingsRouter } from "./notification-settings";
 import { projectsRouter } from "./projects";
 import { shareableRouter } from "./shareable";
@@ -47,6 +48,7 @@ export const appRouter = router({
 	widgets: widgetsRouter,
 	checklists: checklistsRouter,
 	projects: projectsRouter,
+	milestones: milestonesRouter,
 	waitlist: waitlistRouter,
 	chatFeedback: chatFeedbackRouter,
 	shareable: shareableRouter,

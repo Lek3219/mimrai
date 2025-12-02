@@ -136,7 +136,7 @@ export const ChatWidget = () => {
 		>
 			<div
 				className={cn("absolute inset-0 transition-all duration-300", {
-					"pointer-events-auto bg-sidebar-inset opacity-100": show,
+					"pointer-events-auto bg-background opacity-100": show,
 					"pointer-events-none opacity-0": !show,
 				})}
 			>
@@ -160,13 +160,13 @@ export const ChatWidget = () => {
 						variants={{
 							show: {
 								height: "100vh",
-								translateY: -10,
+								translateY: -15,
 							},
 							default: {
-								translateY: 0,
+								translateY: -10,
 							},
 							hover: {
-								translateY: -5,
+								translateY: -15,
 							},
 							scroll: {
 								translateY: 60,

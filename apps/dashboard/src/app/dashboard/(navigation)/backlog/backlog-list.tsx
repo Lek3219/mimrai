@@ -89,7 +89,7 @@ export const BacklogList = () => {
 			</div>
 
 			<AnimatePresence>
-				<ul className="flex flex-col gap-4 py-4">
+				<ul className="flex flex-col gap-2 py-4">
 					{listData.map((task) => (
 						<TaskContextMenu key={task.id} task={task}>
 							<li>

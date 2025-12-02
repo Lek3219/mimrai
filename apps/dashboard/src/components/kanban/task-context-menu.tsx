@@ -19,6 +19,7 @@ import {
 	SignalHighIcon,
 	SparklesIcon,
 	TagsIcon,
+	TargetIcon,
 	TrashIcon,
 	UserIcon,
 } from "lucide-react";
@@ -29,6 +30,7 @@ import { useChatContext } from "../chat/chat-context/store";
 import { useChatWidget } from "../chat/chat-widget";
 import { ColumnIcon } from "../column-icon";
 import Loader from "../loader";
+import { MilestoneIcon } from "../milestone-icon";
 import { ProjectIcon } from "../project-icon";
 import { Assignee, AssigneeAvatar } from "./asignee-avatar";
 import { PriorityItem } from "./priority";
@@ -149,6 +151,20 @@ export const TaskContextMenu = ({
 		),
 	);
 
+	const { data: milestones } = useQuery(
+		trpc.milestones.get.queryOptions(
+			{
+				projectId: task.projectId!,
+				pageSize: 10,
+			},
+			{
+				enabled: !!task.projectId,
+				refetchOnMount: false,
+				refetchOnWindowFocus: false,
+			},
+		),
+	);
+
 	const handleDeleteTask = async (taskId: string) => {
 		await deleteTask({ id: taskId });
 		queryClient.invalidateQueries(trpc.tasks.get.queryOptions());
@@ -159,8 +175,9 @@ export const TaskContextMenu = ({
 		priority?: "low" | "medium" | "high";
 		labels?: string[];
 		assigneeId?: string;
-		projectId?: string;
+		projectId?: string | null;
 		columnId?: string;
+		milestoneId?: string | null;
 	}) => {
 		updateTask({ id: task.id, ...data });
 	};
@@ -283,6 +300,14 @@ export const TaskContextMenu = ({
 						Project
 					</ContextMenuSubTrigger>
 					<ContextMenuSubContent className="w-auto">
+						<ContextMenuItem
+							onClick={handleUpdateTask.bind(null, { projectId: null })}
+						>
+							<div className="flex items-center gap-2">
+								<BoxIcon className="text-muted-foreground" />
+								No Project
+							</div>
+						</ContextMenuItem>
 						{projects?.data.map((project) => (
 							<ContextMenuItem
 								key={project.id}
@@ -296,6 +321,36 @@ export const TaskContextMenu = ({
 						))}
 					</ContextMenuSubContent>
 				</ContextMenuSub>
+				{task.projectId && (
+					<ContextMenuSub>
+						<ContextMenuSubTrigger className="flex items-center gap-2">
+							<TargetIcon className="text-muted-foreground" />
+							Milestone
+						</ContextMenuSubTrigger>
+						<ContextMenuSubContent className="w-auto">
+							<ContextMenuItem
+								onClick={handleUpdateTask.bind(null, { milestoneId: null })}
+							>
+								<div className="flex items-center gap-2">
+									<TargetIcon className="text-muted-foreground" />
+									No Milestone
+								</div>
+							</ContextMenuItem>
+							{milestones?.data.map((milestone) => (
+								<ContextMenuItem
+									key={milestone.id}
+									onClick={handleUpdateTask.bind(null, {
+										milestoneId: milestone.id,
+									})}
+								>
+									<MilestoneIcon {...milestone} />
+									{milestone.name}
+								</ContextMenuItem>
+							))}
+						</ContextMenuSubContent>
+					</ContextMenuSub>
+				)}
+
 				<ContextMenuSub>
 					<ContextMenuSubTrigger className="flex items-center gap-2">
 						<UserIcon className="text-muted-foreground" />

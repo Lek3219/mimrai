@@ -27,6 +27,7 @@ import { DueDate } from "./due-date";
 import { TaskDuplicated } from "./duplicated";
 import { taskFormSchema } from "./form-type";
 import { Labels } from "./labels";
+import { MilestoneSelect } from "./milestone-select";
 import { Priority } from "./priority";
 import { ProjectSelect } from "./project-select";
 import { Recurring } from "./recurring";
@@ -233,6 +234,7 @@ export const TaskForm = ({
 												<Priority />
 												<ColumnSelect />
 												<ProjectSelect />
+												<MilestoneSelect />
 												<Recurring />
 												{isGithubConnected && <RepositorySelect />}
 											</div>

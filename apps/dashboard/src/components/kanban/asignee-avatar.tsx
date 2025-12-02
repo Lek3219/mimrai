@@ -5,8 +5,8 @@ import { UserIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type Props = {
-	name?: string;
-	email?: string;
+	name?: string | null;
+	email?: string | null;
 	image?: string | null;
 	color?: string | null;
 	className?: string;
@@ -48,7 +48,7 @@ export const AssigneeAvatar = ({
 					{image && (
 						<AvatarImage
 							src={image}
-							alt={name}
+							alt={name ?? "Assignee Avatar"}
 							className="size-full object-contain"
 						/>
 					)}

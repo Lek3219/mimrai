@@ -19,12 +19,12 @@ export default function DashboardLayout({
 					<AppSidebar collapsible="icon" />
 					<SidebarInset className="overflow-x-hidden">
 						<Header />
-						<div className="flex flex-1 flex-col px-6 py-6">{children}</div>
+						<div className="flex flex-1 flex-col">{children}</div>
 						<ChatWidget />
 						<TasksSuggestions />
 
 						{/* Add a noise background */}
-						<div className="pointer-events-none fixed inset-0 z-0 size-full overflow-hidden">
+						{/* <div className="pointer-events-none fixed inset-0 z-0 size-full overflow-hidden">
 							<svg
 								className="size-full"
 								preserveAspectRatio="xMidYMid slice"
@@ -46,7 +46,7 @@ export default function DashboardLayout({
 									opacity="0.03"
 								/>
 							</svg>
-						</div>
+						</div> */}
 					</SidebarInset>
 				</SidebarProvider>
 			</Suspense>

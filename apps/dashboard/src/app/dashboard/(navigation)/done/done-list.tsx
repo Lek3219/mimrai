@@ -85,7 +85,7 @@ export const DoneList = () => {
 			</div>
 
 			<AnimatePresence>
-				<ul className="flex flex-col py-4">
+				<ul className="flex flex-col gap-2 py-4">
 					{listData.map((task) => (
 						<TaskContextMenu key={task.id} task={task}>
 							<li>

@@ -1,6 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { Button } from "@ui/components/ui/button";
 import { Form } from "@ui/components/ui/form";
+import { SaveIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import Loader from "@/components/loader";
@@ -11,7 +12,6 @@ import { ActionsMenu } from "./actions-menu";
 import { ProjectColorPicker } from "./color-picker";
 import { Description } from "./description";
 import { type ProjectFormValues, projectFormSchema } from "./form-type";
-import { TasksList } from "./tasks-list";
 import { Name } from "./title";
 
 export const ProjectForm = ({
@@ -91,15 +91,10 @@ export const ProjectForm = ({
 	}, []);
 
 	return (
-		<div className="space-y-4">
+		<div className="h-full space-y-4">
 			<Form {...form}>
-				<form onSubmit={form.handleSubmit(handleSubmit)}>
-					<div className="space-y-4 pt-4">
-						<ProjectColorPicker />
-						<Name />
-						<Description />
-
-						<hr />
+				<form onSubmit={form.handleSubmit(handleSubmit)} className="h-full">
+					<div className="w-full space-y-4">
 						<div className="flex justify-end">
 							<div className="flex items-center gap-4">
 								<span className="text-muted-foreground text-xs">
@@ -111,21 +106,20 @@ export const ProjectForm = ({
 									size={"sm"}
 									disabled={isCreating || isUpdating}
 								>
-									{(isCreating || isUpdating) && <Loader />}
+									{isCreating || isUpdating ? <Loader /> : <SaveIcon />}
 									{defaultValues?.id ? "Save" : "Create"}
 								</Button>
 								<ActionsMenu />
 							</div>
 						</div>
+						<div className="max-w-4xl space-y-4">
+							<ProjectColorPicker />
+							<Name />
+							<Description />
+						</div>
 					</div>
 				</form>
 			</Form>
-			{defaultValues?.id && (
-				<>
-					<hr />
-					<TasksList projectId={defaultValues.id} />
-				</>
-			)}
 		</div>
 	);
 };

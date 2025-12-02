@@ -13,7 +13,7 @@ export default async function Page({ params }: Props) {
 	});
 
 	return (
-		<div>
+		<div className="mx-auto max-w-5xl">
 			{/* <WorkSession task={task} /> */}
 			<TaskForm
 				defaultValues={{ ...task, labels: task?.labels?.map((l) => l.id) }}

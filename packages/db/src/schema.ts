@@ -231,6 +231,7 @@ export const tasks = pgTable(
 		subscribers: text("subscribers").array().default([]).notNull(),
 		mentions: text("mentions").array().default([]).notNull(),
 		projectId: text("project_id"),
+		milestoneId: text("milestone_id"),
 
 		recurring: jsonb("recurring").$type<{
 			frequency: "daily" | "weekly" | "monthly" | "yearly";
@@ -279,6 +280,11 @@ export const tasks = pgTable(
 			columns: [table.projectId],
 			foreignColumns: [projects.id],
 			name: "tasks_project_id_fkey",
+		}),
+		foreignKey({
+			columns: [table.milestoneId],
+			foreignColumns: [milestones.id],
+			name: "tasks_milestone_id_fkey",
 		}),
 	],
 );
@@ -1014,6 +1020,46 @@ export const taskSuggestions = pgTable(
 			columns: [table.taskId],
 			foreignColumns: [tasks.id],
 			name: "task_suggestions_task_id_fkey",
+		}).onDelete("cascade"),
+	],
+);
+
+export const milestones = pgTable(
+	"milestones",
+	{
+		id: text("id")
+			.$defaultFn(() => randomUUID())
+			.primaryKey()
+			.notNull(),
+		name: text("name").notNull(),
+		description: text("description"),
+		dueDate: timestamp("due_date", {
+			withTimezone: true,
+			mode: "string",
+		}),
+		color: text("color"),
+		teamId: text("team_id").notNull(),
+		projectId: text("project_id").notNull(),
+		createdAt: timestamp("created_at", {
+			withTimezone: true,
+			mode: "string",
+		}).defaultNow(),
+		updatedAt: timestamp("updated_at", {
+			withTimezone: true,
+			mode: "string",
+		}).defaultNow(),
+	},
+	(table) => [
+		unique("unique_milestone_name_per_team").on(table.name, table.teamId),
+		foreignKey({
+			columns: [table.teamId],
+			foreignColumns: [teams.id],
+			name: "milestones_team_id_fkey",
+		}).onDelete("cascade"),
+		foreignKey({
+			columns: [table.projectId],
+			foreignColumns: [projects.id],
+			name: "milestones_project_id_fkey",
 		}).onDelete("cascade"),
 	],
 );

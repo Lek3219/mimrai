@@ -43,7 +43,7 @@ export const TaskItem = ({
 			exit={{ opacity: 0, y: 10 }}
 			layout
 			className={cn(
-				"flex w-full flex-col justify-between gap-2 rounded-sm bg-background p-4 transition-colors hover:bg-background/80 sm:flex-row",
+				"flex w-full flex-col justify-between gap-2 bg-transparent px-4 py-2 transition-colors hover:bg-card/80 sm:flex-row",
 				className,
 			)}
 			onClick={(e) => {

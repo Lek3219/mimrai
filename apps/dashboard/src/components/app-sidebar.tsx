@@ -118,8 +118,8 @@ const data: {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	return (
-		<Sidebar variant="sidebar" {...props}>
-			<SidebarHeader className="flex h-[65px] flex-col items-center justify-center border-b">
+		<Sidebar variant="inset" {...props}>
+			<SidebarHeader className="flex h-[65px] flex-col items-center justify-center">
 				<SidebarMenu>
 					<SidebarMenuItem>
 						<SidebarMenuButton size="lg" asChild className="">

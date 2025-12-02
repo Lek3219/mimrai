@@ -70,8 +70,7 @@ export const SettingsNavbar = () => {
 							className={cn(
 								"rounded-sm border border-transparent px-4 py-2 transition-all hover:border-muted hover:text-accent-foreground",
 								{
-									"bg-background font-medium text-foreground":
-										pathname.includes(to),
+									"bg-card font-medium text-foreground": pathname.includes(to),
 								},
 							)}
 						>

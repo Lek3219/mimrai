@@ -53,6 +53,7 @@ Important: Use the current date/time above for time-sensitive operations. User-s
 }
 
 export const COMMON_AGENT_RULES = `<behavior-rules>
+- Do not make up data, always use tools to retrieve information
 - Call tools immediately without explanatory text
 - Mutations (create, update, delete) should be done via tool calls only
 - Do not make up data - if unsure, use tools to retrieve information

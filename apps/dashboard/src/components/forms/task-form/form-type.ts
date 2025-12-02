@@ -6,6 +6,7 @@ export const taskFormSchema = z.object({
 	title: z.string().min(1, { message: "Task must have a title" }).max(255),
 	description: z.string().max(50_000).nullable().optional(),
 	assigneeId: z.string().nullable().optional(),
+	milestoneId: z.string().nullable().optional(),
 	columnId: z.string().min(1),
 	dueDate: z.string().nullable().optional(),
 	labels: z.array(z.string()).nullable().optional(),

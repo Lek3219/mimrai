@@ -5,7 +5,7 @@ import { TasksTodoWidget } from "@/components/widgets/tasks-todo-widget";
 
 export default function Page() {
 	return (
-		<div className="flex flex-col gap-8">
+		<div className="flex flex-col gap-8 p-4">
 			<div className="w-full">
 				<TasksBurnupWidget />
 			</div>

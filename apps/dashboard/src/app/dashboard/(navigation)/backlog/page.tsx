@@ -6,7 +6,9 @@ export default function Page() {
 	return (
 		<ChatProvider>
 			<Suspense>
-				<BacklogList />
+				<div className="py-4">
+					<BacklogList />
+				</div>
 			</Suspense>
 		</ChatProvider>
 	);
