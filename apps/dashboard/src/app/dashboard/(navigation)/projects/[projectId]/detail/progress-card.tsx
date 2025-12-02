@@ -38,7 +38,7 @@ export const ProjectProgressCard = ({ projectId }: { projectId: string }) => {
 				</div>
 			</CardHeader>
 			<CardContent>
-				<ul className="mt-4">
+				<ul className="mt-4 space-y-2">
 					{data?.members.map((member) => (
 						<li key={member.id} className="flex items-center gap-4">
 							<AssigneeAvatar {...member} />

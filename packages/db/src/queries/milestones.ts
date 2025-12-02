@@ -1,4 +1,4 @@
-import { and, eq, type SQL, sql } from "drizzle-orm";
+import { and, desc, eq, type SQL, sql } from "drizzle-orm";
 import { db } from "..";
 import { columns, milestones, tasks } from "../schema";
 
@@ -51,7 +51,8 @@ export const getMilestones = async ({
 		})
 		.from(milestones)
 		.leftJoin(progressSubquery, eq(milestones.id, progressSubquery.milestoneId))
-		.where(and(...whereClause));
+		.where(and(...whereClause))
+		.orderBy(desc(milestones.createdAt));
 
 	// Apply pagination
 	const offset = cursor ? Number.parseInt(cursor, 10) : 0;
