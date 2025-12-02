@@ -7,7 +7,7 @@ import {
 } from "@ui/components/ui/card";
 import { AssigneeAvatar } from "@/components/kanban/asignee-avatar";
 import { trpc } from "@/utils/trpc";
-import { Progress } from "../projects-list";
+import { Progress } from "../../projects-list";
 
 export const ProjectProgressCard = ({ projectId }: { projectId: string }) => {
 	const { data } = useQuery(

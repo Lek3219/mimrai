@@ -95,6 +95,11 @@ export const ProjectForm = ({
 			<Form {...form}>
 				<form onSubmit={form.handleSubmit(handleSubmit)} className="h-full">
 					<div className="w-full space-y-4">
+						<div className="max-w-4xl space-y-4">
+							<ProjectColorPicker />
+							<Name />
+							<Description />
+						</div>
 						<div className="flex justify-end">
 							<div className="flex items-center gap-4">
 								<span className="text-muted-foreground text-xs">
@@ -111,11 +116,6 @@ export const ProjectForm = ({
 								</Button>
 								<ActionsMenu />
 							</div>
-						</div>
-						<div className="max-w-4xl space-y-4">
-							<ProjectColorPicker />
-							<Name />
-							<Description />
 						</div>
 					</div>
 				</form>

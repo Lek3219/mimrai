@@ -1,4 +1,4 @@
-import { redirect } from "next/navigation";
+import { ProjectDetail } from "./project-detail";
 
 type Props = {
 	params: Promise<{ projectId: string }>;
@@ -6,5 +6,6 @@ type Props = {
 
 export default async function Page({ params }: Props) {
 	const { projectId } = await params;
-	return redirect(`/dashboard/projects/${projectId}/detail`);
+
+	return <ProjectDetail projectId={projectId} />;
 }

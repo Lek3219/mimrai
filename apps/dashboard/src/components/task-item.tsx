@@ -1,3 +1,4 @@
+"use client";
 import type { RouterOutputs } from "@api/trpc/routers";
 import { motion } from "motion/react";
 import { useRouter } from "next/navigation";
