@@ -11,7 +11,6 @@ import {
 } from "@ui/components/ui/sidebar";
 import {
 	BoxIcon,
-	InboxIcon,
 	LayersIcon,
 	LayoutDashboardIcon,
 	type LucideIcon,
@@ -20,8 +19,6 @@ import {
 import type * as React from "react";
 import { NavMain } from "@/components/nav-main";
 import { NavSecondary } from "@/components/nav-secondary";
-import { NavUser } from "@/components/nav-user";
-import { useUser } from "@/hooks/use-user";
 import { SidebarSubscriptionStatus } from "./sidebar-subscription-status";
 import { TeamSwitcher } from "./team-switcher";
 
@@ -137,9 +134,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 					<SidebarSubscriptionStatus />
 				</div>
 			</SidebarContent>
-			<SidebarFooter className="">
-				{/* <NavUser user={user!} /> */}
-			</SidebarFooter>
 		</Sidebar>
 	);
 }

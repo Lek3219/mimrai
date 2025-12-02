@@ -11,8 +11,8 @@ export const SidebarSubscriptionStatus = () => {
 	if (!data.trialEnd) return null;
 
 	return (
-		<div className="px-4 py-2">
-			<Alert className="border-none p-0">
+		<div>
+			<Alert className="bg-transparent">
 				{/*<InfoIcon className="stroke-yellow-600" />*/}
 				<AlertTitle className="">You're on a free trial</AlertTitle>
 				<AlertDescription className="text-xs">
