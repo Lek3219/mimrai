@@ -54,6 +54,9 @@ export const ChatWidget = () => {
 	const { scrollY } = useScroll();
 	const [scrollingDown, setScrollingDown] = useState(false);
 	const lastScrollY = useRef(0);
+
+	const isOverviewPage = pathname === "/dashboard/overview";
+
 	useMotionValueEvent(scrollY, "change", (latest) => {
 		if (latest > lastScrollY.current) {
 			setScrollingDown(true);
@@ -160,13 +163,16 @@ export const ChatWidget = () => {
 						variants={{
 							show: {
 								height: "100vh",
-								translateY: -15,
-							},
-							default: {
 								translateY: -10,
 							},
+							overview: {
+								translateY: -10,
+							},
+							default: {
+								translateY: 60,
+							},
 							hover: {
-								translateY: -15,
+								translateY: isOverviewPage ? -10 : 20,
 							},
 							scroll: {
 								translateY: 60,
@@ -178,7 +184,15 @@ export const ChatWidget = () => {
 							damping: 30,
 						}}
 						initial="default"
-						animate={show ? "show" : scrollingDown ? "scroll" : "default"}
+						animate={
+							show
+								? "show"
+								: isOverviewPage
+									? "overview"
+									: scrollingDown
+										? "scroll"
+										: "default"
+						}
 						whileHover={show ? undefined : "hover"}
 						className={cn(
 							"-translate-x-1/2 pointer-events-none absolute bottom-0 left-1/2 h-screen pb-2",
