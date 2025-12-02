@@ -28,7 +28,7 @@ export function BoardColumn({ column, columnName, tasks }: BoardColumnProps) {
 
 	return (
 		<Kanban.Column
-			className="h-auto min-h-[200px] min-w-86 max-w-86 grow-1"
+			className="h-[calc(100vh-160px)] min-h-[200px] min-w-72 max-w-86 grow-1 overflow-y-auto rounded-sm"
 			value={columnName}
 		>
 			<ColumnContextMenu column={column}>
