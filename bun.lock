@@ -136,9 +136,9 @@
         "next-themes": "^0.4.6",
         "nuqs": "^2.6.0",
         "radix-ui": "^1.4.2",
-        "react": "19.2.0",
+        "react": "19.2.1",
         "react-day-picker": "^9.11.1",
-        "react-dom": "19.2.0",
+        "react-dom": "19.2.1",
         "react-hook-form": "^7.63.0",
         "react-hotkeys-hook": "^5.2.1",
         "react-markdown": "^10.1.0",
@@ -199,9 +199,9 @@
         "next-themes": "^0.4.6",
         "nuqs": "^2.6.0",
         "radix-ui": "^1.4.2",
-        "react": "19.2.0",
+        "react": "19.2.1",
         "react-day-picker": "^9.11.1",
-        "react-dom": "19.2.0",
+        "react-dom": "19.2.1",
         "react-hook-form": "^7.63.0",
         "react-markdown": "^10.1.0",
         "react-syntax-highlighter": "^15.6.6",
@@ -291,8 +291,8 @@
         "@react-email/preview-server": "5.0.4",
         "@types/react": "~19.1.10",
         "@types/react-dom": "^19",
-        "react": "19.2.0",
-        "react-dom": "19.2.0",
+        "react": "19.2.1",
+        "react-dom": "19.2.1",
         "typescript": "^5.9.2",
       },
     },
@@ -319,12 +319,12 @@
         "@mimir/tsconfig": "workspace:*",
         "@openpanel/nextjs": "^1.0.8",
         "@openpanel/sdk": "^1.0.0",
-        "react": "19.2.0",
-        "react-dom": "19.2.0",
+        "react": "19.2.1",
+        "react-dom": "19.2.1",
       },
       "devDependencies": {
         "@types/node": "^20",
-        "@types/react": "19.2.0",
+        "@types/react": "19.2.1",
       },
     },
     "packages/integration": {
@@ -500,9 +500,9 @@
         "next": "16.0.3",
         "next-themes": "^0.4.6",
         "radix-ui": "^1.4.2",
-        "react": "19.2.0",
+        "react": "19.2.1",
         "react-day-picker": "^9.11.1",
-        "react-dom": "19.2.0",
+        "react-dom": "19.2.1",
         "react-hook-form": "^7.63.0",
         "react-markdown": "^10.1.0",
         "react-syntax-highlighter": "^15.6.6",
@@ -3315,13 +3315,13 @@
 
     "rc9": ["rc9@2.1.2", "", { "dependencies": { "defu": "^6.1.4", "destr": "^2.0.3" } }, "sha512-btXCnMmRIBINM2LDZoEmOogIZU7Qe7zn4BpomSKZ/ykbLObuBdvG+mFq11DL6fjH1DRwHhrlgtYWG96bJiC7Cg=="],
 
-    "react": ["react@19.2.0", "", {}, "sha512-tmbWg6W31tQLeB5cdIBOicJDJRR2KzXsV7uSK9iNfLWQ5bIZfxuPEHp7M8wiHyHnn0DD1i7w3Zmin0FtkrwoCQ=="],
+    "react": ["react@19.2.1", "", {}, "sha512-DGrYcCWK7tvYMnWh79yrPHt+vdx9tY+1gPZa7nJQtO/p8bLTDaHp4dzwEhQB7pZ4Xe3ok4XKuEPrVuc+wlpkmw=="],
 
     "react-day-picker": ["react-day-picker@9.11.1", "", { "dependencies": { "@date-fns/tz": "^1.4.1", "date-fns": "^4.1.0", "date-fns-jalali": "^4.1.0-0" }, "peerDependencies": { "react": ">=16.8.0" } }, "sha512-l3ub6o8NlchqIjPKrRFUCkTUEq6KwemQlfv3XZzzwpUeGwmDJ+0u0Upmt38hJyd7D/vn2dQoOoLV/qAp0o3uUw=="],
 
     "react-devtools-inline": ["react-devtools-inline@4.4.0", "", { "dependencies": { "es6-symbol": "^3" } }, "sha512-ES0GolSrKO8wsKbsEkVeiR/ZAaHQTY4zDh1UW8DImVmm8oaGLl3ijJDvSGe+qDRKPZdPRnDtWWnSvvrgxXdThQ=="],
 
-    "react-dom": ["react-dom@19.2.0", "", { "dependencies": { "scheduler": "^0.27.0" }, "peerDependencies": { "react": "^19.2.0" } }, "sha512-UlbRu4cAiGaIewkPyiRGJk0imDN2T3JjieT6spoL2UeSf5od4n5LB/mQ4ejmxhCFT1tYe8IvaFulzynWovsEFQ=="],
+    "react-dom": ["react-dom@19.2.1", "", { "dependencies": { "scheduler": "^0.27.0" }, "peerDependencies": { "react": "^19.2.1" } }, "sha512-ibrK8llX2a4eOskq1mXKu/TGZj9qzomO+sNfO98M6d9zIPOEhlBkMkBUBLd1vgS0gQsLDBzA+8jJBVXDnfHmJg=="],
 
     "react-email": ["react-email@5.0.4", "", { "dependencies": { "@babel/parser": "^7.27.0", "@babel/traverse": "^7.27.0", "chokidar": "^4.0.3", "commander": "^13.0.0", "conf": "^15.0.2", "debounce": "^2.0.0", "esbuild": "^0.25.0", "glob": "^11.0.0", "jiti": "2.4.2", "log-symbols": "^7.0.0", "mime-types": "^3.0.0", "normalize-path": "^3.0.0", "nypm": "0.6.0", "ora": "^8.0.0", "prompts": "2.4.2", "socket.io": "^4.8.1", "tsconfig-paths": "4.2.0" }, "bin": { "email": "dist/index.js" } }, "sha512-pI6b4ePMWC1AFtyd0gyVMsJ6Nhg4nnmDxVo1EQP+r011WQafU8UGAUfPUiE5Wh7x28+3yFw7qXCnD33y71guUw=="],
 
@@ -3871,7 +3871,7 @@
 
     "@mimir/embedding/ai": ["ai@5.0.98", "", { "dependencies": { "@ai-sdk/gateway": "2.0.13", "@ai-sdk/provider": "2.0.0", "@ai-sdk/provider-utils": "3.0.17", "@opentelemetry/api": "1.9.0" }, "peerDependencies": { "zod": "^3.25.76 || ^4.1.8" } }, "sha512-RpMnwnml68Swblobvk6IdF7HLZrog72Ve6H5J3aN+A/JPg4y5CjCXeQyK1N4wJStyuTa6AoKYfJR5F4e/aVpHQ=="],
 
-    "@mimir/events/@types/react": ["@types/react@19.2.0", "", { "dependencies": { "csstype": "^3.0.2" } }, "sha512-1LOH8xovvsKsCBq1wnT4ntDUdCJKmnEakhsuoUSy6ExlHCkGP2hqnatagYTgFk6oeL0VU31u7SNjunPN+GchtA=="],
+    "@mimir/events/@types/react": ["@types/react@19.2.1", "", { "dependencies": { "csstype": "^3.0.2" } }, "sha512-1U5NQWh/GylZQ50ZMnnPjkYHEaGhg6t5i/KI0LDDh3t4E3h3T3vzm+GLY2BRzMfIjSBwzm6tginoZl5z0O/qsA=="],
 
     "@mimir/integration/zod": ["zod@4.1.12", "", {}, "sha512-JInaHOamG8pt5+Ey8kGmdcAcg3OL9reK8ltczgHTAwNhMys/6ThXHityHxVV2p3fkw/c+MAvBHFVYHFZDmjMCQ=="],
 
