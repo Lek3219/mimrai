@@ -1,6 +1,6 @@
 "use client";
 
-import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation } from "@tanstack/react-query";
 import { Button } from "@ui/components/ui/button";
 import {
 	ContextMenu,
@@ -13,7 +13,6 @@ import {
 	TooltipContent,
 	TooltipTrigger,
 } from "@ui/components/ui/tooltip";
-import { router } from "better-auth/api";
 import { BoxIcon, LayersIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useMemo } from "react";
@@ -149,7 +148,7 @@ export const Progress = ({
 
 	return (
 		<Tooltip>
-			<TooltipTrigger className="w-full">
+			<TooltipTrigger className="w-full" asChild>
 				<div className="h-1.5 w-full overflow-hidden rounded-full bg-input">
 					<div
 						className="h-full transition-all duration-500"

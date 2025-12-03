@@ -109,6 +109,7 @@ export function useKanbanBoard(filters: any) {
 		search: filters.search ?? undefined,
 		labels: filters.labels ?? undefined,
 		projectId: filters.taskProjectId ?? undefined,
+		milestoneId: filters.taskMilestoneId ?? undefined,
 		pageSize: 100,
 		view: "board" as const,
 	};

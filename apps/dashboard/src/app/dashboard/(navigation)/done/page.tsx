@@ -6,7 +6,7 @@ export default function Page() {
 	return (
 		<ChatProvider>
 			<Suspense>
-				<div className="h-full py-4">
+				<div className="h-full">
 					<DoneList />
 				</div>
 			</Suspense>

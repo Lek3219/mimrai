@@ -95,6 +95,7 @@ export const getTasks = async ({
 	labels?: string[];
 	teamId?: string;
 	projectId?: string[];
+	milestoneId?: string[];
 	nProjectId?: string[];
 	search?: string;
 	recurring?: boolean;
@@ -114,6 +115,9 @@ export const getTasks = async ({
 		);
 	input.columnId && whereClause.push(inArray(tasks.columnId, input.columnId));
 	input.teamId && whereClause.push(eq(tasks.teamId, input.teamId));
+	input.milestoneId &&
+		input.milestoneId.length > 0 &&
+		whereClause.push(inArray(tasks.milestoneId, input.milestoneId));
 
 	input.recurring && whereClause.push(isNotNull(tasks.recurringJobId));
 	input.projectId &&

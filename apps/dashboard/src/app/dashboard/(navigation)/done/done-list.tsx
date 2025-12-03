@@ -78,11 +78,7 @@ export const DoneList = () => {
 
 	return (
 		<div className="">
-			<div className="flex justify-between">
-				<div>
-					<TasksFilters />
-				</div>
-			</div>
+			<TasksFilters />
 
 			<AnimatePresence>
 				<ul className="flex flex-col gap-2 py-4">

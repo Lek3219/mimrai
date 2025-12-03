@@ -23,14 +23,15 @@ import { useDebounceCallback } from "usehooks-ts";
 import { useTasksFilterParams } from "@/hooks/use-tasks-filter-params";
 import { trpc } from "@/utils/trpc";
 import { LabelInput } from "../forms/task-form/label-input";
+import { MilestoneIcon } from "../milestone-icon";
 import { ProjectIcon } from "../project-icon";
 import { Assignee, AssigneeAvatar } from "./asignee-avatar";
 import { groupByItems } from "./board/use-kanban-board";
 
 export const TasksFilters = ({
-	showAssigneeFilter = true,
+	showFilters = ["assignee", "project", "milestone", "labels"],
 }: {
-	showAssigneeFilter?: boolean;
+	showFilters?: Array<"assignee" | "project" | "milestone" | "labels">;
 }) => {
 	const { setParams, ...params } = useTasksFilterParams();
 	const [filter, setFilter] = useState<Partial<typeof params>>(params);
@@ -61,7 +62,7 @@ export const TasksFilters = ({
 					/>
 				</div>
 
-				{showAssigneeFilter && (
+				{showFilters?.includes("assignee") && (
 					<div className="relative flex items-center">
 						<UserIcon className="absolute left-2 size-4 text-muted-foreground" />
 
@@ -100,56 +101,107 @@ export const TasksFilters = ({
 					</div>
 				)}
 
-				<div className="relative flex items-center">
-					<BoxIcon className="absolute left-2 size-4 text-muted-foreground" />
+				{showFilters?.includes("project") && (
+					<div className="relative flex items-center">
+						<BoxIcon className="absolute left-2 size-4 text-muted-foreground" />
 
-					<DataSelectInput
-						queryOptions={trpc.projects.get.queryOptions(
-							{},
-							{
-								select: (data) => data.data,
-							},
-						)}
-						multiple
-						value={filter.taskProjectId || null}
-						onChange={(value) => setFilter({ ...filter, taskProjectId: value })}
-						getLabel={(item) => item?.name ?? ""}
-						getValue={(item) => item?.id ?? ""}
-						placeholder="Filter by project"
-						className="w-52 pl-8"
-						showChevron={false}
-						renderMultiple={(items) => (
-							<div className="flex gap-2">
-								{items.map((item) => (
-									<span
-										key={item.id}
-										className="flex items-center gap-2 rounded-sm bg-secondary px-2 py-1 text-xs"
-									>
-										<ProjectIcon className="size-3.5" {...item} />
-										{item.name}
-									</span>
-								))}
-							</div>
-						)}
-						renderItem={(item) => (
-							<span className="flex items-center gap-2">
-								<ProjectIcon className="size-3.5" {...item} />
-								{item.name}
-							</span>
-						)}
-						variant={"ghost"}
-					/>
-				</div>
+						<DataSelectInput
+							queryOptions={trpc.projects.get.queryOptions(
+								{},
+								{
+									select: (data) => data.data,
+								},
+							)}
+							multiple
+							value={filter.taskProjectId || null}
+							onChange={(value) =>
+								setFilter({ ...filter, taskProjectId: value })
+							}
+							getLabel={(item) => item?.name ?? ""}
+							getValue={(item) => item?.id ?? ""}
+							placeholder="Filter by project"
+							className="w-52 pl-8"
+							showChevron={false}
+							renderMultiple={(items) => (
+								<div className="flex gap-2">
+									{items.map((item) => (
+										<span
+											key={item.id}
+											className="flex items-center gap-2 rounded-sm bg-secondary px-2 py-1 text-xs"
+										>
+											<ProjectIcon className="size-3.5" {...item} />
+											{item.name}
+										</span>
+									))}
+								</div>
+							)}
+							renderItem={(item) => (
+								<span className="flex items-center gap-2">
+									<ProjectIcon className="size-3.5" {...item} />
+									{item.name}
+								</span>
+							)}
+							variant={"ghost"}
+						/>
+					</div>
+				)}
 
-				<div className="relative flex items-center">
-					<TagsIcon className="absolute left-2 size-4 text-muted-foreground" />
-					<LabelInput
-						value={filter.labels || []}
-						onChange={(labels) => setFilter({ ...filter, labels })}
-						placeholder="Add labels to filter"
-						className="min-w-[120px] pl-8"
-					/>
-				</div>
+				{showFilters?.includes("milestone") && (
+					<div className="relative flex items-center">
+						<MilestoneIcon className="absolute left-2 size-4 text-muted-foreground opacity-50" />
+
+						<DataSelectInput
+							queryOptions={trpc.milestones.get.queryOptions(
+								{},
+								{
+									select: (data) => data.data,
+								},
+							)}
+							multiple
+							value={filter.taskMilestoneId || null}
+							onChange={(value) =>
+								setFilter({ ...filter, taskMilestoneId: value })
+							}
+							getLabel={(item) => item?.name ?? ""}
+							getValue={(item) => item?.id ?? ""}
+							placeholder="Filter by milestone"
+							className="w-52 pl-8"
+							showChevron={false}
+							renderMultiple={(items) => (
+								<div className="flex gap-2">
+									{items.map((item) => (
+										<span
+											key={item.id}
+											className="flex items-center gap-2 rounded-sm bg-secondary px-2 py-1 text-xs"
+										>
+											<MilestoneIcon className="size-3.5" {...item} />
+											{item.name}
+										</span>
+									))}
+								</div>
+							)}
+							renderItem={(item) => (
+								<span className="flex items-center gap-2">
+									<MilestoneIcon className="size-3.5" {...item} />
+									{item.name}
+								</span>
+							)}
+							variant={"ghost"}
+						/>
+					</div>
+				)}
+
+				{showFilters?.includes("labels") && (
+					<div className="relative flex items-center">
+						<TagsIcon className="absolute left-2 size-4 text-muted-foreground" />
+						<LabelInput
+							value={filter.labels || []}
+							onChange={(labels) => setFilter({ ...filter, labels })}
+							placeholder="Add labels to filter"
+							className="min-w-[120px] pl-8"
+						/>
+					</div>
+				)}
 			</div>
 
 			<div className="flex gap-4">

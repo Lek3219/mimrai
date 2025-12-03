@@ -4,11 +4,15 @@ import { Button } from "@ui/components/ui/button";
 import { AnimatePresence } from "motion/react";
 import { useMemo } from "react";
 import { TaskContextMenu } from "@/components/kanban/task-context-menu";
+import { TasksFilters } from "@/components/kanban/tasks-filters";
 import Loader from "@/components/loader";
 import { TaskItem } from "@/components/task-item";
+import { useTasksFilterParams } from "@/hooks/use-tasks-filter-params";
 import { trpc } from "@/utils/trpc";
 
 export default function ProjectTasksList({ projectId }: { projectId: string }) {
+	const { setParams, ...filters } = useTasksFilterParams();
+
 	const {
 		data: tasks,
 		fetchNextPage,
@@ -19,6 +23,8 @@ export default function ProjectTasksList({ projectId }: { projectId: string }) {
 			{
 				projectId: [projectId],
 				pageSize: 20,
+				...filters,
+				milestoneId: filters.taskMilestoneId,
 			},
 			{
 				getNextPageParam: (lastPage) => lastPage.meta.cursor,
@@ -32,6 +38,9 @@ export default function ProjectTasksList({ projectId }: { projectId: string }) {
 
 	return (
 		<div>
+			<div>
+				<TasksFilters showFilters={["assignee", "milestone", "labels"]} />
+			</div>
 			<AnimatePresence>
 				<ul className="flex flex-col gap-2 py-4">
 					{listData.map((task) => (

@@ -4,7 +4,7 @@ import { RecurringList } from "./recurring-list";
 export default function Page() {
 	return (
 		<Suspense>
-			<div className="h-full py-4">
+			<div className="h-full">
 				<RecurringList />
 			</div>
 		</Suspense>

@@ -11,15 +11,16 @@ export const taskViewEnum = z.enum([...Object.values(TaskView)]);
 
 export const getTasksSchema = z.object({
 	...paginationSchema.shape,
-	assigneeId: z.array(z.string()).optional(),
-	columnId: z.array(z.string()).optional(),
-	teamId: z.string().optional(),
-	projectId: z.array(z.string()).optional(),
-	nProjectId: z.array(z.string()).optional(),
-	search: z.string().optional(),
-	labels: z.array(z.string()).optional(),
-	view: z.enum(["board", "backlog", "workstation"]).optional(),
-	recurring: z.boolean().optional(),
+	assigneeId: z.array(z.string()).optional().nullable(),
+	columnId: z.array(z.string()).optional().nullable(),
+	teamId: z.string().optional().nullable(),
+	projectId: z.array(z.string()).optional().nullable(),
+	nProjectId: z.array(z.string()).optional().nullable(),
+	milestoneId: z.array(z.string()).optional().nullable(),
+	search: z.string().optional().nullable(),
+	labels: z.array(z.string()).optional().nullable(),
+	view: z.enum(["board", "backlog", "workstation"]).optional().nullable(),
+	recurring: z.boolean().optional().nullable(),
 });
 export type GetTasksInput = z.infer<typeof getTasksSchema>;
 
