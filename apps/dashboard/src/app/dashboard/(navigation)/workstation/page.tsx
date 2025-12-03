@@ -1,7 +1,6 @@
 import { Alert, AlertDescription } from "@ui/components/ui/alert";
 import { InfoIcon } from "lucide-react";
 import { Suspense } from "react";
-import { WorkstationList } from "./workstation-list";
 
 export default function Page() {
 	return (
@@ -16,7 +15,6 @@ export default function Page() {
 						</AlertDescription>
 					</Alert>
 				</div>
-				<WorkstationList />
 			</Suspense>
 		</div>
 	);

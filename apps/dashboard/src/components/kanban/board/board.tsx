@@ -1,20 +1,16 @@
 "use client";
 
 import * as Kanban from "@mimir/ui/kanban";
-import { set } from "better-auth";
 import { AnimatePresence } from "motion/react";
 import { useMemo } from "react";
-import { useTasksFilterParams } from "@/hooks/use-tasks-filter-params";
-import { TasksFilters } from "./../tasks-filters";
 import { BoardColumn } from "./column";
 import { type Task, useKanbanBoard, useKanbanStore } from "./use-kanban-board"; // The hook we created above
 
 export function Board() {
-	const filters = useTasksFilterParams();
 	const { setActiveTaskId, setOverColumnName } = useKanbanStore();
 
 	// Use our custom hook for logic
-	const { boardData, reorderTask } = useKanbanBoard(filters);
+	const { boardData, reorderTask } = useKanbanBoard();
 
 	const formattedBoardData = useMemo(() => {
 		if (!boardData) return {};
@@ -29,8 +25,6 @@ export function Board() {
 
 	return (
 		<div className="flex h-full grow-1 flex-col">
-			<TasksFilters />
-
 			<Kanban.Root
 				value={formattedBoardData}
 				getItemValue={(item) => item.id}

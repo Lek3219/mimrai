@@ -21,7 +21,7 @@ import { toast } from "sonner";
 import { useDebounceValue } from "usehooks-ts";
 import { TaskContextMenu } from "@/components/kanban/task-context-menu";
 import Loader from "@/components/loader";
-import { TaskItem } from "@/components/task-item";
+import { TaskItem } from "@/components/tasks-view/task-item";
 import { useTaskParams } from "@/hooks/use-task-params";
 import { queryClient, trpc } from "@/utils/trpc";
 

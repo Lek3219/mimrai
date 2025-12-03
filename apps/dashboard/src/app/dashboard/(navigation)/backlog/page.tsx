@@ -1,10 +1,10 @@
 import { Suspense } from "react";
-import { BacklogList } from "./backlog-list";
+import { TasksView } from "@/components/tasks-view/tasks-view";
 
 export default function Page() {
 	return (
 		<Suspense>
-			<BacklogList />
+			<TasksView viewType="list" columnType={["backlog"]} />
 		</Suspense>
 	);
 }

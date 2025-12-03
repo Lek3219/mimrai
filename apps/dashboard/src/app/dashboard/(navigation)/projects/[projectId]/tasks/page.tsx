@@ -1,4 +1,4 @@
-import ProjectTasksList from "./project-tasks-list";
+import { TasksView } from "@/components/tasks-view/tasks-view";
 
 type Props = {
 	params: Promise<{ projectId: string }>;
@@ -7,5 +7,5 @@ type Props = {
 export default async function Page({ params }: Props) {
 	const { projectId } = await params;
 
-	return <ProjectTasksList projectId={projectId} />;
+	return <TasksView viewType={"list"} taskProjectId={[projectId]} />;
 }

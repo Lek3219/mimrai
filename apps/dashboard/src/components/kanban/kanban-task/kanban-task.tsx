@@ -1,14 +1,13 @@
 import type { RouterOutputs } from "@mimir/api/trpc";
-import { LabelBadge } from "@mimir/ui/label-badge";
-import { format } from "date-fns";
-import { CircleCheckIcon } from "lucide-react";
 import { motion } from "motion/react";
-import { MilestoneIcon } from "@/components/milestone-icon";
-import { ProjectIcon } from "@/components/project-icon";
+import {
+	propertiesComponents,
+	TaskProperty,
+} from "@/components/tasks-view/task-properties";
+import { useTasksViewContext } from "@/components/tasks-view/tasks-view";
 import { useTaskParams } from "@/hooks/use-task-params";
 import { cn } from "@/lib/utils";
 import { queryClient, trpc } from "@/utils/trpc";
-import { Priority } from "../priority";
 import { KanbanAssignee } from "./assignee";
 
 export type KanbanTask = RouterOutputs["tasks"]["get"]["data"][number];
@@ -24,6 +23,7 @@ export const KanbanTask = ({
 	ref?: React.Ref<HTMLDivElement>;
 }) => {
 	const { setParams } = useTaskParams();
+	const { properties } = useTasksViewContext();
 
 	return (
 		<motion.div
@@ -35,11 +35,10 @@ export const KanbanTask = ({
 				className,
 			)}
 			ref={ref}
-			transition={{ duration: 0.2 }}
-			// initial={{ opacity: 0, scale: 0.95 }}
-			// animate={{ opacity: 1, scale: 1 }}
-			// layout
-			// layoutId={`task-${task.id}`}
+			// transition={{ duration: 0.2 }}
+			initial={{ opacity: 0, y: 10 }}
+			animate={{ opacity: 1, y: 0 }}
+			exit={{ opacity: 0, y: 10 }}
 			onClick={(e) => {
 				queryClient.setQueryData(
 					trpc.tasks.getById.queryKey({ id: task.id }),
@@ -59,62 +58,20 @@ export const KanbanTask = ({
 								</span>
 							)}
 						</div>
-						<KanbanAssignee task={task} />
+						<TaskProperty property="assignee" task={task} />
 					</div>
 					<div className="flex items-center gap-2">
 						<div className="break-words font-medium text-sm">{task.title}</div>
 					</div>
 
 					<div className="mt-2 flex flex-wrap items-center gap-1.5">
-						{task.priority && (
-							<div className="flex items-center">
-								<Priority value={task.priority} />
-							</div>
-						)}
-						{task.project && (
-							<div className="flex h-5.5 items-center gap-1 rounded-sm border border-border/50 px-2 font-medium text-xs">
-								<ProjectIcon className="size-3.5" {...task.project} />
-								{task.project.name}
-							</div>
-						)}
-						{task.milestone && (
-							<div className="flex h-5.5 items-center gap-1 rounded-sm border border-border/50 px-2 font-medium text-xs">
-								<MilestoneIcon className="size-3.5" {...task.milestone} />
-								{task.milestone.name}
-							</div>
-						)}
-						{task.labels?.length > 0 && (
-							<div className="flex flex-wrap gap-1">
-								{task.labels?.slice(0, 3).map((label) => (
-									<LabelBadge
-										key={label.id}
-										{...label}
-										variant="outline"
-										className="border-border/50"
-									/>
-								))}
-							</div>
-						)}
-						{task.dueDate && (
-							<time className="flex h-5.5 items-center rounded-sm border border-border/50 px-2 font-medium text-xs tabular-nums">
-								{format(new Date(task.dueDate), "PP")}
-							</time>
-						)}
-						{task.checklistSummary?.total > 0 && (
-							<div
-								className={cn(
-									"flex h-5.5 items-center rounded-sm px-2 font-medium text-muted-foreground text-xs",
-									{
-										"bg-primary px-2 text-primary-foreground":
-											task.checklistSummary.completed ===
-											task.checklistSummary.total,
-									},
-								)}
-							>
-								<CircleCheckIcon className="mr-1 inline size-3.5" />
-								{task.checklistSummary.completed}/{task.checklistSummary.total}
-							</div>
-						)}
+						<TaskProperty property="priority" task={task} />
+						<TaskProperty property="column" task={task} />
+						<TaskProperty property="labels" task={task} />
+						<TaskProperty property="project" task={task} />
+						<TaskProperty property="milestone" task={task} />
+						<TaskProperty property="dueDate" task={task} />
+						<TaskProperty property="checklist" task={task} />
 					</div>
 				</div>
 			</div>

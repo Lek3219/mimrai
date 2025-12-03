@@ -47,10 +47,6 @@ const data: {
 			icon: LayersIcon,
 			items: [
 				{
-					title: "Workstation",
-					url: "/dashboard/workstation",
-				},
-				{
 					title: "Board",
 					url: "/dashboard/board",
 				},

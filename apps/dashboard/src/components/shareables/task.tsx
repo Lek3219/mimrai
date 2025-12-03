@@ -3,7 +3,7 @@ import { Checkbox } from "@ui/components/ui/checkbox";
 import { cn } from "@ui/lib/utils";
 import { LayersIcon } from "lucide-react";
 import { Response } from "../chat/response";
-import { propertiesComponents } from "../task-properties";
+import { propertiesComponents } from "../tasks-view/task-properties";
 
 export const TaskShareable = ({
 	task,

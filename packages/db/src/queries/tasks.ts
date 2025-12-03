@@ -23,6 +23,7 @@ import { db } from "..";
 import {
 	checklistItems,
 	columns,
+	type columnTypeEnum,
 	labels,
 	labelsOnTasks,
 	milestones,
@@ -92,6 +93,7 @@ export const getTasks = async ({
 	cursor?: string;
 	assigneeId?: string[];
 	columnId?: string[];
+	columnType?: (typeof columnTypeEnum.enumValues)[number][];
 	labels?: string[];
 	teamId?: string;
 	projectId?: string[];
@@ -99,7 +101,7 @@ export const getTasks = async ({
 	nProjectId?: string[];
 	search?: string;
 	recurring?: boolean;
-	view?: "board" | "backlog" | "workstation";
+	view?: "board" | "list";
 }) => {
 	const whereClause: (SQL | undefined)[] = [];
 
@@ -114,6 +116,7 @@ export const getTasks = async ({
 			),
 		);
 	input.columnId && whereClause.push(inArray(tasks.columnId, input.columnId));
+	input.columnType && whereClause.push(inArray(columns.type, input.columnType));
 	input.teamId && whereClause.push(eq(tasks.teamId, input.teamId));
 	input.milestoneId &&
 		input.milestoneId.length > 0 &&
@@ -151,11 +154,11 @@ export const getTasks = async ({
 		}
 	}
 
-	// exlude done tasks with more than 3 days
-	if (input.view === "board" || input.view === "workstation") {
+	// exclude done tasks with more than 3 days
+	if (input.view === "board") {
 		whereClause.push(
 			or(
-				inArray(columns.type, ["in_progress", "to_do", "review"]),
+				notInArray(columns.type, ["done"]),
 				and(
 					eq(columns.type, "done"),
 					gte(tasks.updatedAt, subDays(new Date(), 3).toISOString()),
@@ -286,7 +289,7 @@ export const getTasks = async ({
 			desc(tasks.dueDate),
 			tasks.order,
 		);
-	} else if (input.view === "workstation") {
+	} else if (input.view === "list") {
 		query.orderBy(
 			asc(
 				sql`CASE ${tasks.priority} WHEN 'urgent' THEN 1 WHEN 'high' THEN 2 WHEN 'medium' THEN 3 WHEN 'low' THEN 4 END`,

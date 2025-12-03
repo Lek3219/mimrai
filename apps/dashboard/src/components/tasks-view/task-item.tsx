@@ -6,7 +6,12 @@ import { Fragment } from "react";
 import { useTaskParams } from "@/hooks/use-task-params";
 import { cn } from "@/lib/utils";
 import { queryClient, trpc } from "@/utils/trpc";
-import { propertiesComponents } from "./task-properties";
+import {
+	type propertiesComponents,
+	propertiesList,
+	TaskProperties,
+} from "./task-properties";
+import { useTasksViewContext } from "./tasks-view";
 
 type Property = keyof typeof propertiesComponents;
 
@@ -16,26 +21,16 @@ export const TaskItem = ({
 	dialog = true,
 	disableEvent = false,
 	onClick,
-	properties = [
-		"priority",
-		"dueDate",
-		"column",
-		"project",
-		"milestone",
-		"checklist",
-		"labels",
-		"assignee",
-	],
 }: {
 	task: RouterOutputs["tasks"]["get"]["data"][number];
 	className?: string;
 	onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
 	dialog?: boolean;
 	disableEvent?: boolean;
-	properties?: Property[];
 }) => {
 	const router = useRouter();
 	const { setParams } = useTaskParams();
+	const { properties } = useTasksViewContext();
 
 	return (
 		<motion.button
@@ -43,7 +38,6 @@ export const TaskItem = ({
 			initial={{ opacity: 0, y: 10 }}
 			animate={{ opacity: 1, y: 0 }}
 			exit={{ opacity: 0, y: 10 }}
-			layout
 			className={cn(
 				"flex w-full flex-col justify-between gap-2 bg-transparent px-4 py-2 transition-colors hover:bg-card/80 sm:flex-row",
 				className,
@@ -77,11 +71,7 @@ export const TaskItem = ({
 				<h3 className="font-medium">{task.title}</h3>
 			</div>
 			<div className="hidden flex-wrap items-center justify-end gap-2 md:flex">
-				{properties.map((property) => (
-					<Fragment key={property}>
-						{propertiesComponents[property](task)}
-					</Fragment>
-				))}
+				<TaskProperties task={task} />
 			</div>
 		</motion.button>
 	);

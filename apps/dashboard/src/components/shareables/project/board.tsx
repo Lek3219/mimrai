@@ -1,7 +1,7 @@
 import type { RouterOutputs } from "@api/trpc/routers";
 import { cn } from "@ui/lib/utils";
 import { ColumnIcon } from "@/components/column-icon";
-import { propertiesComponents } from "@/components/task-properties";
+import { propertiesComponents } from "@/components/tasks-view/task-properties";
 
 export const ProjectBoardShareable = ({
 	tasks,

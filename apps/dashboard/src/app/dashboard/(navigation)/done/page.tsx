@@ -1,15 +1,10 @@
-import { Provider as ChatProvider } from "@ai-sdk-tools/store";
 import { Suspense } from "react";
-import { DoneList } from "./done-list";
+import { TasksView } from "@/components/tasks-view/tasks-view";
 
 export default function Page() {
 	return (
-		<ChatProvider>
-			<Suspense>
-				<div className="h-full">
-					<DoneList />
-				</div>
-			</Suspense>
-		</ChatProvider>
+		<Suspense>
+			<TasksView viewType={"list"} columnType={["done"]} />
+		</Suspense>
 	);
 }

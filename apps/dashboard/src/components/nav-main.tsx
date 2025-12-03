@@ -67,7 +67,10 @@ export function NavMain({
 									isActive={isActive}
 								>
 									<Link
-										href={item.url}
+										href={{
+											pathname: item.url,
+											query: {},
+										}}
 										className={cn(
 											"flex h-9 items-center border border-transparent text-sm!",
 											{

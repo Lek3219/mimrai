@@ -6,6 +6,7 @@ import * as React from "react";
 import { create } from "zustand";
 import { ColumnIcon } from "@/components/column-icon";
 import { ProjectIcon } from "@/components/project-icon";
+import { useTasksViewContext } from "@/components/tasks-view/tasks-view";
 import { useTasksFilterParams } from "@/hooks/use-tasks-filter-params";
 import { trpc } from "@/utils/trpc";
 import { AssigneeAvatar } from "../asignee-avatar";
@@ -99,26 +100,11 @@ const MAX_ORDER = 74000;
 const DEFAULT_EMPTY_COLUMN_ORDER = 64000;
 export type KanbanBoardGroupBy = "column" | "assignee" | "project";
 
-export function useKanbanBoard(filters: any) {
+export function useKanbanBoard() {
+	const { tasks, filters } = useTasksViewContext();
+
 	const { groupBy } = useTasksFilterParams();
 	const queryClient = useQueryClient();
-
-	// 1. Queries
-	const queryKey = {
-		assigneeId: filters.assigneeId ?? undefined,
-		search: filters.search ?? undefined,
-		labels: filters.labels ?? undefined,
-		projectId: filters.taskProjectId ?? undefined,
-		milestoneId: filters.taskMilestoneId ?? undefined,
-		pageSize: 100,
-		view: "board" as const,
-	};
-
-	const { data: tasks } = useQuery(
-		trpc.tasks.get.queryOptions(queryKey, { placeholderData: (prev) => prev }),
-	);
-
-	console.log("Tasks fetched for kanban board:", tasks);
 
 	// 2. Mutations
 	const { mutateAsync: updateTask } = useMutation(
@@ -127,7 +113,7 @@ export function useKanbanBoard(filters: any) {
 
 	// 3. Derived State (Grouping)
 	const boardData = React.useMemo<KanbanData>(() => {
-		if (!tasks?.data) return {};
+		if (!tasks) return {};
 
 		const priorityOrder: Record<string, number> = {
 			urgent: 1,
@@ -136,7 +122,7 @@ export function useKanbanBoard(filters: any) {
 			low: 4,
 		};
 
-		const sortedTasks = [...tasks.data].sort((a, b) => {
+		const sortedTasks = [...tasks].sort((a, b) => {
 			// Weight-based sorting: each criterion only breaks ties from the previous one
 			const comparisons = [
 				// 1. Sort by column order (only when grouping by column)
@@ -191,7 +177,7 @@ export function useKanbanBoard(filters: any) {
 		// 	);
 		// 	return acc;
 		// }, {} as KanbanData);
-	}, [tasks?.data, groupBy]);
+	}, [tasks, groupBy]);
 
 	// 4. Logic: Calculate New Order
 	const calculateNewOrder = (
@@ -243,9 +229,9 @@ export function useKanbanBoard(filters: any) {
 		overId: string | undefined,
 		overColumnName: string | undefined,
 	) => {
-		if (!tasks?.data) return;
+		if (!tasks) return;
 
-		const activeTask = tasks.data.find((t) => t.id === activeId);
+		const activeTask = tasks.find((t) => t.id === activeId);
 		const targetColumn = boardData[overColumnName || ""]?.column;
 
 		// Case A: Moving to an empty column (overId is undefined or null, but we have column name)
@@ -272,13 +258,13 @@ export function useKanbanBoard(filters: any) {
 		}
 
 		// Case B: Moving relative to another task
-		const overTask = tasks.data.find((t) => t.id === overId);
+		const overTask = tasks.find((t) => t.id === overId);
 		if (!activeTask || !overTask) return;
 
 		const options = groupByOptions[groupBy as KanbanBoardGroupBy];
 		const columnUpdateKey = options.updateKey;
 
-		const targetColumnTasks = tasks.data.filter(
+		const targetColumnTasks = tasks.filter(
 			(t) => t[columnUpdateKey] === overTask[columnUpdateKey],
 		);
 		const newOrder = calculateNewOrder(
@@ -304,7 +290,7 @@ export function useKanbanBoard(filters: any) {
 	};
 
 	const updateCache = (updatedTask: Partial<Task>) => {
-		queryClient.setQueryData(trpc.tasks.get.queryKey(queryKey), (old) => {
+		queryClient.setQueryData(trpc.tasks.get.queryKey(filters), (old) => {
 			if (!old) return old;
 			return {
 				...old,

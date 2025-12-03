@@ -1,4 +1,4 @@
-import { priorityEnum, shareablePolicyEnum } from "@db/schema";
+import { columnTypeEnum, priorityEnum, shareablePolicyEnum } from "@db/schema";
 import z from "zod";
 import { mention } from "../../../../packages/notifications/src/types";
 import { paginationSchema } from "./base";
@@ -13,13 +13,14 @@ export const getTasksSchema = z.object({
 	...paginationSchema.shape,
 	assigneeId: z.array(z.string()).optional().nullable(),
 	columnId: z.array(z.string()).optional().nullable(),
+	columnType: z.array(z.enum(columnTypeEnum.enumValues)).optional().nullable(),
 	teamId: z.string().optional().nullable(),
 	projectId: z.array(z.string()).optional().nullable(),
 	nProjectId: z.array(z.string()).optional().nullable(),
 	milestoneId: z.array(z.string()).optional().nullable(),
 	search: z.string().optional().nullable(),
 	labels: z.array(z.string()).optional().nullable(),
-	view: z.enum(["board", "backlog", "workstation"]).optional().nullable(),
+	view: z.enum(["board", "list"]).optional().nullable(),
 	recurring: z.boolean().optional().nullable(),
 });
 export type GetTasksInput = z.infer<typeof getTasksSchema>;

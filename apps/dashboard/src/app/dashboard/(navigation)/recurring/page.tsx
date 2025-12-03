@@ -1,11 +1,11 @@
 import { Suspense } from "react";
-import { RecurringList } from "./recurring-list";
+import { TasksView } from "@/components/tasks-view/tasks-view";
 
 export default function Page() {
 	return (
 		<Suspense>
 			<div className="h-full">
-				<RecurringList />
+				<TasksView viewType={"list"} recurring={true} />
 			</div>
 		</Suspense>
 	);

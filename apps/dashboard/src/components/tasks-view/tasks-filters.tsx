@@ -10,35 +10,52 @@ import {
 	PopoverTrigger,
 } from "@ui/components/ui/popover";
 import { RadioGroup, RadioGroupItem } from "@ui/components/ui/radio-group";
+import { cn } from "@ui/lib/utils";
 import {
 	BoxIcon,
 	EyeIcon,
+	KanbanIcon,
+	ListIcon,
 	MenuIcon,
 	SearchIcon,
 	TagsIcon,
 	UserIcon,
 } from "lucide-react";
+import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useDebounceCallback } from "usehooks-ts";
 import { useTasksFilterParams } from "@/hooks/use-tasks-filter-params";
 import { trpc } from "@/utils/trpc";
 import { LabelInput } from "../forms/task-form/label-input";
+import { Assignee, AssigneeAvatar } from "../kanban/asignee-avatar";
+import { groupByItems } from "../kanban/board/use-kanban-board";
 import { MilestoneIcon } from "../milestone-icon";
 import { ProjectIcon } from "../project-icon";
-import { Assignee, AssigneeAvatar } from "./asignee-avatar";
-import { groupByItems } from "./board/use-kanban-board";
+import { propertiesComponents } from "./task-properties";
+import { useTasksViewContext } from "./tasks-view";
+
+export type TasksFiltersProps = {
+	showFilters?: Array<"assignee" | "project" | "milestone" | "labels">;
+};
 
 export const TasksFilters = ({
 	showFilters = ["assignee", "project", "milestone", "labels"],
-}: {
-	showFilters?: Array<"assignee" | "project" | "milestone" | "labels">;
-}) => {
+}: TasksFiltersProps) => {
+	const pathname = usePathname();
+	const { viewType } = useTasksViewContext();
+
 	const { setParams, ...params } = useTasksFilterParams();
 	const [filter, setFilter] = useState<Partial<typeof params>>(params);
 	const debouncedSetParams = useDebounceCallback(setParams, 500);
 	const firstRender = useRef(true);
 
+	// Reset filters on path change
 	useEffect(() => {
+		setFilter({});
+	}, [pathname, setParams]);
+
+	useEffect(() => {
+		if (firstRender.current) return;
 		setTimeout(() => {
 			firstRender.current = false;
 		}, 1000);
@@ -214,44 +231,123 @@ export const TasksFilters = ({
 					</PopoverTrigger>
 					<PopoverContent>
 						<div className="space-y-4">
-							<div className="text-muted-foreground text-xs">Group By</div>
-							<RadioGroup
-								value={filter.groupBy || "column"}
-								onValueChange={(value) =>
-									setFilter({ ...filter, groupBy: value })
-								}
-							>
-								{groupByItems.map((item) => (
-									<div key={item.value} className="flex items-center gap-2">
-										<RadioGroupItem
-											id={`group-by-${item.value}`}
-											value={item.value}
-										/>
-										<Label
-											htmlFor={`group-by-${item.value}`}
-											className="text-xs"
+							<div className="space-y-2">
+								<div className="text-muted-foreground text-xs">
+									Show Properties
+								</div>
+								<div className="flex flex-wrap gap-1 text-xs">
+									{Object.entries(propertiesComponents).map(([key, _]) => (
+										<button
+											key={key}
+											type="button"
+											className={cn(
+												"rounded-sm border px-2 py-1 capitalize hover:bg-accent/10",
+												{
+													"bg-accent hover:bg-accent/80":
+														params.properties?.includes(
+															key as keyof typeof propertiesComponents,
+														),
+												},
+											)}
+											onClick={() => {
+												const currentProperties = params.properties || [];
+												if (
+													currentProperties.includes(
+														key as keyof typeof propertiesComponents,
+													)
+												) {
+													// Remove property
+													const newProperties = currentProperties.filter(
+														(prop) =>
+															prop !==
+															(key as keyof typeof propertiesComponents),
+													);
+													setParams({
+														...params,
+														properties: newProperties,
+													});
+												} else {
+													// Add property
+													setParams({
+														...params,
+														properties: [
+															...currentProperties,
+															key as keyof typeof propertiesComponents,
+														],
+													});
+												}
+											}}
 										>
-											{item.label}
-										</Label>
-									</div>
-								))}
-							</RadioGroup>
+											{key}
+										</button>
+									))}
+								</div>
+							</div>
+
+							<div className="space-y-2">
+								<div className="text-muted-foreground text-xs">View As</div>
+								<div className="grid h-16 grid-cols-2 gap-2">
+									<button
+										type="button"
+										className={cn(
+											"flex h-full items-center justify-center rounded-md border p-2 hover:bg-accent/80",
+											{
+												"bg-accent": viewType === "list",
+											},
+										)}
+										onClick={() => {
+											setParams({
+												...params,
+												viewType: "list",
+											});
+										}}
+									>
+										<ListIcon className="size-4" />
+									</button>
+									<button
+										type="button"
+										className={cn(
+											"flex h-full items-center justify-center rounded-md border p-2 hover:bg-accent/80",
+											{
+												"bg-accent": viewType === "board",
+											},
+										)}
+										onClick={() => {
+											setParams({
+												...params,
+												viewType: "board",
+											});
+										}}
+									>
+										<KanbanIcon className="size-4" />
+									</button>
+								</div>
+							</div>
+							<div className="space-y-4">
+								<div className="text-muted-foreground text-xs">Group By</div>
+								<RadioGroup
+									value={params.groupBy || "column"}
+									onValueChange={(value) =>
+										setParams({ ...params, groupBy: value })
+									}
+								>
+									{groupByItems.map((item) => (
+										<div key={item.value} className="flex items-center gap-2">
+											<RadioGroupItem
+												id={`group-by-${item.value}`}
+												value={item.value}
+											/>
+											<Label
+												htmlFor={`group-by-${item.value}`}
+												className="text-xs"
+											>
+												{item.label}
+											</Label>
+										</div>
+									))}
+								</RadioGroup>
+							</div>
 						</div>
-						{/* <Select
-							onValueChange={(v) => setFilter({ ...filter, groupBy: v })}
-							value={filter.groupBy || ""}
-						>
-							<SelectTrigger className="w-full">
-								<SelectValue placeholder="Group By" />
-							</SelectTrigger>
-							<SelectContent>
-								{groupByItems.map((item) => (
-									<SelectItem key={item.value} value={item.value}>
-										{item.label}
-									</SelectItem>
-								))}
-							</SelectContent>
-						</Select> */}
 					</PopoverContent>
 				</Popover>
 			</div>

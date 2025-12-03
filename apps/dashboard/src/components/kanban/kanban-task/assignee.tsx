@@ -56,7 +56,7 @@ export const KanbanAssignee = ({ task }: { task: KanbanTask }) => {
 			}}
 		>
 			<Popover>
-				<PopoverTrigger>
+				<PopoverTrigger asChild>
 					<div className="flex items-center">
 						{coworkers.length > 0 ? (
 							<div className="flex flex-row-reverse items-center">
