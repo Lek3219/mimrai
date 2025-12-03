@@ -6,6 +6,7 @@ export const tasksFilterParams = {
 	taskProjectId: parseAsArrayOf(parseAsString),
 	search: parseAsString,
 	labels: parseAsArrayOf(parseAsString),
+	groupBy: parseAsString,
 };
 
 export const useTasksFilterParams = () => {

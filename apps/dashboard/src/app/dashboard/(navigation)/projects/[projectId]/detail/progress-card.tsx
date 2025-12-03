@@ -42,16 +42,27 @@ export const ProjectProgressCard = ({ projectId }: { projectId: string }) => {
 			</CardHeader>
 			<CardContent>
 				<ul className="mt-4 space-y-2">
-					{data?.members.map((member) => (
-						<li key={member.id} className="flex items-center gap-4">
-							<AssigneeAvatar {...member} />
-							<Progress
-								completed={member.progress.completed}
-								inProgress={member.progress.inProgress}
-								color={member.color}
-							/>
-						</li>
-					))}
+					{data?.members.map((member) => {
+						const total =
+							member.progress.completed + member.progress.inProgress;
+						const percentage = total
+							? Math.round((member.progress.completed / total) * 100)
+							: 0;
+
+						return (
+							<li key={member.id} className="flex items-center gap-4">
+								<AssigneeAvatar {...member} />
+								<Progress
+									completed={member.progress.completed}
+									inProgress={member.progress.inProgress}
+									color={member.color}
+								/>
+								{/* <span className="w-auto text-muted-foreground text-xs">
+									{percentage}% of {total}
+								</span> */}
+							</li>
+						);
+					})}
 				</ul>
 			</CardContent>
 		</Card>

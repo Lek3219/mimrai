@@ -1,23 +1,29 @@
 "use client";
 
-import { Badge } from "@mimir/ui/badge";
 import { Button } from "@mimir/ui/button";
 import * as Kanban from "@mimir/ui/kanban";
+import { Badge } from "@ui/components/ui/badge";
 import { GripVertical, PlusIcon } from "lucide-react";
 // UI & Logic
 import { useTaskParams } from "@/hooks/use-task-params";
 import { cn } from "@/lib/utils";
 import { queryClient, trpc } from "@/utils/trpc";
-
 // Local Components
-import { ColumnIcon } from "../../column-icon";
-import { ColumnContextMenu } from "./../column-context-menu";
 import { KanbanTask } from "../kanban-task/kanban-task";
 import { TaskContextMenu } from "./../task-context-menu";
-import { type Column, type Task, useKanbanStore } from "./use-kanban-board"; // The hook we created above
+import {
+	type KanbanBoardGroupBy,
+	type Task,
+	useKanbanStore,
+} from "./use-kanban-board"; // The hook we created above
 
 interface BoardColumnProps {
-	column: Column;
+	column: {
+		id: string;
+		name: string;
+		type: KanbanBoardGroupBy;
+		icon: React.ReactNode;
+	};
 	columnName: string;
 	tasks: Task[];
 }
@@ -31,46 +37,39 @@ export function BoardColumn({ column, columnName, tasks }: BoardColumnProps) {
 			className="min-h-[200px] min-w-86 max-w-86 grow-1 rounded-sm"
 			value={columnName}
 		>
-			<ColumnContextMenu column={column}>
-				<div className="flex items-center justify-between">
-					<div className="flex items-center gap-2">
-						<Badge
-							variant="secondary"
-							className={cn(
-								"pointer-events-none space-x-1 rounded-none bg-transparent text-sm",
-								{ "text-muted-foreground": tasks.length === 0 },
-							)}
-						>
-							<ColumnIcon className="size-4!" type={column.type} />
-						</Badge>
-						<span className="font-medium text-sm">{columnName}</span>
-						<span className="font-mono text-muted-foreground text-xs">
-							{tasks.length}
-						</span>
-					</div>
-
-					<div className="flex items-center gap-2">
-						<Button
-							size="sm"
-							variant="ghost"
-							onClick={() => {
-								setTaskParams({
-									createTask: true,
-									taskColumnId: column.id,
-								});
-							}}
-						>
-							<PlusIcon />
-						</Button>
-						<Kanban.ColumnHandle asChild>
-							<Button variant="ghost" size="icon">
-								<GripVertical className="h-4 w-4" />
-							</Button>
-						</Kanban.ColumnHandle>
-					</div>
+			<div className="flex items-center justify-between">
+				<div className="flex items-center gap-2">
+					<Badge
+						variant="secondary"
+						className={cn(
+							"pointer-events-none space-x-1 rounded-none bg-transparent text-sm",
+							{ "text-muted-foreground": tasks.length === 0 },
+						)}
+					>
+						{column.icon}
+					</Badge>
+					<span className="font-medium text-sm">{columnName}</span>
+					<span className="font-mono text-muted-foreground text-xs">
+						{tasks.length}
+					</span>
 				</div>
-			</ColumnContextMenu>
-			<div className="h-[calc(100vh-195px)] grow-1 overflow-y-auto px-2">
+
+				<div className="flex items-center gap-2">
+					<Button
+						size="sm"
+						variant="ghost"
+						onClick={() => {
+							setTaskParams({
+								createTask: true,
+								taskColumnId: column.id,
+							});
+						}}
+					>
+						<PlusIcon />
+					</Button>
+				</div>
+			</div>
+			<div className="h-[calc(100vh-240px)] grow-1 overflow-y-auto px-2">
 				<div className="relative h-full space-y-2">
 					{tasks.map((task) => (
 						<TaskContextMenu task={task} key={task.id}>

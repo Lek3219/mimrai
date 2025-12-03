@@ -84,12 +84,13 @@ export const ProjectsList = () => {
 	}
 
 	return (
-		<ul className="w-full">
+		<div className="w-full">
 			{listData.map((project) => (
 				<ContextMenu key={project.id}>
 					<ContextMenuTrigger asChild>
-						<li
+						<button
 							className="flex w-full flex-wrap justify-between px-4 py-4 text-sm transition-colors last:border-0 hover:bg-card/80"
+							type="button"
 							onClick={() => {
 								queryClient.setQueryData(
 									trpc.projects.getById.queryKey({ id: project.id }),
@@ -107,18 +108,15 @@ export const ProjectsList = () => {
 								<div className="w-24 sm:w-48">
 									<Progress {...project.progress} />
 								</div>
-								<button
-									className="flex h-5 items-center gap-2 rounded-sm bg-secondary px-2"
-									type="button"
-								>
+								<div className="flex h-5 items-center gap-2 rounded-sm bg-secondary px-2">
 									<LayersIcon className="size-3" />
 									<span>
 										{Number(project.progress.completed) +
 											Number(project.progress.inProgress)}
 									</span>
-								</button>
+								</div>
 							</div>
-						</li>
+						</button>
 					</ContextMenuTrigger>
 					<ContextMenuContent>
 						<ContextMenuItem
@@ -133,7 +131,7 @@ export const ProjectsList = () => {
 					</ContextMenuContent>
 				</ContextMenu>
 			))}
-		</ul>
+		</div>
 	);
 };
 

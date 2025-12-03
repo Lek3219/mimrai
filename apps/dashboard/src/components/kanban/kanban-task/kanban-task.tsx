@@ -36,8 +36,10 @@ export const KanbanTask = ({
 			)}
 			ref={ref}
 			transition={{ duration: 0.2 }}
-			layout
-			layoutId={`task-${task.id}`}
+			// initial={{ opacity: 0, scale: 0.95 }}
+			// animate={{ opacity: 1, scale: 1 }}
+			// layout
+			// layoutId={`task-${task.id}`}
 			onClick={(e) => {
 				queryClient.setQueryData(
 					trpc.tasks.getById.queryKey({ id: task.id }),
