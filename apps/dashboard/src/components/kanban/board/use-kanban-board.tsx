@@ -1,36 +1,28 @@
 "use client";
 
 import type { RouterOutputs } from "@mimir/api/trpc";
-import {
-	type QueryOptions,
-	useMutation,
-	useQuery,
-	useQueryClient,
-} from "@tanstack/react-query";
-import type { TRPCQueryOptions } from "@trpc/tanstack-react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import * as React from "react";
 import { create } from "zustand";
-import { ColumnIcon } from "@/components/column-icon";
-import { ProjectIcon } from "@/components/project-icon";
+import {
+	type GenericColumn,
+	type TasksGroupBy,
+	tasksGroupByOptions,
+} from "@/components/tasks-view/tasks-group";
 import { useTasksViewContext } from "@/components/tasks-view/tasks-view";
 import { useTasksFilterParams } from "@/hooks/use-tasks-filter-params";
 import { trpc } from "@/utils/trpc";
-import { AssigneeAvatar } from "../asignee-avatar";
 
 // Types
 export type Task = RouterOutputs["tasks"]["get"]["data"][number];
 export type Column = RouterOutputs["columns"]["get"]["data"][number];
+export type TeamMember = RouterOutputs["teams"]["getMembers"][number];
+export type Project = RouterOutputs["projects"]["get"]["data"][number];
+
 export type KanbanData = Record<
 	string,
 	{
-		column: {
-			id: string;
-			name: string;
-			type: KanbanBoardGroupBy;
-			icon: React.ReactNode;
-			// data is used to update the task when moved between columns
-			data: any;
-		};
+		column: GenericColumn;
 		tasks: Task[];
 	}
 >;
@@ -40,105 +32,6 @@ export type KanbanStore = {
 	setOverColumnName: (name?: string) => void;
 	setActiveTaskId: (id?: string) => void;
 };
-export type GroupByOption<D = any> = {
-	label: string;
-	updateKey: keyof Task;
-	icon: (data: D) => React.ReactNode;
-	getData: (item: Task) => D;
-	updateData: (item: Partial<Task>, data: D) => void;
-	getName: (item: Task) => string;
-	getId: (item: Task) => string;
-
-	queryOptions?: any;
-};
-
-// Group By Options
-const groupByOptions: Record<KanbanBoardGroupBy, GroupByOption> = {
-	column: {
-		label: "Column",
-		updateKey: "columnId",
-		getData: (item) => item.column,
-		updateData: (item, data) => {
-			item.column = data;
-		},
-		icon: (data) => <ColumnIcon {...data} className="size-4!" />,
-		getName: (item) => item.column.name,
-		getId: (item) => item.column.id,
-
-		queryOptions: trpc.columns.get.queryOptions(
-			{},
-			{
-				select: (columns) => {
-					return columns.data.map((column) => ({
-						id: column.id,
-						name: column.name,
-						type: "column" as const,
-						icon: <ColumnIcon {...column} className="size-4!" />,
-						data: column,
-					}));
-				},
-			},
-		),
-	},
-	assignee: {
-		label: "Assignee",
-		updateKey: "assigneeId",
-		icon: (data) => <AssigneeAvatar {...data} className="size-4!" />,
-		getData: (item) => item.assignee,
-		updateData: (item, data) => {
-			item.assignee = data;
-		},
-		getName: (item) => (item.assignee ? item.assignee.name : "Unassigned"),
-		getId: (item) => (item.assignee ? item.assignee.id : "unassigned"),
-
-		queryOptions: trpc.teams.getMembers.queryOptions(
-			{},
-			{
-				select: (members) => {
-					return members.map((member) => ({
-						id: member.id,
-						name: member.name || "No Name",
-						type: "assignee" as const,
-						icon: <AssigneeAvatar {...member} className="size-4!" />,
-						data: member,
-					}));
-				},
-			},
-		),
-	},
-	project: {
-		label: "Project",
-		updateKey: "projectId",
-		icon: (data) => <ProjectIcon {...data} className="size-4!" />,
-		getData: (item) => item.project,
-		updateData: (item, data) => {
-			item.project = data;
-		},
-		getName: (item) => (item.project ? item.project.name : "No Project"),
-		getId: (item) => (item.project ? item.project.id : "no_project"),
-
-		queryOptions: trpc.projects.get.queryOptions(
-			{},
-			{
-				select: (projects) => {
-					return projects.data.map((project) => ({
-						id: project.id,
-						name: project.name,
-						type: "project" as const,
-						icon: <ProjectIcon {...project} className="size-4!" />,
-						data: project,
-					}));
-				},
-			},
-		),
-	},
-};
-export const groupByItems = Object.entries(groupByOptions).map(
-	([value, option]) => ({
-		value,
-		label: option.label,
-	}),
-);
 
 // Zustand store for kanban drag state
 export const useKanbanStore = create<KanbanStore>((set) => ({
@@ -151,7 +44,6 @@ export const useKanbanStore = create<KanbanStore>((set) => ({
 const MIN_ORDER = 0;
 const MAX_ORDER = 74000;
 const DEFAULT_EMPTY_COLUMN_ORDER = 64000;
-export type KanbanBoardGroupBy = "column" | "assignee" | "project";
 
 export function useKanbanBoard() {
 	const { tasks, filters } = useTasksViewContext();
@@ -160,7 +52,7 @@ export function useKanbanBoard() {
 	const queryClient = useQueryClient();
 
 	const { data: columns } = useQuery(
-		groupByOptions[groupBy as KanbanBoardGroupBy]?.queryOptions,
+		tasksGroupByOptions[groupBy as TasksGroupBy]?.queryOptions,
 	);
 
 	// 2. Mutations
@@ -203,55 +95,20 @@ export function useKanbanBoard() {
 			return 0;
 		});
 
-		// Group by tasks by column name
-		const knownGroup = sortedTasks.reduce((acc, task) => {
-			const type = (groupBy as KanbanBoardGroupBy) || "column";
-			const options = groupByOptions[type];
-			const name = options.getName(task);
-			const id = options.getId(task);
-			const data = options.getData(task);
-			const icon = options.icon(data);
-
-			if (!acc[name]) {
-				acc[name] = {
-					column: {
-						id,
-						name,
-						type,
-						icon,
-						data,
-					},
-					tasks: [],
-				};
-			}
-			acc[name]?.tasks.push(task);
-			return acc;
-		}, {} as KanbanData);
-
+		const group: KanbanData = {};
 		for (const column of columns || []) {
+			const options = tasksGroupByOptions[column.type];
+
 			const colName = column.name;
-			if (!knownGroup[colName]) {
-				knownGroup[colName] = {
-					column: {
-						id: column.id,
-						name: colName,
-						type: groupBy as KanbanBoardGroupBy,
-						icon: column.icon,
-						data: column.data,
-					},
-					tasks: [],
+			if (!group[colName]) {
+				group[colName] = {
+					column,
+					tasks: options.select(sortedTasks, column),
 				};
 			}
 		}
 
-		return knownGroup;
-
-		// return sortedColumns.reduce((acc, column) => {
-		// 	acc[column.name] = sortedTasks.filter(
-		// 		(task) => task.columnId === column.id,
-		// 	);
-		// 	return acc;
-		// }, {} as KanbanData);
+		return group;
 	}, [tasks, groupBy, columns]);
 
 	// 4. Logic: Calculate New Order
@@ -313,7 +170,7 @@ export function useKanbanBoard() {
 		if (activeTask && targetColumn) {
 			if (!targetColumn) return;
 
-			const options = groupByOptions[targetColumn.type];
+			const options = tasksGroupByOptions[targetColumn.type];
 			const columnUpdateKey = options.updateKey;
 
 			const newTaskPayload = {
@@ -336,7 +193,7 @@ export function useKanbanBoard() {
 		const overTask = tasks.find((t) => t.id === overId);
 		if (!activeTask || !overTask) return;
 
-		const options = groupByOptions[groupBy as KanbanBoardGroupBy];
+		const options = tasksGroupByOptions[groupBy as TasksGroupBy];
 		const columnUpdateKey = options.updateKey;
 
 		const targetColumnTasks = tasks.filter(
@@ -385,6 +242,7 @@ export function useKanbanBoard() {
 	};
 
 	return {
+		columns,
 		boardData,
 		reorderTask,
 	};

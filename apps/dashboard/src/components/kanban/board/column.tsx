@@ -3,7 +3,8 @@
 import { Button } from "@mimir/ui/button";
 import * as Kanban from "@mimir/ui/kanban";
 import { Badge } from "@ui/components/ui/badge";
-import { GripVertical, PlusIcon } from "lucide-react";
+import { PlusIcon } from "lucide-react";
+import type { GenericColumn } from "@/components/tasks-view/tasks-group";
 // UI & Logic
 import { useTaskParams } from "@/hooks/use-task-params";
 import { cn } from "@/lib/utils";
@@ -11,19 +12,10 @@ import { queryClient, trpc } from "@/utils/trpc";
 // Local Components
 import { KanbanTask } from "../kanban-task/kanban-task";
 import { TaskContextMenu } from "./../task-context-menu";
-import {
-	type KanbanBoardGroupBy,
-	type Task,
-	useKanbanStore,
-} from "./use-kanban-board"; // The hook we created above
+import { type Task, useKanbanStore } from "./use-kanban-board";
 
 interface BoardColumnProps {
-	column: {
-		id: string;
-		name: string;
-		type: KanbanBoardGroupBy;
-		icon: React.ReactNode;
-	};
+	column: GenericColumn;
 	columnName: string;
 	tasks: Task[];
 }

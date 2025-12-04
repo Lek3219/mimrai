@@ -10,7 +10,7 @@ export function TasksBoard() {
 	const { setActiveTaskId, setOverColumnName } = useKanbanStore();
 
 	// Use our custom hook for logic
-	const { boardData, reorderTask } = useKanbanBoard();
+	const { boardData, reorderTask, columns } = useKanbanBoard();
 
 	const formattedBoardData = useMemo(() => {
 		if (!boardData) return {};
@@ -31,7 +31,7 @@ export function TasksBoard() {
 				onDragEnd={async ({ active, over }) => {
 					if (!over) return;
 
-					const isColumnDrag = false;
+					const isColumnDrag = columns?.some((col) => col.name === active.id);
 
 					setActiveTaskId(undefined);
 					setOverColumnName(undefined);
@@ -55,7 +55,7 @@ export function TasksBoard() {
 				}}
 				onDragOver={({ over }) => {
 					const overId = over?.id as string | undefined;
-					const isColumn = false;
+					const isColumn = columns?.some((col) => col.name === overId);
 					if (isColumn) {
 						setOverColumnName(overId);
 						return;

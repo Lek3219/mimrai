@@ -95,7 +95,7 @@ export const ProjectsList = () => {
 									trpc.projects.getById.queryKey({ id: project.id }),
 									project,
 								);
-								router.push(`/dashboard/projects/${project.id}`);
+								router.push(`/dashboard/projects/${project.id}/detail`);
 								// setParams({ projectId: project.id });
 							}}
 						>

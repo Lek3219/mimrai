@@ -28,10 +28,10 @@ import { useTasksFilterParams } from "@/hooks/use-tasks-filter-params";
 import { trpc } from "@/utils/trpc";
 import { LabelInput } from "../forms/task-form/label-input";
 import { Assignee, AssigneeAvatar } from "../kanban/asignee-avatar";
-import { groupByItems } from "../kanban/board/use-kanban-board";
 import { MilestoneIcon } from "../milestone-icon";
 import { ProjectIcon } from "../project-icon";
 import { propertiesComponents } from "./task-properties";
+import { tasksGroupByItems } from "./tasks-group";
 import { useTasksViewContext } from "./tasks-view";
 
 export type TasksFiltersProps = {
@@ -336,7 +336,7 @@ export const TasksFilters = ({
 										setParams({ ...params, groupBy: value })
 									}
 								>
-									{groupByItems.map((item) => (
+									{tasksGroupByItems.map((item) => (
 										<div key={item.value} className="flex items-center gap-2">
 											<RadioGroupItem
 												id={`group-by-${item.value}`}
