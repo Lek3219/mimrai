@@ -6,7 +6,10 @@ import { useTasksFilterParams } from "@/hooks/use-tasks-filter-params";
 import { trpc } from "@/utils/trpc";
 import { TasksBoard } from "../kanban/board/board";
 import type { propertiesComponents } from "./task-properties";
-import { TasksFilters, type TasksFiltersProps } from "./tasks-filters";
+import {
+	TasksFilters,
+	type TasksFiltersProps,
+} from "./tasks-filters/tasks-filters";
 import type { TasksGroupBy } from "./tasks-group";
 import { TasksList } from "./tasks-list";
 
