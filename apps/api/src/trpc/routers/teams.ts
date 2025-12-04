@@ -165,8 +165,13 @@ export const teamsRouter = router({
 		})
 		.input(acceptTeamInviteSchema)
 		.mutation(async ({ ctx, input }) => {
+			const currentInvite = await getTeamInviteById(input.inviteId);
+			if (currentInvite.email !== ctx.user.email) {
+				throw new Error("This invite is not for your email");
+			}
+
 			const canInvite = await checkLimit({
-				teamId: ctx.user.teamId!,
+				teamId: currentInvite.teamId,
 				type: "users",
 				movement: 1,
 			});
