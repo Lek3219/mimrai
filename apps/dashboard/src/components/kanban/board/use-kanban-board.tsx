@@ -1,7 +1,13 @@
 "use client";
 
 import type { RouterOutputs } from "@mimir/api/trpc";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+	type QueryOptions,
+	useMutation,
+	useQuery,
+	useQueryClient,
+} from "@tanstack/react-query";
+import type { TRPCQueryOptions } from "@trpc/tanstack-react-query";
 import * as React from "react";
 import { create } from "zustand";
 import { ColumnIcon } from "@/components/column-icon";
@@ -42,6 +48,8 @@ export type GroupByOption<D = any> = {
 	updateData: (item: Partial<Task>, data: D) => void;
 	getName: (item: Task) => string;
 	getId: (item: Task) => string;
+
+	queryOptions?: any;
 };
 
 // Group By Options
@@ -56,6 +64,21 @@ const groupByOptions: Record<KanbanBoardGroupBy, GroupByOption> = {
 		icon: (data) => <ColumnIcon {...data} className="size-4!" />,
 		getName: (item) => item.column.name,
 		getId: (item) => item.column.id,
+
+		queryOptions: trpc.columns.get.queryOptions(
+			{},
+			{
+				select: (columns) => {
+					return columns.data.map((column) => ({
+						id: column.id,
+						name: column.name,
+						type: "column" as const,
+						icon: <ColumnIcon {...column} className="size-4!" />,
+						data: column,
+					}));
+				},
+			},
+		),
 	},
 	assignee: {
 		label: "Assignee",
@@ -67,6 +90,21 @@ const groupByOptions: Record<KanbanBoardGroupBy, GroupByOption> = {
 		},
 		getName: (item) => (item.assignee ? item.assignee.name : "Unassigned"),
 		getId: (item) => (item.assignee ? item.assignee.id : "unassigned"),
+
+		queryOptions: trpc.teams.getMembers.queryOptions(
+			{},
+			{
+				select: (members) => {
+					return members.map((member) => ({
+						id: member.id,
+						name: member.name || "No Name",
+						type: "assignee" as const,
+						icon: <AssigneeAvatar {...member} className="size-4!" />,
+						data: member,
+					}));
+				},
+			},
+		),
 	},
 	project: {
 		label: "Project",
@@ -78,6 +116,21 @@ const groupByOptions: Record<KanbanBoardGroupBy, GroupByOption> = {
 		},
 		getName: (item) => (item.project ? item.project.name : "No Project"),
 		getId: (item) => (item.project ? item.project.id : "no_project"),
+
+		queryOptions: trpc.projects.get.queryOptions(
+			{},
+			{
+				select: (projects) => {
+					return projects.data.map((project) => ({
+						id: project.id,
+						name: project.name,
+						type: "project" as const,
+						icon: <ProjectIcon {...project} className="size-4!" />,
+						data: project,
+					}));
+				},
+			},
+		),
 	},
 };
 export const groupByItems = Object.entries(groupByOptions).map(
@@ -105,6 +158,10 @@ export function useKanbanBoard() {
 
 	const { groupBy } = useTasksFilterParams();
 	const queryClient = useQueryClient();
+
+	const { data: columns } = useQuery(
+		groupByOptions[groupBy as KanbanBoardGroupBy]?.queryOptions,
+	);
 
 	// 2. Mutations
 	const { mutateAsync: updateTask } = useMutation(
@@ -147,7 +204,7 @@ export function useKanbanBoard() {
 		});
 
 		// Group by tasks by column name
-		return sortedTasks.reduce((acc, task) => {
+		const knownGroup = sortedTasks.reduce((acc, task) => {
 			const type = (groupBy as KanbanBoardGroupBy) || "column";
 			const options = groupByOptions[type];
 			const name = options.getName(task);
@@ -171,13 +228,31 @@ export function useKanbanBoard() {
 			return acc;
 		}, {} as KanbanData);
 
+		for (const column of columns || []) {
+			const colName = column.name;
+			if (!knownGroup[colName]) {
+				knownGroup[colName] = {
+					column: {
+						id: column.id,
+						name: colName,
+						type: groupBy as KanbanBoardGroupBy,
+						icon: column.icon,
+						data: column.data,
+					},
+					tasks: [],
+				};
+			}
+		}
+
+		return knownGroup;
+
 		// return sortedColumns.reduce((acc, column) => {
 		// 	acc[column.name] = sortedTasks.filter(
 		// 		(task) => task.columnId === column.id,
 		// 	);
 		// 	return acc;
 		// }, {} as KanbanData);
-	}, [tasks, groupBy]);
+	}, [tasks, groupBy, columns]);
 
 	// 4. Logic: Calculate New Order
 	const calculateNewOrder = (
@@ -290,15 +365,23 @@ export function useKanbanBoard() {
 	};
 
 	const updateCache = (updatedTask: Partial<Task>) => {
-		queryClient.setQueryData(trpc.tasks.get.queryKey(filters), (old) => {
-			if (!old) return old;
-			return {
-				...old,
-				data: old.data
-					.map((t) => (t.id === updatedTask.id ? { ...t, ...updatedTask } : t))
-					.sort((a, b) => a.order - b.order),
-			};
-		});
+		queryClient.setQueryData(
+			trpc.tasks.get.infiniteQueryKey(filters),
+			(old) => {
+				if (!old) return old;
+				return {
+					...old,
+					pages: old.pages.map((page) => ({
+						...page,
+						data: page.data
+							.map((t) =>
+								t.id === updatedTask.id ? { ...t, ...updatedTask } : t,
+							)
+							.sort((a, b) => a.order - b.order),
+					})),
+				};
+			},
+		);
 	};
 
 	return {
