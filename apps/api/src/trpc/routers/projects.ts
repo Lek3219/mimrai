@@ -10,6 +10,7 @@ import {
 	getProjectById,
 	getProjectProgress,
 	getProjects,
+	getProjectsForTimeline,
 	updateProject,
 } from "@mimir/db/queries/projects";
 import z from "zod";
@@ -23,6 +24,12 @@ export const projectsRouter = router({
 				teamId: ctx.user.teamId,
 			});
 		}),
+
+	getForTimeline: protectedProcedure.query(async ({ ctx }) => {
+		return getProjectsForTimeline({
+			teamId: ctx.user.teamId,
+		});
+	}),
 
 	create: protectedProcedure
 		.input(createProjectSchema)

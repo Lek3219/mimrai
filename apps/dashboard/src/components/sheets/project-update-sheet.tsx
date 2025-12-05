@@ -38,15 +38,17 @@ export const ProjectUpdateSheet = () => {
 				<DialogTitle />
 			</DialogHeader>
 			<DialogContent
-				showCloseButton={true}
+				showCloseButton={false}
 				className="max-h-[85vh] overflow-y-auto pt-0 sm:min-w-[60vw]"
 			>
 				{project ? (
-					<ProjectForm
-						defaultValues={{
-							...project,
-						}}
-					/>
+					<div className="pt-4">
+						<ProjectForm
+							defaultValues={{
+								...project,
+							}}
+						/>
+					</div>
 				) : (
 					<Skeleton className="h-[200px] w-full" />
 				)}

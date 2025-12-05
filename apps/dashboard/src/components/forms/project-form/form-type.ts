@@ -5,6 +5,8 @@ export const projectFormSchema = z.object({
 	name: z.string().min(1, "Project name is required"),
 	description: z.string().optional().nullable(),
 	color: z.string().optional().nullable(),
+	startDate: z.string().optional().nullable(),
+	endDate: z.string().optional().nullable(),
 	updatedAt: z.string().optional().nullable(),
 });
 

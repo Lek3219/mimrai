@@ -12,6 +12,7 @@ import { ActionsMenu } from "./actions-menu";
 import { ProjectColorPicker } from "./color-picker";
 import { Description } from "./description";
 import { type ProjectFormValues, projectFormSchema } from "./form-type";
+import { RangeInput } from "./range-input";
 import { Name } from "./title";
 
 export const ProjectForm = ({
@@ -37,8 +38,19 @@ export const ProjectForm = ({
 			onMutate: () => {
 				toast.loading("Updating project...", { id: "update-project" });
 			},
-			onSuccess: () => {
+			onSuccess: (updated) => {
+				if (!updated) return;
+
 				queryClient.invalidateQueries(trpc.projects.get.infiniteQueryOptions());
+				queryClient.invalidateQueries(
+					trpc.projects.getForTimeline.queryOptions(),
+				);
+				queryClient.invalidateQueries(
+					trpc.projects.getById.queryOptions({
+						id: updated.id,
+					}),
+				);
+				setLastSavedAt(new Date());
 				toast.success("Project updated successfully", { id: "update-project" });
 			},
 			onError: (error) => {
@@ -118,6 +130,9 @@ export const ProjectForm = ({
 							</div>
 							<Name />
 							<Description />
+							<div className="flex flex-wrap items-center">
+								<RangeInput />
+							</div>
 						</div>
 					</div>
 				</form>

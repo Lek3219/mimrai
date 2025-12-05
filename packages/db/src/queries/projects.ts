@@ -56,6 +56,8 @@ export const getProjects = async ({
 			description: projects.description,
 			color: projects.color,
 			archived: projects.archived,
+			startDate: projects.startDate,
+			endDate: projects.endDate,
 			progress: {
 				completed: progressSubquery.completed,
 				inProgress: progressSubquery.inProgress,
@@ -146,6 +148,8 @@ export const getProjectById = async ({
 			description: projects.description,
 			color: projects.color,
 			archived: projects.archived,
+			startDate: projects.startDate,
+			endDate: projects.endDate,
 			createdAt: projects.createdAt,
 			updatedAt: projects.updatedAt,
 		})
@@ -262,4 +266,39 @@ export const getProjectProgress = async ({
 			},
 		})),
 	};
+};
+
+export const getProjectsForTimeline = async ({
+	teamId,
+}: {
+	teamId: string;
+}) => {
+	const projectsData = await db
+		.select({
+			id: projects.id,
+			name: projects.name,
+			color: projects.color,
+			startDate: projects.startDate,
+			endDate: projects.endDate,
+		})
+		.from(projects)
+		.where(eq(projects.teamId, teamId))
+		.orderBy(asc(projects.startDate));
+
+	const milestonesData = await db
+		.select({
+			id: milestones.id,
+			name: milestones.name,
+			dueDate: milestones.dueDate,
+			color: milestones.color,
+			projectId: milestones.projectId,
+		})
+		.from(milestones)
+		.where(eq(milestones.teamId, teamId))
+		.orderBy(asc(milestones.dueDate));
+
+	return projectsData.map((project) => ({
+		...project,
+		milestones: milestonesData.filter((m) => m.projectId === project.id),
+	}));
 };

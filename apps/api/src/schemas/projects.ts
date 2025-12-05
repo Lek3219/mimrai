@@ -10,6 +10,8 @@ export const createProjectSchema = z.object({
 	description: z.string().max(1000).optional().nullable(),
 	color: z.string().optional().nullable(),
 	archived: z.boolean().optional().nullable(),
+	startDate: z.string().optional().nullable(),
+	endDate: z.string().optional().nullable(),
 });
 
 export const updateProjectSchema = z.object({
@@ -18,4 +20,6 @@ export const updateProjectSchema = z.object({
 	description: z.string().max(1000).optional().nullable(),
 	color: z.string().optional().nullable(),
 	archived: z.boolean().optional().nullable(),
+	startDate: z.string().optional().nullable(),
+	endDate: z.string().optional().nullable(),
 });

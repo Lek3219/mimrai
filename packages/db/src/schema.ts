@@ -891,6 +891,14 @@ export const projects = pgTable(
 		archived: boolean("archived").default(false).notNull(),
 		teamId: text("team_id").notNull(),
 		userId: text("user_id").notNull(),
+		startDate: timestamp("start_date", {
+			withTimezone: true,
+			mode: "string",
+		}),
+		endDate: timestamp("end_date", {
+			withTimezone: true,
+			mode: "string",
+		}),
 		createdAt: timestamp("created_at", {
 			withTimezone: true,
 			mode: "string",

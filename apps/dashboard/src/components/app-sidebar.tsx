@@ -68,6 +68,12 @@ const data: {
 			title: "Projects",
 			url: "/dashboard/projects",
 			icon: BoxIcon,
+			items: [
+				{
+					title: "Timeline",
+					url: "/dashboard/projects/timeline",
+				},
+			],
 		},
 		{
 			title: "Settings",
