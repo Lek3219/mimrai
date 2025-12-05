@@ -1,4 +1,4 @@
-import { and, asc, eq, ilike, type SQL, sql } from "drizzle-orm";
+import { and, asc, desc, eq, ilike, type SQL, sql } from "drizzle-orm";
 import { db } from "..";
 import { columns, milestones, projects, tasks, users } from "../schema";
 
@@ -277,9 +277,13 @@ export const getProjectsForTimeline = async ({
 		.select({
 			id: projects.id,
 			name: projects.name,
+			archived: projects.archived,
+			description: projects.description,
 			color: projects.color,
 			startDate: projects.startDate,
 			endDate: projects.endDate,
+			createdAt: projects.createdAt,
+			updatedAt: projects.updatedAt,
 		})
 		.from(projects)
 		.where(eq(projects.teamId, teamId))

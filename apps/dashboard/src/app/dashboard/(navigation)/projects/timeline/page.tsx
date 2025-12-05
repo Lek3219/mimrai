@@ -11,7 +11,6 @@ import {
 	EmptyStateIcon,
 	EmptyStateTitle,
 } from "@/components/empty-state";
-import { ProjectIcon } from "@/components/project-icon";
 import { ProjectsTimeline } from "@/components/projects-timeline/projects-timeline";
 import { useProjectParams } from "@/hooks/use-project-params";
 import { trpc } from "@/utils/trpc";
@@ -59,15 +58,21 @@ export default function Page() {
 	};
 
 	const handleProjectClick = (projectId: string) => {
+		const project = projects?.find((p) => p.id === projectId);
+		if (!project) return;
+
+		queryClient.setQueryData(
+			trpc.projects.getById.queryKey({ id: projectId }),
+			project,
+		);
 		setParams({ projectId });
 	};
 
 	if (isLoading) {
 		return (
-			<div className="space-y-4 p-4">
-				<Skeleton className="h-12 w-full" />
+			<div className="space-y-4 px-4 pt-16">
 				{[...Array(5)].map((_, i) => (
-					<Skeleton key={i} className="h-14 w-full" />
+					<Skeleton key={i} className="h-8 w-full rounded-sm" />
 				))}
 			</div>
 		);
@@ -105,27 +110,11 @@ export default function Page() {
 	}
 
 	return (
-		<div className="grid h-full grid-cols-[300px_1fr]">
-			<div className="space-y-2 border-r p-2 pt-13">
-				{projects?.map((project) => (
-					<button
-						key={project.id}
-						type="button"
-						className="w-full rounded-sm px-4 py-2 text-sm hover:bg-card/40"
-						onClick={() => setParams({ projectId: project.id })}
-					>
-						<div className="flex h-8 items-center gap-2">
-							<ProjectIcon {...project} className="size-4" />
-							{project.name}
-						</div>
-					</button>
-				))}
-			</div>
-			<ProjectsTimeline
-				projects={projectsWithDates}
-				onProjectDateChange={handleProjectDateChange}
-				onProjectClick={handleProjectClick}
-			/>
-		</div>
+		<ProjectsTimeline
+			projects={projectsWithDates}
+			allProjects={projects || []}
+			onProjectDateChange={handleProjectDateChange}
+			onProjectClick={handleProjectClick}
+		/>
 	);
 }

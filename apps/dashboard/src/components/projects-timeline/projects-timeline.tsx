@@ -1,6 +1,9 @@
 "use client";
 
+import { Button } from "@ui/components/ui/button";
+import { FocusIcon } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { ProjectIcon } from "@/components/project-icon";
 import { TimelineHeader } from "./timeline-header";
 import { TimelineProjectRow } from "./timeline-project-row";
 import {
@@ -18,6 +21,7 @@ import {
 
 interface ProjectsTimelineProps {
 	projects: TimelineProject[];
+	allProjects?: TimelineProject[];
 	onProjectDateChange?: (
 		projectId: string,
 		startDate: Date | null,
@@ -28,9 +32,12 @@ interface ProjectsTimelineProps {
 
 export function ProjectsTimeline({
 	projects,
+	allProjects,
 	onProjectDateChange,
 	onProjectClick,
 }: ProjectsTimelineProps) {
+	// Use allProjects for sidebar if provided, otherwise fall back to projects
+	const sidebarProjects = allProjects ?? projects;
 	const range = useMemo(() => calculateTimelineRange(projects), [projects]);
 	const totalWidth = getTimelineWidth(range);
 	const containerRef = useRef<HTMLDivElement>(null);
@@ -65,7 +72,8 @@ export function ProjectsTimeline({
 		(scroll: number) => {
 			// Allow scrolling from -extendedScrollPx to totalWidth + extendedScrollPx
 			const minScroll = -extendedScrollPx;
-			const maxScroll = Math.max(0, totalWidth - containerWidth) + extendedScrollPx;
+			const maxScroll =
+				Math.max(0, totalWidth - containerWidth) + extendedScrollPx;
 			return Math.max(minScroll, Math.min(scroll, maxScroll));
 		},
 		[totalWidth, containerWidth, extendedScrollPx],
@@ -150,41 +158,111 @@ export function ProjectsTimeline({
 		}
 	}, [isDragging]);
 
+	// Focus on a specific project by scrolling to its position
+	const focusProject = useCallback(
+		(project: TimelineProject) => {
+			const targetDate = project.startDate
+				? new Date(project.startDate)
+				: project.endDate
+					? new Date(project.endDate)
+					: project.milestones.find((m) => m.dueDate)
+						? new Date(project.milestones.find((m) => m.dueDate)!.dueDate!)
+						: null;
+
+			if (targetDate) {
+				const targetPosition = getPositionPixels(targetDate, range);
+				const centeredPosition = clampScroll(
+					targetPosition - containerWidth / 2,
+				);
+				setVirtualScrollLeft(centeredPosition);
+			}
+		},
+		[range, containerWidth, clampScroll],
+	);
+
 	if (projects.length === 0) {
 		return null;
 	}
 
 	return (
-		<div
-			ref={containerRef}
-			className="h-full w-full cursor-grab select-none overflow-hidden"
-			onMouseDown={handleMouseDown}
-			onMouseUp={handleMouseUp}
-			onMouseMove={handleMouseMove}
-			onMouseLeave={handleMouseLeave}
-			onWheel={handleWheel}
-		>
-			<div className="px-4" style={{ width: visibleContainerWidth + 32 }}>
-				{/* Header with date markers */}
-				<div className="flex">
-					{/* Timeline header */}
-					<div className="relative flex-1">
-						<TimelineHeader range={range} visibleRange={visibleRange} />
+		<div className="relative h-full w-full">
+			{/* Project sidebar */}
+			<div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-64">
+				{/* Gradient fade */}
+				<div className="absolute inset-0 bg-gradient-to-r from-background via-background/95 to-transparent" />
+				{/* Project list */}
+				<div className="pointer-events-auto relative h-full overflow-y-auto p-2 pt-13">
+					<div className="space-y-2">
+						{sidebarProjects.map((project) => {
+							const hasTimelineData =
+								project.startDate ||
+								project.endDate ||
+								project.milestones.some((m) => m.dueDate);
+							return (
+								<div
+									key={project.id}
+									className="group flex items-center gap-1 rounded-sm py-2 pr-1 hover:bg-card/60"
+								>
+									<button
+										type="button"
+										className="flex h-8 flex-1 items-center gap-2 truncate px-3 py-2 text-left text-sm"
+										onClick={() => onProjectClick?.(project.id)}
+									>
+										<ProjectIcon
+											color={project.color}
+											className="size-4 shrink-0"
+										/>
+										<span className="truncate">{project.name}</span>
+									</button>
+									{hasTimelineData && (
+										<Button
+											variant="ghost"
+											size="icon"
+											className="size-7 shrink-0 opacity-0 transition-opacity group-hover:opacity-100"
+											onClick={() => focusProject(project)}
+										>
+											<FocusIcon className="size-3.5" />
+										</Button>
+									)}
+								</div>
+							);
+						})}
 					</div>
 				</div>
+			</div>
 
-				{/* Project rows */}
-				<div className="">
-					{projects.map((project) => (
-						<TimelineProjectRow
-							key={project.id}
-							project={project}
-							range={range}
-							visibleRange={visibleRange}
-							onDateChange={onProjectDateChange}
-							onProjectClick={onProjectClick}
-						/>
-					))}
+			{/* Timeline content */}
+			<div
+				ref={containerRef}
+				className="h-full w-full cursor-grab select-none overflow-hidden"
+				onMouseDown={handleMouseDown}
+				onMouseUp={handleMouseUp}
+				onMouseMove={handleMouseMove}
+				onMouseLeave={handleMouseLeave}
+				onWheel={handleWheel}
+			>
+				<div className="px-4" style={{ width: visibleContainerWidth + 32 }}>
+					{/* Header with date markers */}
+					<div className="flex">
+						{/* Timeline header */}
+						<div className="relative flex-1">
+							<TimelineHeader range={range} visibleRange={visibleRange} />
+						</div>
+					</div>
+
+					{/* Project rows */}
+					<div className="">
+						{projects.map((project) => (
+							<TimelineProjectRow
+								key={project.id}
+								project={project}
+								range={range}
+								visibleRange={visibleRange}
+								onDateChange={onProjectDateChange}
+								onProjectClick={onProjectClick}
+							/>
+						))}
+					</div>
 				</div>
 			</div>
 		</div>
