@@ -233,6 +233,8 @@ export const tasks = pgTable(
 		projectId: text("project_id"),
 		milestoneId: text("milestone_id"),
 
+		focusOrder: smallint("focus_order"),
+
 		recurring: jsonb("recurring").$type<{
 			frequency: "daily" | "weekly" | "monthly" | "yearly";
 			interval: number;

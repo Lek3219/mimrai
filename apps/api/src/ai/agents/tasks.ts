@@ -4,6 +4,7 @@ import {
 	createAgent,
 	formatContextForLLM,
 } from "@api/ai/agents/config/shared";
+import { gateway } from "ai";
 import { createChecklistItemTool } from "../tools/create-checklist-item";
 import { createLabelTool } from "../tools/create-label";
 import { createTaskTool } from "../tools/create-task";
@@ -17,14 +18,13 @@ import { updateTaskTool } from "../tools/update-task";
 
 export const tasksAgent = createAgent({
 	name: "tasks",
-	model: openai("gpt-4o"),
-	temperature: 0.3,
+	model: gateway("openai/gpt-5-mini"),
 	instructions: (
 		ctx,
 	) => `You are a task management specialist for ${ctx.companyName}. Your goal is to help manage tasks, track progress, and monitor deadlines. 
 
 - Task can have a checklist: a set of items that need to be completed as part of the task.
-- Tasks can be organized into columns representing different stages of progress (e.g., To Do, In Progress, Done).
+- Tasks are organized into columns representing different stages of progress. Do not create new columns as they are pre-defined.
 - Tasks can be assigned to team members to indicate responsibility.
 - Tasks can have labels to categorize and prioritize them.
 

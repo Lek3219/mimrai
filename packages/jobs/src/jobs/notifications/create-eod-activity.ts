@@ -25,8 +25,8 @@ import {
 import z from "zod";
 
 export const createEODActivityJob = schemaTask({
-	id: "send-eod-notification",
-	description: "Send end of day notification",
+	id: "create-eod-activity",
+	description: "Create end-of-day activity for a user",
 	schema: z.object({
 		userId: z.string(),
 		userName: z.string(),
@@ -59,10 +59,16 @@ export const createEODActivityJob = schemaTask({
 			.limit(1);
 
 		if (!settings || !settings.enabled) {
-			logger.info(
-				`Autopilot settings disabled for team ID ${payload.teamId}. Exiting.`,
-			);
-			return;
+			if (process.env.NODE_ENV === "development") {
+				logger.info(
+					`Autopilot settings not found or disabled for team ID ${teamId}. Continuing in development mode.`,
+				);
+			} else {
+				logger.info(
+					`Autopilot settings disabled for team ID ${teamId}. Exiting.`,
+				);
+				return;
+			}
 		}
 
 		const taskWhereClause = [
@@ -93,10 +99,8 @@ export const createEODActivityJob = schemaTask({
 			.innerJoin(columns, eq(columns.id, tasks.columnId))
 			.where(and(...taskWhereClause, inArray(columns.type, ["in_progress"])));
 
-		const [completedTasksCount] = await db
-			.select({
-				count: count(activities.id).as("count"),
-			})
+		const completedTasks = await db
+			.select()
 			.from(activities)
 			.innerJoin(tasks, eq(tasks.id, activities.groupId))
 			.where(
@@ -108,28 +112,58 @@ export const createEODActivityJob = schemaTask({
 				),
 			);
 
+		const prompt = `Provide a brief end-of-day summary for the user based on their task activity.
+The user had ${todoTasksCount.count} tasks in To Do, ${inProgressTasksCount.count} tasks In Progress, and completed ${completedTasks.length} tasks today.
+Keep it under 30 words.
+
+<strict-rules>
+	- Avoid generic statements.
+	- Focus on the user's actual task data.
+	- No motivational language.
+	- Be human and empathetic.
+</strict-rules>
+
+<completed-tasks>
+${completedTasks
+	.map(
+		(task) =>
+			`- ${task.tasks.title}, Priority: ${task.tasks.priority}, Due: ${
+				task.tasks.dueDate
+					? new TZDate(
+							new Date(task.tasks.dueDate),
+							team.timezone || "UTC",
+						).toLocaleDateString(team.locale || "en-US")
+					: "None"
+			})`,
+	)
+	.join("\n")}
+</completed-tasks>
+
+<team-context>
+	- Team Name: ${team.name}
+	- Team description: ${team.description || "None"}
+	- Locale: ${team.locale || "en-US"}
+</team-context>`;
+
+		console.log(prompt);
+
 		const recommendation = await generateText({
 			model: "gpt-4o-mini",
-			prompt: `Provide a brief end-of-day summary for the user based on their task activity.
-			The user had ${todoTasksCount.count} tasks in To Do, ${inProgressTasksCount.count} tasks In Progress, and completed ${completedTasksCount.count} tasks today.
-			Keep it under 30 words.
-
-      <team-context>
-        - Team Name: ${team.name}
-        - Team description: ${team.description || "No description"}
-        - Locale: ${team.locale || "en-US"}
-      </team-context>
-      `,
+			prompt,
 		});
+
+		console.log(recommendation.usage);
+
+		console.log(recommendation.text);
 
 		await createActivity({
 			teamId,
 			userId,
 			type: "daily_end_of_day",
 			metadata: {
-				content: `Wrapping up the day, ${payload.userName}!
+				content: `Wrapping up the day, ${payload.userName}
 
-✅ You completed ${completedTasksCount.count} tasks today.
+✅ You completed ${completedTasks.length} tasks today.
 📝 You still have ${todoTasksCount.count} tasks in To Do.
 🚧 You left ${inProgressTasksCount.count} tasks In Progress.
 

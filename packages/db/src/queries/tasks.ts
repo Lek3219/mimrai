@@ -283,6 +283,7 @@ export const getTasks = async ({
 
 	if (input.view === "board") {
 		query.orderBy(
+			asc(tasks.focusOrder),
 			asc(
 				sql`CASE ${tasks.priority} WHEN 'urgent' THEN 1 WHEN 'high' THEN 2 WHEN 'medium' THEN 3 WHEN 'low' THEN 4 END`,
 			),
@@ -291,6 +292,7 @@ export const getTasks = async ({
 		);
 	} else if (input.view === "list") {
 		query.orderBy(
+			asc(tasks.focusOrder),
 			asc(
 				sql`CASE ${tasks.priority} WHEN 'urgent' THEN 1 WHEN 'high' THEN 2 WHEN 'medium' THEN 3 WHEN 'low' THEN 4 END`,
 			),
