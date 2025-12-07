@@ -26,6 +26,7 @@ export const tasksAgent = createAgent({
 - Tasks are organized into columns representing different stages of progress. Do not create new columns as they are pre-defined.
 - Tasks can be assigned to team members to indicate responsibility.
 - Tasks can have labels to categorize and prioritize them.
+- Epics do not exist in this system; focus on tasks, projects and milestones only.
 
 <agent-specific-rules>
 - Lead with key information

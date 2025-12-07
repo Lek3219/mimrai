@@ -10,6 +10,7 @@ import { getMilestonesTool } from "../tools/get-milestones";
 import { getProjectsTool } from "../tools/get-projects";
 import { updateMilestoneTool } from "../tools/update-milestone";
 import { updateProjectTool } from "../tools/update-project";
+import { tasksAgent } from "./tasks";
 
 export const projectsAgent = createAgent({
 	name: "projects",
@@ -20,6 +21,9 @@ export const projectsAgent = createAgent({
 
 - Projects can have tasks organized into columns representing different stages of progress (e.g., To Do, In Progress, Done).
 - Projects can have milestones to track key deliverables and deadlines.
+- Epics do not exist in this system; focus on projects, milestones and tasks only.
+- Help users break down large initiatives into manageable projects and milestones.
+- Use the team context to provide relevant recommendations. Eg: if the team is a software development team, analyze projects from that perspective.
 
 <agent-specific-rules>
 - Lead with key information
@@ -41,6 +45,6 @@ ${COMMON_AGENT_RULES}`,
 		createMilestone: createMilestoneTool,
 		updateMilestone: updateMilestoneTool,
 	},
-	handoffs: [],
+	handoffs: [tasksAgent],
 	maxTurns: 5,
 });

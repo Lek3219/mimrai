@@ -237,6 +237,8 @@ export const getTasks = async ({
 			branchName: tasks.branchName,
 			order: tasks.order,
 			priority: tasks.priority,
+			focusOrder: tasks.focusOrder,
+			focusReason: tasks.focusReason,
 			dueDate: tasks.dueDate,
 			createdAt: tasks.createdAt,
 			updatedAt: tasks.updatedAt,
@@ -633,6 +635,8 @@ export const getTaskById = async (id: string, userId?: string) => {
 			teamId: tasks.teamId,
 			attachments: tasks.attachments,
 			permalinkId: tasks.permalinkId,
+			focusOrder: tasks.focusOrder,
+			focusReason: tasks.focusReason,
 			pullRequestPlan: {
 				id: pullRequestPlan.id,
 				prUrl: pullRequestPlan.prUrl,

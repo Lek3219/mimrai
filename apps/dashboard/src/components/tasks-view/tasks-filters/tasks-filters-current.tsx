@@ -116,7 +116,7 @@ const TasksFiltersCurrentItem = ({
 										displayValue.map((item) => (
 											<div key={item.value} className="flex items-center gap-1">
 												{item.icon}
-												<span>{item.label}</span>
+												<span className="max-w-32 truncate">{item.label}</span>
 											</div>
 										))
 									)

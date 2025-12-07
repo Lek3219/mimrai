@@ -10,6 +10,7 @@ import {
 	tasks,
 	teams,
 } from "@mimir/db/schema";
+import { getAppUrl } from "@mimir/utils/envs";
 import { getTaskPermalink } from "@mimir/utils/tasks";
 import { logger, schemaTask } from "@trigger.dev/sdk";
 import { generateObject } from "ai";
@@ -261,6 +262,8 @@ ${recommendation.topPriorities
 
 ✨ Suggested focus for today
 ${recommendation.focusMessage}
+
+Enter Focus Mode to tackle your top priority tasks: ${getAppUrl()}/dashboard/focus
 `;
 
 		logger.info(content);
@@ -269,7 +272,7 @@ ${recommendation.focusMessage}
 			recommendation.topPriorities.map(async (tp, index) =>
 				db
 					.update(tasks)
-					.set({ focusOrder: index + 1 })
+					.set({ focusOrder: index + 1, focusReason: tp.whyImportant })
 					.where(eq(tasks.id, tp.taskId)),
 			),
 		);

@@ -1,14 +1,9 @@
 import type { RouterOutputs } from "@mimir/api/trpc";
 import { motion } from "motion/react";
-import {
-	propertiesComponents,
-	TaskProperty,
-} from "@/components/tasks-view/task-properties";
-import { useTasksViewContext } from "@/components/tasks-view/tasks-view";
+import { TaskProperty } from "@/components/tasks-view/task-properties";
 import { useTaskParams } from "@/hooks/use-task-params";
 import { cn } from "@/lib/utils";
 import { queryClient, trpc } from "@/utils/trpc";
-import { KanbanAssignee } from "./assignee";
 
 export type KanbanTask = RouterOutputs["tasks"]["get"]["data"][number];
 
@@ -23,7 +18,6 @@ export const KanbanTask = ({
 	ref?: React.Ref<HTMLDivElement>;
 }) => {
 	const { setParams } = useTaskParams();
-	const { properties } = useTasksViewContext();
 
 	return (
 		<motion.div

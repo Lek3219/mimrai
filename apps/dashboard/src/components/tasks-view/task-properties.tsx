@@ -16,7 +16,7 @@ export const propertiesComponents = {
 	priority: (task: Task) => task.priority && <Priority value={task.priority} />,
 	column: (task: Task) =>
 		task.column && (
-			<time className="flex h-5.5 items-center rounded-sm border bg-secondary px-2 text-xs tabular-nums">
+			<time className="flex h-5.5 items-center rounded-sm bg-secondary px-2 text-xs tabular-nums">
 				<ColumnIcon {...task.column} className="size-3.5" />
 				<span className="ml-1">{task.column.name}</span>
 			</time>
@@ -26,7 +26,7 @@ export const propertiesComponents = {
 			{task.labels?.map((label) => (
 				<LabelBadge
 					key={label.id}
-					variant="outline"
+					variant="secondary"
 					{...label}
 					className="bg-secondary"
 				/>
@@ -35,7 +35,7 @@ export const propertiesComponents = {
 	),
 	dueDate: (task: Task) =>
 		task.dueDate && (
-			<time className="flex h-5.5 items-center rounded-sm border bg-secondary px-2 text-xs tabular-nums">
+			<time className="flex h-5.5 items-center rounded-sm bg-secondary px-2 text-xs tabular-nums">
 				{format(new Date(task.dueDate), "PP")}
 			</time>
 		),
@@ -57,14 +57,14 @@ export const propertiesComponents = {
 		),
 	project: (task: Task) =>
 		task.project && (
-			<span className="flex h-5.5 items-center gap-2 rounded-sm border bg-secondary px-2 text-xs">
+			<span className="flex h-5.5 items-center gap-2 rounded-sm bg-secondary px-2 text-xs">
 				<ProjectIcon className="size-3.5" {...task.project} />
 				{task.project.name}
 			</span>
 		),
 	milestone: (task: Task) =>
 		task.milestone && (
-			<span className="flex h-5.5 items-center gap-2 rounded-sm border bg-secondary px-2 text-xs">
+			<span className="flex h-5.5 items-center gap-2 rounded-sm bg-secondary px-2 text-xs">
 				<MilestoneIcon className="size-3.5" {...task.milestone} />
 				{task.milestone.name}
 			</span>

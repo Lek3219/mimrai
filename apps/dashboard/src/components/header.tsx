@@ -1,6 +1,7 @@
 "use client";
 
 import { SidebarTrigger } from "@ui/components/ui/sidebar";
+import { NavZenMode } from "./nav-focus-mode";
 import { NavNotifications } from "./nav-notifications";
 import { NavSuggestions } from "./nav-suggestions";
 import { NavUser } from "./nav-user";
@@ -13,6 +14,7 @@ export default function Header() {
 					<SidebarTrigger />
 
 					<div className="flex items-center gap-4">
+						<NavZenMode />
 						<NavSuggestions />
 						<NavNotifications />
 						<div className="ml-2">

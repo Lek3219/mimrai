@@ -23,7 +23,7 @@ const PriorityTooltip = ({
 	);
 };
 
-const PriorityIcon = {
+export const PriorityIcon = {
 	low: <SignalLowIcon className="size-4 text-muted-foreground" />,
 	medium: <SignalMediumIcon className="size-4" />,
 	high: <SignalHighIcon className="size-4 text-yellow-600" />,

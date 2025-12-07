@@ -8,6 +8,11 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@ui/components/ui/dropdown-menu";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "@ui/components/ui/tooltip";
 import { format } from "date-fns";
 import {
 	Ellipsis,
@@ -97,7 +102,14 @@ export const MilestonesCard = ({ projectId }: { projectId: string }) => {
 													color={milestone.color}
 													className="size-4"
 												/>
-												<span className="px-3">{milestone.name}</span>
+												<Tooltip>
+													<TooltipTrigger asChild>
+														<span className="max-w-52 truncate px-3">
+															{milestone.name}
+														</span>
+													</TooltipTrigger>
+													<TooltipContent>{milestone.name}</TooltipContent>
+												</Tooltip>
 												<span className="text-muted-foreground text-xs">
 													{percentage}% of {total}
 												</span>

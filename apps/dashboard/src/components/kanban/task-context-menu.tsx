@@ -16,6 +16,7 @@ import {
 	BoxIcon,
 	CircleDashedIcon,
 	CopyPlusIcon,
+	Maximize2Icon,
 	SignalHighIcon,
 	SparklesIcon,
 	TagsIcon,
@@ -23,8 +24,10 @@ import {
 	TrashIcon,
 	UserIcon,
 } from "lucide-react";
+import Link from "next/link";
 import { toast } from "sonner";
 import { useTaskParams } from "@/hooks/use-task-params";
+import { useUser } from "@/hooks/use-user";
 import { queryClient, trpc } from "@/utils/trpc";
 import { useChatContext } from "../chat/chat-context/store";
 import { useChatWidget } from "../chat/chat-widget";
@@ -49,6 +52,8 @@ export const TaskContextMenu = ({
 	const { setParams } = useTaskParams();
 	const { setItems } = useChatContext();
 	const { toggle } = useChatWidget();
+
+	const user = useUser();
 
 	const { mutateAsync: deleteTask } = useMutation(
 		trpc.tasks.delete.mutationOptions({
@@ -239,6 +244,15 @@ export const TaskContextMenu = ({
 					<SparklesIcon className="text-muted-foreground" />
 					Ask MIMIR
 				</ContextMenuItem>
+
+				{task.assigneeId && task.assigneeId === user?.id && (
+					<Link href={`/dashboard/zen/${task.id}`}>
+						<ContextMenuItem>
+							<Maximize2Icon />
+							Enter Zen Mode
+						</ContextMenuItem>
+					</Link>
+				)}
 
 				<ContextMenuSeparator />
 				<ContextMenuSub>
