@@ -2,7 +2,7 @@
 import { Button } from "@mimir/ui/button";
 import { Form } from "@mimir/ui/form";
 import { getTaskPermalink } from "@mimir/utils/tasks";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { Editor as EditorInstance } from "@tiptap/react";
 import { format } from "date-fns";
 import { Link2Icon, Loader2, SparklesIcon } from "lucide-react";
@@ -17,21 +17,13 @@ import { useZodForm } from "@/hooks/use-zod-form";
 import { trpc } from "@/utils/trpc";
 import { ActionsMenu } from "./actions-menu";
 import { TaskActivitiesList } from "./activities-list";
-import { Assignee } from "./assignee";
 import { Attachments } from "./attachments";
 import { TaskChecklist } from "./checklist";
-import { ColumnSelect } from "./column-select";
 import { CommentInput } from "./comment-input";
 import { Description } from "./description";
-import { DueDate } from "./due-date";
 import { TaskDuplicated } from "./duplicated";
 import { taskFormSchema } from "./form-type";
-import { Labels } from "./labels";
-import { MilestoneSelect } from "./milestone-select";
-import { Priority } from "./priority";
-import { ProjectSelect } from "./project-select";
-import { Recurring } from "./recurring";
-import { RepositorySelect } from "./repository-select";
+import { TaskFormProperties } from "./properties";
 import { SmartInput } from "./smart-input";
 import { SubscribersList } from "./subscribers-list";
 import { Title } from "./title";
@@ -68,18 +60,6 @@ export const TaskForm = ({
 	});
 
 	const [id, permalinkId] = form.watch(["id", "permalinkId"]);
-
-	const { data: isGithubConnected } = useQuery(
-		trpc.integrations.getByType.queryOptions(
-			{
-				type: "github",
-			},
-			{
-				select: (data) => data.isInstalled,
-				placeholderData: (data) => data,
-			},
-		),
-	);
 
 	const { mutate: createTask, isPending: isPendingCreate } = useMutation(
 		trpc.tasks.create.mutationOptions({
@@ -178,36 +158,12 @@ export const TaskForm = ({
 
 	return (
 		<div className="">
-			{showSmartInput ? (
-				<SmartInput
-					onFinish={({ title, ...data }) => {
-						form.reset(
-							{
-								...defaultValues,
-								...data,
-								showSmartInput: false,
-							},
-							{
-								keepDirty: true,
-								keepDirtyValues: true,
-								keepDefaultValues: true,
-							},
-						);
-
-						// If title was generated, set it in the form and trigger validation
-						if (title) {
-							form.setValue("title", title, {
-								shouldDirty: true,
-								shouldValidate: true,
-							});
-							form.trigger();
-						}
-					}}
-				/>
-			) : (
-				<>
-					<Form {...form}>
-						<form onSubmit={form.handleSubmit(onSubmit)}>
+			<Form {...form}>
+				<form onSubmit={form.handleSubmit(onSubmit)}>
+					{showSmartInput ? (
+						<SmartInput />
+					) : (
+						<>
 							<div className="pt-4">
 								<div className="space-y-1 py-2">
 									<input className="hidden size-0 opacity-0" />
@@ -225,20 +181,7 @@ export const TaskForm = ({
 									<div className="space-y-4">
 										<Description editorRef={editorRef} />
 
-										<div>
-											<Labels />
-
-											<div className="flex flex-wrap items-center gap-2">
-												<Assignee />
-												<DueDate />
-												<Priority />
-												<ColumnSelect />
-												<ProjectSelect />
-												<MilestoneSelect />
-												<Recurring />
-												{isGithubConnected && <RepositorySelect />}
-											</div>
-										</div>
+										<TaskFormProperties />
 
 										<hr className="my-6" />
 										<div className="flex flex-col justify-between sm:flex-row">
@@ -313,34 +256,34 @@ export const TaskForm = ({
 									</div>
 								</div>
 							</div>
-						</form>
-					</Form>
 
-					<div className="px-4">
-						{id && (
-							<div>
-								<hr className="my-6" />
-								<TaskChecklist taskId={id!} />
-							</div>
-						)}
-						{id && (
-							<div>
-								<hr className="my-6" />
-								<div>
-									<div className="mb-4 flex items-center justify-between">
-										<span className="font-medium text-sm">Activity</span>
-										{id && <SubscribersList taskId={id!} />}
+							<div className="px-4">
+								{id && (
+									<div>
+										<hr className="my-6" />
+										<TaskChecklist taskId={id!} />
 									</div>
-									<TaskActivitiesList taskId={id} />
-								</div>
-								<div className="mt-4">
-									<CommentInput taskId={id} />
-								</div>
+								)}
+								{id && (
+									<div>
+										<hr className="my-6" />
+										<div>
+											<div className="mb-4 flex items-center justify-between">
+												<span className="font-medium text-sm">Activity</span>
+												{id && <SubscribersList taskId={id!} />}
+											</div>
+											<TaskActivitiesList taskId={id} />
+										</div>
+										<div className="mt-4">
+											<CommentInput taskId={id} />
+										</div>
+									</div>
+								)}
 							</div>
-						)}
-					</div>
-				</>
-			)}
+						</>
+					)}
+				</form>
+			</Form>
 		</div>
 	);
 };

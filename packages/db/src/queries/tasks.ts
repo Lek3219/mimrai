@@ -42,6 +42,7 @@ import {
 	deleteActivity,
 } from "./activities";
 import { upsertTaskEmbedding } from "./tasks-embeddings";
+import { getMembers } from "./teams";
 
 type TaskLabel = {
 	id: string;
@@ -978,4 +979,30 @@ export const cloneTask = async ({
 	);
 
 	return newTask;
+};
+
+export const getSmartCompleteContext = async ({
+	teamId,
+}: {
+	teamId: string;
+}) => {
+	const labelsList = await db
+		.select()
+		.from(labels)
+		.where(eq(labels.teamId, teamId))
+		.limit(10);
+
+	const membersList = await getMembers({ teamId });
+
+	const projectsList = await db
+		.select()
+		.from(projects)
+		.where(eq(projects.teamId, teamId))
+		.limit(10);
+
+	return {
+		labels: labelsList,
+		members: membersList,
+		projects: projectsList,
+	};
 };

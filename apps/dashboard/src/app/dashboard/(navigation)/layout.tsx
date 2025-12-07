@@ -48,9 +48,6 @@ export default function DashboardLayout({
 					</SidebarInset>
 				</SidebarProvider>
 			</Suspense>
-			<Suspense>
-				<GlobalSheets />
-			</Suspense>
 		</>
 	);
 }

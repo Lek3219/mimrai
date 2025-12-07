@@ -3,9 +3,10 @@ import type { RouterOutputs } from "@api/trpc/routers";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@ui/components/ui/button";
 import { motion } from "framer-motion";
-import { QuoteIcon, SkipForwardIcon, XIcon } from "lucide-react";
+import { PencilIcon, QuoteIcon, SkipForwardIcon, XIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useRef } from "react";
+import { useTaskParams } from "@/hooks/use-task-params";
 import { useUser } from "@/hooks/use-user";
 import { trpc } from "@/utils/trpc";
 import { Response } from "../chat/response";
@@ -24,6 +25,7 @@ export type ZenModeTasks = RouterOutputs["tasks"]["get"]["data"];
 export type ZenModeTask = ZenModeTasks[number];
 
 export const ZenModeView = ({ taskId }: { taskId: string }) => {
+	const { setParams } = useTaskParams();
 	const contentRef = useRef<HTMLDivElement>(null);
 	const router = useRouter();
 	const user = useUser();
@@ -100,7 +102,18 @@ export const ZenModeView = ({ taskId }: { taskId: string }) => {
 				</div>
 				<ZenModeAttachments task={currentTask} />
 				<ZenModeChecklist task={currentTask} />
-				<div className="mt-8 flex flex-col gap-4 sm:flex-row">
+				<div className="mt-8 flex flex-col items-center gap-4 sm:flex-row">
+					<Button
+						className="size-10 rounded-full"
+						variant={"ghost"}
+						onClick={() => {
+							setParams({
+								taskId: currentTask.id,
+							});
+						}}
+					>
+						<PencilIcon />
+					</Button>
 					<Button
 						variant={"outline"}
 						className="rounded-full bg-transparent text-sm hover:scale-105 sm:text-base dark:bg-transparent"

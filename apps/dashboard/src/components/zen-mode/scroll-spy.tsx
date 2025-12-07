@@ -23,7 +23,7 @@ export const ZenModeScrollSpy = ({
 	}, [content, contentRef?.current]);
 
 	return (
-		<nav className="-translate-y-1/2 fixed top-1/2 right-4 max-h-[70vh] w-16 overflow-y-auto p-4 text-sm">
+		<nav className="-translate-y-1/2 fixed top-1/2 right-4 hidden max-h-[70vh] w-16 overflow-y-auto p-4 text-sm md:block">
 			<ul>
 				{elements.map((el, index) => (
 					<li
@@ -60,10 +60,11 @@ export const ZenModeScrollSpy = ({
 						>
 							<motion.div
 								variants={{
-									initial: { scaleY: 1 },
-									hover: { scaleY: 2 },
+									initial: { height: 2 },
+									hover: { height: 3 },
 								}}
-								className="h-0.5 w-full bg-primary"
+								transition={{ duration: 0.2 }}
+								className="w-full rounded-full bg-primary"
 							/>
 						</motion.button>
 					</li>

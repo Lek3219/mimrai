@@ -50,7 +50,7 @@ export async function getUserContext({
 		dateFormat: user.dateFormat,
 		country,
 		city,
-		timezone,
+		timezone: timezone || team.timezone || "UTC",
 	};
 
 	// Cache for future requests (non-blocking)
