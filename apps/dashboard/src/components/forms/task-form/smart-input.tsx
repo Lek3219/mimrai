@@ -2,11 +2,6 @@ import { Button } from "@mimir/ui/button";
 import { Textarea } from "@mimir/ui/textarea";
 import { useMutation } from "@tanstack/react-query";
 import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
-} from "@ui/components/ui/popover";
-import {
 	Tooltip,
 	TooltipContent,
 	TooltipTrigger,
@@ -33,12 +28,6 @@ export const SmartInput = () => {
 	const { mutate, isPending } = useMutation(
 		trpc.tasks.smartComplete.mutationOptions({
 			onSuccess: (data) => {
-				toast.success(
-					`Task details generated successfully: ${JSON.stringify(data, null, 2)}`,
-					{
-						id: "smart-input-generating",
-					},
-				);
 				setExplanation(data.explanation);
 				form.reset(
 					{
@@ -61,10 +50,7 @@ export const SmartInput = () => {
 			nonWhitespaceCharacters.length - lastCompletedValue.current.length,
 		);
 
-		if (lastCharactersDifference >= 3) {
-			toast.info("Generating task details...", {
-				id: "smart-input-generating",
-			});
+		if (lastCharactersDifference >= 5) {
 			lastCompletedValue.current = nonWhitespaceCharacters;
 			mutate({ prompt: debouncedValue });
 		}
