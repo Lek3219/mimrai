@@ -1,3 +1,5 @@
+![hero](github.jpeg)
+
 <h1 align="center"><b>Mimrai</b></h1>
 
 Open source minimalist task management tool to track your tasks and projects with ease.
