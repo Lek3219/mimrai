@@ -245,7 +245,6 @@
       "version": "0.0.1",
       "dependencies": {
         "@mimir/cache": "workspace:*",
-        "@mimir/db": "workspace:*",
         "@mimir/tsconfig": "workspace:*",
         "@mimir/utils": "workspace:*",
         "@types/redis": "^4.0.11",

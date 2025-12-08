@@ -18,7 +18,6 @@
   },
   "dependencies": {
     "@mimir/tsconfig": "workspace:*",
-    "@mimir/db": "workspace:*",
     "@mimir/utils": "workspace:*",
     "@mimir/cache": "workspace:*",
     "@types/redis": "^4.0.11",
