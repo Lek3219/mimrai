@@ -37,6 +37,7 @@ export const TaskFormProperties = () => {
 				<MilestoneSelect />
 				<Recurring />
 				{isGithubConnected && <RepositorySelect />}
+				{/* <TaskFormPropertiesDropdown /> */}
 			</div>
 		</div>
 	);

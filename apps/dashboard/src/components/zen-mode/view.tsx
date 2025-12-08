@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@ui/components/ui/button";
 import { motion } from "framer-motion";
 import { PencilIcon, QuoteIcon, SkipForwardIcon, XIcon } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { useRef } from "react";
 import { useTaskParams } from "@/hooks/use-task-params";
 import { useUser } from "@/hooks/use-user";
@@ -35,6 +35,7 @@ export const ZenModeView = ({ taskId }: { taskId: string }) => {
 			{
 				assigneeId: [user?.id || ""],
 				columnType: ["to_do", "in_progress"],
+				view: "board",
 				pageSize: 10,
 			},
 			{ enabled: !!user?.id },
@@ -55,7 +56,7 @@ export const ZenModeView = ({ taskId }: { taskId: string }) => {
 	const handleNext = () => {
 		if (!currentTask) return;
 		const nextTaskIndex =
-			tasks.data.findIndex((task) => task.id === currentTask.id) + 1;
+			tasks.data.findIndex((task) => task.id === currentTask!.id) + 1;
 		if (nextTaskIndex < tasks.data.length) {
 			const nextTask = tasks.data[nextTaskIndex]!;
 			router.push(`/dashboard/zen/${nextTask.id}`);
@@ -65,7 +66,12 @@ export const ZenModeView = ({ taskId }: { taskId: string }) => {
 	};
 
 	if (!currentTask) {
-		return <ZenModeNotFound />;
+		if (tasks.data.length > 0) {
+			// If the current task is not found, redirect to the first task in the list
+			return redirect(`/dashboard/zen/${tasks.data[0]!.id}`);
+		}
+
+		if (!currentTask) return <ZenModeNotFound />;
 	}
 
 	return (

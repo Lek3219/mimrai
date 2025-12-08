@@ -15,6 +15,7 @@ import { milestonesRouter } from "./milestones";
 import { notificationSettingsRouter } from "./notification-settings";
 import { projectsRouter } from "./projects";
 import { shareableRouter } from "./shareable";
+import { taskDependenciesRouter } from "./task-dependencies";
 import { tasksRouter } from "./tasks";
 import { tasksSuggestionsRouter } from "./tasks-suggestions";
 import { teamsRouter } from "./teams";
@@ -33,6 +34,7 @@ export const appRouter = router({
 		};
 	}),
 	tasks: tasksRouter,
+	taskDependencies: taskDependenciesRouter,
 	columns: columnsRouter,
 	chats: chatRouter,
 	users: usersRouter,

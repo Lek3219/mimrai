@@ -292,6 +292,7 @@ export const getTasks = async ({
 			),
 			desc(tasks.dueDate),
 			tasks.order,
+			tasks.sequence,
 		);
 	} else if (input.view === "list") {
 		query.orderBy(

@@ -16,9 +16,12 @@ export default function Page() {
 			{
 				assigneeId: [user?.id || ""],
 				columnType: ["to_do", "in_progress"],
+				view: "board",
 				pageSize: 1,
 			},
-			{ enabled: !!user?.id },
+			{
+				enabled: !!user?.id,
+			},
 		),
 	);
 

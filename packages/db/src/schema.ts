@@ -292,6 +292,37 @@ export const tasks = pgTable(
 	],
 );
 
+export const taskDependencyTypeEnum = pgEnum("task_dependency_type", [
+	"blocks",
+	"relates_to",
+]);
+
+export const tasksDependencies = pgTable(
+	"tasks_dependencies",
+	{
+		taskId: text("task_id").notNull(),
+		dependsOnTaskId: text("depends_on_task_id").notNull(),
+		type: taskDependencyTypeEnum("type").default("relates_to").notNull(),
+		explanation: text("explanation"),
+	},
+	(table) => [
+		primaryKey({
+			columns: [table.taskId, table.dependsOnTaskId],
+			name: "tasks_dependencies_pkey",
+		}),
+		foreignKey({
+			columns: [table.taskId],
+			foreignColumns: [tasks.id],
+			name: "tasks_dependencies_task_id_fkey",
+		}),
+		foreignKey({
+			columns: [table.dependsOnTaskId],
+			foreignColumns: [tasks.id],
+			name: "tasks_dependencies_depends_on_task_id_fkey",
+		}),
+	],
+);
+
 export const taskEmbeddings = pgTable(
 	"task_embeddings",
 	{
