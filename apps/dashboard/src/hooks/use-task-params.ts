@@ -5,6 +5,7 @@ export function useTaskParams() {
 		taskId: parseAsString,
 		taskStatusId: parseAsString,
 		taskProjectId: parseAsString,
+		taskMilestoneId: parseAsString,
 		createTask: parseAsBoolean,
 	});
 

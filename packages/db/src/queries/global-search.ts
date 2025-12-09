@@ -5,7 +5,7 @@ import { globalSearchView } from "../schema";
 
 interface GlobalSearchResult {
 	id: string;
-	type: "task" | "project" | "milestone";
+	type: string;
 	title: string;
 	color?: string;
 	teamId: string;

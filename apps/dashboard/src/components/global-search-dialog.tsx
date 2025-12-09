@@ -14,7 +14,6 @@ import {
 	DialogFooter,
 	DialogHeader,
 } from "@ui/components/ui/dialog";
-import { Input } from "@ui/components/ui/input";
 import {
 	ArrowDownIcon,
 	ArrowUpIcon,
@@ -22,7 +21,6 @@ import {
 	ChevronRight,
 	CornerDownLeftIcon,
 	LayersIcon,
-	SearchIcon,
 	TargetIcon,
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
@@ -30,23 +28,30 @@ import { useMemo, useState } from "react";
 import { useDebounceValue } from "usehooks-ts";
 import { trpc } from "@/utils/trpc";
 
+export type GlobalSearchItem = {
+	id: string;
+	type: string;
+	title: string;
+	color?: string;
+	parentId?: string | null;
+	teamId: string;
+};
+
 export const GlobalSearchDialog = ({
 	open,
 	onOpenChange,
 	onSelect,
 	defaultValues,
+	defaultState,
 }: {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
-	onSelect: (item: {
-		id: string;
-		type: string;
-		parentId?: string | null;
-	}) => void;
+	onSelect: (item: GlobalSearchItem) => void;
 	defaultValues?: {
 		search?: string;
 		type?: string[];
 	};
+	defaultState?: GlobalSearchItem[];
 }) => {
 	const [search, setSearch] = useState(defaultValues?.search || "");
 	const [debouncedSearch] = useDebounceValue(search, 300);
@@ -59,7 +64,15 @@ export const GlobalSearchDialog = ({
 	);
 
 	const groupedData = useMemo(() => {
-		return data?.reduce(
+		let dataToGroup = data;
+		if (
+			defaultState &&
+			defaultState.length > 0 &&
+			debouncedSearch.length === 0
+		) {
+			dataToGroup = defaultState;
+		}
+		const grouped = dataToGroup?.reduce(
 			(acc, item) => {
 				if (!acc[item.type]) {
 					acc[item.type] = [];
@@ -69,7 +82,9 @@ export const GlobalSearchDialog = ({
 			},
 			{} as Record<string, typeof data>,
 		);
-	}, [data]);
+
+		return grouped;
+	}, [data, debouncedSearch.length, defaultState]);
 
 	const handleOpenChange = (isOpen: boolean) => {
 		if (!isOpen) {
@@ -102,7 +117,8 @@ export const GlobalSearchDialog = ({
 											className="capitalize"
 										>
 											{items?.map((item) => {
-												const Icon = searchIcons[item.type];
+												const Icon =
+													searchIcons[item.type as keyof typeof searchIcons];
 												return (
 													<motion.div
 														key={item.id}

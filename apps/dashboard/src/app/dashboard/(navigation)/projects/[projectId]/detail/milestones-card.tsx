@@ -27,6 +27,7 @@ import { useMemo } from "react";
 import { MilestoneForm } from "@/components/forms/milestone-form";
 import { MilestoneIcon } from "@/components/milestone-icon";
 import { useMilestoneParams } from "@/hooks/use-milestone-params";
+import { useTaskParams } from "@/hooks/use-task-params";
 import { queryClient, trpc } from "@/utils/trpc";
 
 export const MilestonesCard = ({ projectId }: { projectId: string }) => {
@@ -137,7 +138,10 @@ export const MilestonesCard = ({ projectId }: { projectId: string }) => {
 														{format(new Date(milestone.dueDate), "MMM dd")}
 													</span>
 												)}
-												<MilestoneDropdownMenu milestoneId={milestone.id} />
+												<MilestoneDropdownMenu
+													milestoneId={milestone.id}
+													projectId={milestone.projectId}
+												/>
 											</div>
 										</div>
 									)}
@@ -163,10 +167,13 @@ export const MilestonesCard = ({ projectId }: { projectId: string }) => {
 
 export const MilestoneDropdownMenu = ({
 	milestoneId,
+	projectId,
 }: {
 	milestoneId: string;
+	projectId: string;
 }) => {
 	const { setParams } = useMilestoneParams();
+	const { setParams: setTaskParams } = useTaskParams();
 
 	const { mutate: deleteMilestone } = useMutation(
 		trpc.milestones.delete.mutationOptions({
@@ -186,6 +193,18 @@ export const MilestoneDropdownMenu = ({
 				</Button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent>
+				<DropdownMenuItem
+					onSelect={() => {
+						setTaskParams({
+							taskMilestoneId: milestoneId,
+							taskProjectId: projectId,
+							createTask: true,
+						});
+					}}
+				>
+					<PlusIcon />
+					Create Task
+				</DropdownMenuItem>
 				<DropdownMenuItem
 					onSelect={() => {
 						setParams({ milestoneId });
