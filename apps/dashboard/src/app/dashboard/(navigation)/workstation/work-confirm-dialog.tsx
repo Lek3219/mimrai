@@ -38,7 +38,7 @@ export const WorkConfirmDialogTrigger = ({
 						Once you confirm, the following will happen:
 						<ul className="mt-2 list-disc pl-5">
 							<li>
-								The task status will be moved to the "In Progress" column.
+								The task status will be moved to the "In Progress" status.
 							</li>
 							<li>Your work session will begin.</li>
 						</ul>

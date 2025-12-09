@@ -1,4 +1,4 @@
-import { columnTypeEnum, priorityEnum, shareablePolicyEnum } from "@db/schema";
+import { priorityEnum, shareablePolicyEnum, statusTypeEnum } from "@db/schema";
 import z from "zod";
 import { mention } from "../../../../packages/notifications/src/types";
 import { paginationSchema } from "./base";
@@ -12,8 +12,8 @@ export const taskViewEnum = z.enum([...Object.values(TaskView)]);
 export const getTasksSchema = z.object({
 	...paginationSchema.shape,
 	assigneeId: z.array(z.string()).optional().nullable(),
-	columnId: z.array(z.string()).optional().nullable(),
-	columnType: z.array(z.enum(columnTypeEnum.enumValues)).optional().nullable(),
+	statusId: z.array(z.string()).optional().nullable(),
+	statusType: z.array(z.enum(statusTypeEnum.enumValues)).optional().nullable(),
 	teamId: z.string().optional().nullable(),
 	projectId: z.array(z.string()).optional().nullable(),
 	nProjectId: z.array(z.string()).optional().nullable(),
@@ -29,7 +29,7 @@ export const createTaskSchema = z.object({
 	title: z.string().min(1).max(255),
 	description: z.string().max(50_000).nullable().optional(),
 	assigneeId: z.string().nullable().optional(),
-	columnId: z.string(),
+	statusId: z.string(),
 	order: z.number().nullable().optional(),
 	priority: z.enum(priorityEnum.enumValues).nullable().optional(),
 	labels: z.array(z.string()).nullable().optional(),
@@ -62,7 +62,7 @@ export const updateTaskSchema = z.object({
 	priority: z.enum(priorityEnum.enumValues).nullable().optional(),
 	dueDate: z.string().nullable().optional(),
 	order: z.number().nullable().optional(),
-	columnId: z.string().optional(),
+	statusId: z.string().optional(),
 	milestoneId: z.string().nullable().optional(),
 	labels: z.array(z.string()).nullable().optional(),
 	mentions: z.array(z.string()).nullable().optional(),

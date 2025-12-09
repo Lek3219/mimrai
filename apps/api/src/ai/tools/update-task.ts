@@ -9,7 +9,7 @@ export const updateTaskToolSchema = z.object({
 	description: z.string().optional().describe("Description"),
 	dueDate: z.string().optional().describe("Due Date in ISO 8601 format"),
 	assigneeId: z.string().optional().describe("User assignee ID"),
-	columnId: z.string().optional().describe("Column ID"),
+	statusId: z.string().optional().describe("Status ID"),
 	milestoneId: z.string().optional().describe("Milestone ID"),
 	projectId: z.string().optional().describe("Project ID"),
 

@@ -2,7 +2,7 @@ import { UTCDate } from "@date-fns/utc";
 import { format } from "date-fns";
 import { and, asc, desc, eq, gte, inArray, lte, not, sql } from "drizzle-orm";
 import { db } from "../index";
-import { activities, columns, tasks, users, usersOnTeams } from "../schema";
+import { activities, statuses, tasks, users, usersOnTeams } from "../schema";
 
 export const getTasksBurnup = async ({
 	teamId,
@@ -123,10 +123,10 @@ export const getTasksSummaryByMember = async ({
 		.where(
 			and(
 				eq(tasks.teamId, teamId),
-				not(inArray(columns.type, ["done", "backlog"])),
+				not(inArray(statuses.type, ["done", "backlog"])),
 			),
 		)
-		.innerJoin(columns, eq(tasks.columnId, columns.id))
+		.innerJoin(statuses, eq(tasks.statusId, statuses.id))
 		.groupBy(tasks.assigneeId);
 
 	const data = await db
@@ -162,12 +162,12 @@ export const getTasksTodo = async ({ teamId }: { teamId: string }) => {
 			title: tasks.title,
 			dueDate: tasks.dueDate,
 			assigneeId: tasks.assigneeId,
-			columnId: tasks.columnId,
+			statusId: tasks.statusId,
 			priority: tasks.priority,
-			column: {
-				id: columns.id,
-				name: columns.name,
-				type: columns.type,
+			status: {
+				id: statuses.id,
+				name: statuses.name,
+				type: statuses.type,
 			},
 			assignee: {
 				id: users.id,
@@ -176,12 +176,12 @@ export const getTasksTodo = async ({ teamId }: { teamId: string }) => {
 			},
 		})
 		.from(tasks)
-		.innerJoin(columns, eq(tasks.columnId, columns.id))
+		.innerJoin(statuses, eq(tasks.statusId, statuses.id))
 		.leftJoin(users, eq(tasks.assigneeId, users.id))
 		.where(
 			and(
 				eq(tasks.teamId, teamId),
-				not(inArray(columns.type, ["done", "backlog"])),
+				not(inArray(statuses.type, ["done", "backlog"])),
 			),
 		)
 		.limit(4)
@@ -195,7 +195,7 @@ export const getTasksTodo = async ({ teamId }: { teamId: string }) => {
 	return data;
 };
 
-export const getTasksByColumn = async ({
+export const getTasksByStatus = async ({
 	teamId,
 	startDate,
 	endDate,
@@ -206,23 +206,23 @@ export const getTasksByColumn = async ({
 }) => {
 	const data = await db
 		.select({
-			column: {
-				id: columns.id,
-				name: columns.name,
-				type: columns.type,
+			status: {
+				id: statuses.id,
+				name: statuses.name,
+				type: statuses.type,
 			},
 			taskCount: sql<number>`COUNT(${tasks.id})`,
 		})
 		.from(tasks)
-		.innerJoin(columns, eq(tasks.columnId, columns.id))
+		.innerJoin(statuses, eq(tasks.statusId, statuses.id))
 		.where(
 			and(
 				eq(tasks.teamId, teamId),
-				not(inArray(columns.type, ["done", "backlog"])),
+				not(inArray(statuses.type, ["done", "backlog"])),
 			),
 		)
-		.groupBy(columns.id)
-		.orderBy(asc(columns.order));
+		.groupBy(statuses.id)
+		.orderBy(asc(statuses.order));
 
 	return data.map((item) => ({
 		...item,

@@ -4,22 +4,22 @@ import { cn } from "@ui/lib/utils";
 import { format } from "date-fns";
 import { CheckSquareIcon } from "lucide-react";
 import { memo } from "react";
-import { ColumnIcon } from "../column-icon";
 import { KanbanAssignee } from "../kanban/kanban-task/assignee";
 import { Priority } from "../kanban/priority";
 import { MilestoneIcon } from "../milestone-icon";
 import { ProjectIcon } from "../project-icon";
+import { StatusIcon } from "../status-icon";
 import { TaskPropertyDueDate } from "./due-date";
 import { useTasksViewContext } from "./tasks-view";
 
 export type Task = RouterOutputs["tasks"]["get"]["data"][number];
 export const propertiesComponents = {
 	priority: (task: Task) => task.priority && <Priority value={task.priority} />,
-	column: (task: Task) =>
-		task.column && (
+	status: (task: Task) =>
+		task.status && (
 			<time className="flex h-5.5 items-center rounded-sm bg-secondary px-2 text-xs tabular-nums">
-				<ColumnIcon {...task.column} className="size-3.5" />
-				<span className="ml-1">{task.column.name}</span>
+				<StatusIcon {...task.status} className="size-3.5" />
+				<span className="ml-1">{task.status.name}</span>
 			</time>
 		),
 	labels: (task: Task) => (

@@ -1,6 +1,6 @@
 import type { RouterOutputs } from "@api/trpc/routers";
 import { cn } from "@ui/lib/utils";
-import { ColumnIcon } from "@/components/column-icon";
+import { StatusIcon } from "@/components/status-icon";
 import { propertiesComponents } from "@/components/tasks-view/task-properties";
 
 export const ProjectBoardShareable = ({
@@ -10,11 +10,11 @@ export const ProjectBoardShareable = ({
 }) => {
 	const groupedTasks = tasks.data.reduce(
 		(groups, task) => {
-			const column = task.column.name || "Uncategorized";
+			const column = task.status.name || "Uncategorized";
 			if (!groups[column]) {
 				groups[column] = {
 					tasks: [],
-					order: task.column.order || 0,
+					order: task.status.order || 0,
 				};
 			}
 			groups[column].tasks.push(task);
@@ -34,13 +34,13 @@ export const ProjectBoardShareable = ({
 	);
 
 	const findColumnByName = (name: string) => {
-		return tasks.data.find((task) => task.column.name === name)?.column;
+		return tasks.data.find((task) => task.status.name === name)?.status;
 	};
 
 	const renderColumnIcon = (name: string) => {
 		const column = findColumnByName(name);
 		if (!column) return null;
-		return <ColumnIcon {...column} className="size-4" />;
+		return <StatusIcon {...column} className="size-4" />;
 	};
 
 	return (
@@ -60,7 +60,7 @@ export const ProjectBoardShareable = ({
 								<h4
 									className={cn("font-medium", {
 										"text-muted-foreground line-through":
-											task.column.type === "done",
+											task.status.type === "done",
 									})}
 								>
 									{task.title}

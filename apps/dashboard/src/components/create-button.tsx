@@ -14,13 +14,13 @@ import {
 	Layers3Icon,
 	PlusIcon,
 } from "lucide-react";
-import { useColumnParams } from "@/hooks/use-column-params";
 import { useProjectParams } from "@/hooks/use-project-params";
+import { useStatusParams } from "@/hooks/use-status-params";
 import { useTaskParams } from "@/hooks/use-task-params";
 
 export const CreateButton = () => {
 	const { setParams: setTaskParams } = useTaskParams();
-	const { setParams: setColumnParams } = useColumnParams();
+	const { setParams: setStatusParams } = useStatusParams();
 	const { setParams: setProjectParams } = useProjectParams();
 
 	return (
@@ -34,7 +34,7 @@ export const CreateButton = () => {
 						<div className="flex items-center gap-2">
 							<PlusIcon />
 							<RotatingText
-								text={["Create Task", "Create Column"]}
+								text={["Create Task", "Create Status", "Create Project"]}
 								duration={4000}
 								y={-20}
 								transition={{ duration: 0.2, ease: "easeInOut" }}
@@ -49,10 +49,10 @@ export const CreateButton = () => {
 						Task
 					</DropdownMenuItem>
 					<DropdownMenuItem
-						onClick={() => setColumnParams({ createColumn: true })}
+						onClick={() => setStatusParams({ createStatus: true })}
 					>
 						<CirclePlusIcon />
-						Column
+						Status
 					</DropdownMenuItem>
 					<DropdownMenuItem
 						onClick={() => setProjectParams({ createProject: true })}

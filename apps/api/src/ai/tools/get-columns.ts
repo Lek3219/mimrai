@@ -1,5 +1,5 @@
 import { db } from "@db/index";
-import { columns } from "@db/schema";
+import { statuses } from "@db/schema";
 import { tool } from "ai";
 import { eq } from "drizzle-orm";
 import z from "zod";
@@ -18,11 +18,11 @@ export const getColumnsTool = tool({
 
 		const data = await db
 			.select({
-				id: columns.id,
-				name: columns.name,
+				id: statuses.id,
+				name: statuses.name,
 			})
-			.from(columns)
-			.where(eq(columns.teamId, teamId));
+			.from(statuses)
+			.where(eq(statuses.teamId, teamId));
 
 		yield {
 			text: `Found ${data.length} columns.`,

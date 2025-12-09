@@ -15,7 +15,7 @@ export default function DashboardPage({ searchParams }: Props) {
 					<TasksView
 						// default value
 						viewType="board"
-						columnType={["to_do", "in_progress", "review", "done"]}
+						statusType={["to_do", "in_progress", "review", "done"]}
 						showEmptyColumns={true}
 					/>
 				</Suspense>

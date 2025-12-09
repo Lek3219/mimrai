@@ -215,7 +215,7 @@ export const tasks = pgTable(
 			scale: 5,
 			mode: "number",
 		}).notNull(),
-		columnId: text("column_id").notNull(),
+		statusId: text("status_id").notNull(),
 		attachments: jsonb("attachments").$type<string[]>().default([]),
 		score: integer("score").default(1).notNull(),
 		repositoryName: text("repository_name"),
@@ -275,8 +275,8 @@ export const tasks = pgTable(
 			name: "tasks_team_id_fkey",
 		}).onDelete("cascade"),
 		foreignKey({
-			columns: [table.columnId],
-			foreignColumns: [columns.id],
+			columns: [table.statusId],
+			foreignColumns: [statuses.id],
 			name: "tasks_column_id_fkey",
 		}),
 		foreignKey({
@@ -360,7 +360,7 @@ export const teamsWithTasksRelations = relations(teams, ({ many }) => ({
 	tasks: many(tasks),
 }));
 
-export const columnTypeEnum = pgEnum("column_type", [
+export const statusTypeEnum = pgEnum("status_type", [
 	"done",
 	"backlog",
 	"to_do",
@@ -368,8 +368,8 @@ export const columnTypeEnum = pgEnum("column_type", [
 	"review",
 ]);
 
-export const columns = pgTable(
-	"columns",
+export const statuses = pgTable(
+	"statuses",
 	{
 		id: text("id")
 			.$defaultFn(() => randomUUID())
@@ -379,7 +379,7 @@ export const columns = pgTable(
 		teamId: text("team_id").notNull(),
 		order: integer("order").default(0).notNull(),
 		description: text("description"),
-		type: columnTypeEnum("type").default("in_progress").notNull(),
+		type: statusTypeEnum("type").default("in_progress").notNull(),
 		isFinalState: boolean("is_final_state").default(false).notNull(),
 		createdAt: timestamp("created_at", {
 			withTimezone: true,
@@ -391,23 +391,23 @@ export const columns = pgTable(
 		}).defaultNow(),
 	},
 	(table) => [
-		unique("unique_column_name_per_team").on(table.name, table.teamId),
+		unique("unique_status_name_per_team").on(table.name, table.teamId),
 		foreignKey({
 			columns: [table.teamId],
 			foreignColumns: [teams.id],
-			name: "columns_team_id_fkey",
+			name: "statuses_team_id_fkey",
 		}).onDelete("cascade"),
 	],
 );
 
 export const tasksWithColumnRelations = relations(tasks, ({ one }) => ({
-	column: one(columns, {
-		fields: [tasks.columnId],
-		references: [columns.id],
+	column: one(statuses, {
+		fields: [tasks.statusId],
+		references: [statuses.id],
 	}),
 }));
 
-export const tasksOnColumnsRelations = relations(columns, ({ many }) => ({
+export const tasksOnColumnsRelations = relations(statuses, ({ many }) => ({
 	tasks: many(tasks),
 }));
 
@@ -743,7 +743,7 @@ export const pullRequestPlan = pgTable("pull_request_plans", {
 		mode: "number",
 	}).notNull(),
 	taskId: text("task_id").notNull(),
-	columnId: text("column_id").notNull(),
+	statusId: text("status_id").notNull(),
 	commentId: bigint("comment_id", {
 		mode: "number",
 	}),
@@ -1015,7 +1015,7 @@ export const taskSuggestionsStatusEnum = pgEnum("suggestion_status", [
 export type TaskSuggestionPayload =
 	| {
 			type: "move";
-			columnId: string;
+			statusId: string;
 	  }
 	| {
 			type: "assign";

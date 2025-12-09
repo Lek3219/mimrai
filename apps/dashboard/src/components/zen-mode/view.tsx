@@ -34,7 +34,7 @@ export const ZenModeView = ({ taskId }: { taskId: string }) => {
 		trpc.tasks.get.queryOptions(
 			{
 				assigneeId: [user?.id || ""],
-				columnType: ["to_do", "in_progress"],
+				statusType: ["to_do", "in_progress"],
 				view: "board",
 				pageSize: 10,
 			},

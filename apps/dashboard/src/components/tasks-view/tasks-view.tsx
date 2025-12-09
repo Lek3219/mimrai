@@ -70,7 +70,7 @@ const defaultFilters: TasksViewContextFilters = {
 		"milestone",
 		"project",
 	] as Array<keyof typeof propertiesComponents>,
-	groupBy: "column" as TasksGroupBy,
+	groupBy: "status" as TasksGroupBy,
 	pageSize: 100,
 };
 

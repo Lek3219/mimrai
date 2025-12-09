@@ -197,7 +197,7 @@ export const executeTaskSuggestion = async ({
 			return await updateTask({
 				id: suggestion.taskId,
 				teamId: suggestion.teamId,
-				columnId: suggestion.payload.columnId,
+				statusId: suggestion.payload.statusId,
 			});
 		}
 		case "comment": {

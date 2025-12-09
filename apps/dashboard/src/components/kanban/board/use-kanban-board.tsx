@@ -14,7 +14,7 @@ import { trpc } from "@/utils/trpc";
 
 // Types
 export type Task = RouterOutputs["tasks"]["get"]["data"][number];
-export type Column = RouterOutputs["columns"]["get"]["data"][number];
+export type Column = RouterOutputs["statuses"]["get"]["data"][number];
 export type TeamMember = RouterOutputs["teams"]["getMembers"][number];
 export type Project = RouterOutputs["projects"]["get"]["data"][number];
 

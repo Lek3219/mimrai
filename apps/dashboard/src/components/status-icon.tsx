@@ -8,11 +8,11 @@ import {
 	CircleStarIcon,
 } from "lucide-react";
 
-export const ColumnIcon = ({
+export const StatusIcon = ({
 	type,
 	className,
 }: {
-	type: RouterOutputs["columns"]["get"]["data"][number]["type"];
+	type: RouterOutputs["statuses"]["get"]["data"][number]["type"];
 	className?: string;
 }) => {
 	switch (type) {

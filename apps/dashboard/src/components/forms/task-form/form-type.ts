@@ -7,7 +7,7 @@ export const taskFormSchema = z.object({
 	description: z.string().max(50_000).nullable().optional(),
 	assigneeId: z.string().nullable().optional(),
 	milestoneId: z.string().nullable().optional(),
-	columnId: z.string().min(1),
+	statusId: z.string().min(1),
 	dueDate: z.string().nullable().optional(),
 	labels: z.array(z.string()).nullable().optional(),
 	priority: z.enum(["low", "medium", "high", "urgent"]).nullable().optional(),

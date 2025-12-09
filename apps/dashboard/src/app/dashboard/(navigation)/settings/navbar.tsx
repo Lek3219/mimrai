@@ -30,8 +30,8 @@ export const SettingsNavbar = () => {
 			},
 			{ to: "/dashboard/settings/labels", label: t("settings.sidebar.labels") },
 			{
-				to: "/dashboard/settings/columns",
-				label: t("settings.sidebar.columns"),
+				to: "/dashboard/settings/statuses",
+				label: t("settings.sidebar.statuses"),
 			},
 			{
 				to: "/dashboard/settings/notifications",

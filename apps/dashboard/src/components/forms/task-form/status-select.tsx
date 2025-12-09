@@ -1,16 +1,16 @@
 import { DataSelectInput } from "@mimir/ui/data-select-input";
-import { FormControl, FormField, FormItem, FormLabel } from "@mimir/ui/form";
+import { FormControl, FormField, FormItem } from "@mimir/ui/form";
 import { useFormContext } from "react-hook-form";
-import { ColumnIcon } from "@/components/column-icon";
+import { StatusIcon } from "@/components/status-icon";
 import { trpc } from "@/utils/trpc";
 import type { TaskFormValues } from "./form-type";
 
-export const ColumnSelect = () => {
+export const StatusSelect = () => {
 	const form = useFormContext<TaskFormValues>();
 
 	return (
 		<FormField
-			name="columnId"
+			name="statusId"
 			control={form.control}
 			render={({ field }) => (
 				<FormItem>
@@ -18,7 +18,7 @@ export const ColumnSelect = () => {
 						<DataSelectInput
 							size="sm"
 							className="h-6! text-xs"
-							queryOptions={trpc.columns.get.queryOptions(
+							queryOptions={trpc.statuses.get.queryOptions(
 								{},
 								{
 									select: (data) => data.data,
@@ -30,13 +30,13 @@ export const ColumnSelect = () => {
 							getValue={(item) => item?.id ?? ""}
 							renderValue={(item) => (
 								<span className="flex items-center gap-2">
-									<ColumnIcon className="size-3.5" type={item.type} />
+									<StatusIcon className="size-3.5" type={item.type} />
 									{item.name}
 								</span>
 							)}
 							renderItem={(item) => (
 								<span className="flex items-center gap-2">
-									<ColumnIcon type={item.type} />
+									<StatusIcon type={item.type} />
 									{item.name}
 								</span>
 							)}

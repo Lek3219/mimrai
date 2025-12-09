@@ -6,7 +6,7 @@ import { createTaskSuggestion } from "@mimir/db/queries/tasks-suggestions";
 import {
 	activities,
 	autopilotSettings,
-	columns,
+	statuses,
 	taskSuggestions,
 	tasks,
 	teams,
@@ -73,18 +73,18 @@ export const generateTeamSuggestionsJob = schemaTask({
 			return;
 		}
 
-		// Find tasks that have been in the same column for more than 7 days
+		// Find tasks that have been in the same status for more than 7 days
 		const inactiveTasks = await db
 			.select()
 			.from(tasks)
 			.where(
 				and(
 					eq(tasks.teamId, payload.teamId),
-					not(inArray(columns.type, ["done", "backlog"])),
+					not(inArray(statuses.type, ["done", "backlog"])),
 					lte(tasks.updatedAt, sql`NOW() - INTERVAL '7 days'`),
 				),
 			)
-			.innerJoin(columns, eq(columns.id, tasks.columnId))
+			.innerJoin(statuses, eq(statuses.id, tasks.statusId))
 			.limit(10);
 
 		// Find tasks that are overdue
@@ -94,11 +94,11 @@ export const generateTeamSuggestionsJob = schemaTask({
 			.where(
 				and(
 					eq(tasks.teamId, payload.teamId),
-					not(inArray(columns.type, ["done", "backlog"])),
+					not(inArray(statuses.type, ["done", "backlog"])),
 					lte(tasks.dueDate, sql`NOW()`),
 				),
 			)
-			.innerJoin(columns, eq(columns.id, tasks.columnId))
+			.innerJoin(statuses, eq(statuses.id, tasks.statusId))
 			.limit(10);
 
 		// Find tasks without assignees
@@ -108,11 +108,11 @@ export const generateTeamSuggestionsJob = schemaTask({
 			.where(
 				and(
 					eq(tasks.teamId, payload.teamId),
-					not(inArray(columns.type, ["done", "backlog"])),
+					not(inArray(statuses.type, ["done", "backlog"])),
 					isNull(tasks.assigneeId),
 				),
 			)
-			.innerJoin(columns, eq(columns.id, tasks.columnId))
+			.innerJoin(statuses, eq(statuses.id, tasks.statusId))
 			.limit(10);
 
 		// If no tasks found, exit early
@@ -160,11 +160,11 @@ export const generateTeamSuggestionsJob = schemaTask({
 			.where(eq(usersOnTeams.teamId, payload.teamId))
 			.innerJoin(users, eq(users.id, usersOnTeams.userId));
 
-		// Find team columns
-		const columnsInTeam = await db
+		// Find team statuses
+		const statusesInTeam = await db
 			.select()
-			.from(columns)
-			.where(eq(columns.teamId, payload.teamId));
+			.from(statuses)
+			.where(eq(statuses.teamId, payload.teamId));
 
 		const prompt = `
 <guidelines>
@@ -178,7 +178,7 @@ export const generateTeamSuggestionsJob = schemaTask({
 		- suggest proactive task updates to help move things along
 	- Suggest simple updates. Eg.:
 		- assign to a specific user, if the task is unassigned based on team members descriptions
-		- move to a different column, if the task seems stuck in the current column
+		- move to a different status, if the task seems stuck in the current status
 		- add a comment to the task, suggesting next steps or asking for clarification
 		- never suggest moving a task forward if it is overdue or inactive, instead suggest re-assigning or commenting
 	- Provide a reason for each suggested update
@@ -232,7 +232,7 @@ export const generateTeamSuggestionsJob = schemaTask({
 		inactiveTasks
 			.map(
 				(t) =>
-					`- [${t.tasks.id}] "${t.tasks.title}" in column [${t.columns.id}] "${t.columns.name}" assigned to userId ${t.tasks.assigneeId}, last updated at ${t.tasks.updatedAt}, priority: ${t.tasks.priority}`,
+					`- [${t.tasks.id}] "${t.tasks.title}" in status [${t.statuses.id}] "${t.statuses.name}" assigned to userId ${t.tasks.assigneeId}, last updated at ${t.tasks.updatedAt}, priority: ${t.tasks.priority}`,
 			)
 			.join("\n") || "No inactive tasks."
 	}
@@ -242,7 +242,7 @@ export const generateTeamSuggestionsJob = schemaTask({
 		overdueTasks
 			.map(
 				(t) =>
-					`- [${t.tasks.id}] "${t.tasks.title}" in column [${t.columns.id}] "${t.columns.name}" assigned to userId ${t.tasks.assigneeId}, due at ${t.tasks.dueDate}, priority: ${t.tasks.priority}`,
+					`- [${t.tasks.id}] "${t.tasks.title}" in status [${t.statuses.id}] "${t.statuses.name}" assigned to userId ${t.tasks.assigneeId}, due at ${t.tasks.dueDate}, priority: ${t.tasks.priority}`,
 			)
 			.join("\n") || "No overdue tasks."
 	}
@@ -252,7 +252,7 @@ export const generateTeamSuggestionsJob = schemaTask({
 		unassignedTasks
 			.map(
 				(t) =>
-					`- [${t.tasks.id}] "${t.tasks.title}" in column "${t.columns.name}", created at ${t.tasks.createdAt}, priority: ${t.tasks.priority}`,
+					`- [${t.tasks.id}] "${t.tasks.title}" in status "${t.statuses.name}", created at ${t.tasks.createdAt}, priority: ${t.tasks.priority}`,
 			)
 			.join("\n") || "No unassigned tasks."
 	}
@@ -267,14 +267,14 @@ export const generateTeamSuggestionsJob = schemaTask({
 		.join("\n")}
 </team-members>
 
-<team-columns>
-	${columnsInTeam
+<team-statuses>
+	${statusesInTeam
 		.map(
-			(col) =>
-				`- columnId: ${col.id}, name: ${col.name}, type: ${col.type}, description: ${col.description || "No description"}`,
+			(status) =>
+				`- statusId: ${status.id}, name: ${status.name}, type: ${status.type}, description: ${status.description || "No description"}`,
 		)
 		.join("\n")}
-</team-columns>
+</team-statuses>
       `;
 
 		const output = await generateObject({
@@ -306,11 +306,11 @@ export const generateTeamSuggestionsJob = schemaTask({
 							.describe(
 								"User ID (uuid) to assign the task to, if action is 'assign'",
 							),
-						columnId: z
+						statusId: z
 							.string()
 							.optional()
 							.describe(
-								"Column ID (uuid) to move the task to, if action is 'move'",
+								"Status ID (uuid) to move the task to, if action is 'move'",
 							),
 						comment: z
 							.string()
@@ -364,7 +364,7 @@ export const generateTeamSuggestionsJob = schemaTask({
 				payload: {
 					type: suggestion.action,
 					assigneeId: suggestion.assigneeId,
-					columnId: suggestion.columnId,
+					statusId: suggestion.statusId,
 					comment: suggestion.comment,
 				},
 			});

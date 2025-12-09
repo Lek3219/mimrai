@@ -167,7 +167,7 @@ export const TasksFilters = ({
 							<div className="space-y-4">
 								<div className="text-muted-foreground text-xs">Group By</div>
 								<RadioGroup
-									value={filters.groupBy || "column"}
+									value={filters.groupBy || "status"}
 									onValueChange={(value) =>
 										setFilters({ ...filters, groupBy: value as TasksGroupBy })
 									}

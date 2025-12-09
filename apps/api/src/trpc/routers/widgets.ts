@@ -2,7 +2,7 @@ import { getWidgetSchema } from "@api/schemas/widgets";
 import { protectedProcedure, router } from "@api/trpc/init";
 import {
 	getTasksBurnup,
-	getTasksByColumn,
+	getTasksByStatus,
 	getTasksCompletionRate,
 	getTasksSummaryByMember,
 	getTasksTodo,
@@ -19,10 +19,10 @@ export const widgetsRouter = router({
 			});
 		}),
 
-	tasksByColumn: protectedProcedure
+	tasksByStatus: protectedProcedure
 		.input(getWidgetSchema)
 		.query(async ({ ctx, input }) => {
-			return getTasksByColumn({
+			return getTasksByStatus({
 				teamId: ctx.user.teamId!,
 				startDate: input.startDate,
 				endDate: input.endDate,

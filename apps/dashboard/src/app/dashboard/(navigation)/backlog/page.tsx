@@ -6,7 +6,7 @@ export default function Page() {
 		<Suspense>
 			<TasksView
 				viewType="list"
-				columnType={["backlog"]}
+				statusType={["backlog"]}
 				showEmptyColumns={false}
 			/>
 		</Suspense>

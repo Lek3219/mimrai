@@ -195,7 +195,7 @@ export const en = {
 			billing: "Billing",
 			members: "Members",
 			labels: "Labels",
-			columns: "Columns",
+			statuses: "Statuses",
 			notifications: "Notifications",
 			resumes: "Resumes",
 			integrations: "Integrations",

@@ -22,8 +22,6 @@ import { buildSearchQuery } from "src/utils/search-query";
 import { db } from "..";
 import {
 	checklistItems,
-	columns,
-	type columnTypeEnum,
 	labels,
 	labelsOnTasks,
 	milestones,
@@ -31,6 +29,8 @@ import {
 	pullRequestPlan,
 	shareable,
 	type shareablePolicyEnum,
+	statuses,
+	type statusTypeEnum,
 	tasks,
 	users,
 	usersOnTeams,
@@ -93,8 +93,8 @@ export const getTasks = async ({
 	pageSize?: number;
 	cursor?: string;
 	assigneeId?: string[];
-	columnId?: string[];
-	columnType?: (typeof columnTypeEnum.enumValues)[number][];
+	statusId?: string[];
+	statusType?: (typeof statusTypeEnum.enumValues)[number][];
 	labels?: string[];
 	teamId?: string;
 	projectId?: string[];
@@ -116,8 +116,9 @@ export const getTasks = async ({
 				sql`${tasks.id} IN (SELECT ${checklistItems.taskId} FROM ${checklistItems} WHERE ${checklistItems.assigneeId} IN (${assigneesConcat}) AND ${checklistItems.isCompleted} = false)`,
 			),
 		);
-	input.columnId && whereClause.push(inArray(tasks.columnId, input.columnId));
-	input.columnType && whereClause.push(inArray(columns.type, input.columnType));
+	input.statusId && whereClause.push(inArray(tasks.statusId, input.statusId));
+	input.statusType &&
+		whereClause.push(inArray(statuses.type, input.statusType));
 	input.teamId && whereClause.push(eq(tasks.teamId, input.teamId));
 	input.milestoneId &&
 		input.milestoneId.length > 0 &&
@@ -159,9 +160,9 @@ export const getTasks = async ({
 	if (input.view === "board") {
 		whereClause.push(
 			or(
-				notInArray(columns.type, ["done"]),
+				notInArray(statuses.type, ["done"]),
 				and(
-					eq(columns.type, "done"),
+					eq(statuses.type, "done"),
 					gte(tasks.updatedAt, subDays(new Date(), 3).toISOString()),
 				),
 			),
@@ -233,7 +234,7 @@ export const getTasks = async ({
 				image: users.image,
 				color: users.color,
 			},
-			columnId: tasks.columnId,
+			statusId: tasks.statusId,
 			repositoryName: tasks.repositoryName,
 			branchName: tasks.branchName,
 			order: tasks.order,
@@ -259,18 +260,18 @@ export const getTasks = async ({
 			recurring: tasks.recurring,
 			recurringJobId: tasks.recurringJobId,
 			recurringNextDate: tasks.recurringNextDate,
-			column: {
-				id: columns.id,
-				name: columns.name,
-				description: columns.description,
-				order: columns.order,
-				type: columns.type,
+			status: {
+				id: statuses.id,
+				name: statuses.name,
+				description: statuses.description,
+				order: statuses.order,
+				type: statuses.type,
 			},
 			labels: labelsSubquery.labels,
 		})
 		.from(tasks)
 		.where(and(...whereClause))
-		.innerJoin(columns, eq(tasks.columnId, columns.id))
+		.innerJoin(statuses, eq(tasks.statusId, statuses.id))
 		.leftJoin(labelsSubquery, eq(labelsSubquery.taskId, tasks.id))
 		.leftJoin(users, eq(tasks.assigneeId, users.id))
 		.leftJoin(checklistSubquery, eq(checklistSubquery.taskId, tasks.id))
@@ -339,7 +340,7 @@ export const createTask = async ({
 	title: string;
 	description?: string;
 	assigneeId?: string;
-	columnId: string;
+	statusId: string;
 	milestoneId?: string | null;
 	teamId: string;
 	order?: number;
@@ -449,7 +450,7 @@ export const updateTask = async ({
 	title?: string;
 	description?: string;
 	assigneeId?: string | null;
-	columnId?: string;
+	statusId?: string;
 	teamId?: string;
 	order?: number;
 	priority?: "low" | "medium" | "high" | "urgent";
@@ -626,7 +627,7 @@ export const getTaskById = async (id: string, userId?: string) => {
 				total: checklistSubquery.total,
 				checklist: checklistSubquery.checklist,
 			},
-			columnId: tasks.columnId,
+			statusId: tasks.statusId,
 			order: tasks.order,
 			priority: tasks.priority,
 			repositoryName: tasks.repositoryName,
@@ -648,18 +649,18 @@ export const getTaskById = async (id: string, userId?: string) => {
 			recurring: tasks.recurring,
 			recurringJobId: tasks.recurringJobId,
 			recurringNextDate: tasks.recurringNextDate,
-			column: {
-				id: columns.id,
-				name: columns.name,
-				description: columns.description,
-				order: columns.order,
-				type: columns.type,
+			status: {
+				id: statuses.id,
+				name: statuses.name,
+				description: statuses.description,
+				order: statuses.order,
+				type: statuses.type,
 			},
 			labels: labelsSubquery.labels,
 		})
 		.from(tasks)
 		.where(and(...whereClause))
-		.innerJoin(columns, eq(tasks.columnId, columns.id))
+		.innerJoin(statuses, eq(tasks.statusId, statuses.id))
 		.innerJoin(usersOnTeams, eq(usersOnTeams.teamId, tasks.teamId))
 		.leftJoin(checklistSubquery, eq(checklistSubquery.taskId, tasks.id))
 		.leftJoin(labelsSubquery, eq(labelsSubquery.taskId, tasks.id))
@@ -679,12 +680,12 @@ export const getTaskById = async (id: string, userId?: string) => {
 };
 
 export const createDefaultTasks = async ({
-	columnId,
+	statusId,
 	labelId,
 	assigneeId,
 	teamId,
 }: {
-	columnId: string;
+	statusId: string;
 	labelId: string;
 	assigneeId: string;
 	teamId: string;
@@ -703,7 +704,7 @@ export const createDefaultTasks = async ({
 			.insert(tasks)
 			.values({
 				...d,
-				columnId,
+				statusId,
 				teamId,
 				assigneeId,
 				permalinkId: await generateTaskPermalinkId(),
@@ -953,7 +954,7 @@ export const cloneTask = async ({
 		title: task.title,
 		description: task.description!,
 		assigneeId: task.assigneeId!,
-		columnId: task.columnId,
+		statusId: task.statusId,
 		order: task.order,
 		priority: task.priority,
 		labels: task.labels?.map((label) => label.id),

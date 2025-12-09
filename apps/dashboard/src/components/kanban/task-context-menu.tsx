@@ -31,10 +31,10 @@ import { useUser } from "@/hooks/use-user";
 import { queryClient, trpc } from "@/utils/trpc";
 import { useChatContext } from "../chat/chat-context/store";
 import { useChatWidget } from "../chat/chat-widget";
-import { ColumnIcon } from "../column-icon";
 import Loader from "../loader";
 import { MilestoneIcon } from "../milestone-icon";
 import { ProjectIcon } from "../project-icon";
+import { StatusIcon } from "../status-icon";
 import { Assignee, AssigneeAvatar } from "./asignee-avatar";
 import { PriorityItem } from "./priority";
 
@@ -127,8 +127,8 @@ export const TaskContextMenu = ({
 			refetchOnWindowFocus: false,
 		}),
 	);
-	const { data: columns } = useQuery(
-		trpc.columns.get.queryOptions(
+	const { data: statuses } = useQuery(
+		trpc.statuses.get.queryOptions(
 			{},
 			{
 				refetchOnMount: false,
@@ -181,7 +181,7 @@ export const TaskContextMenu = ({
 		labels?: string[];
 		assigneeId?: string;
 		projectId?: string | null;
-		columnId?: string;
+		statusId?: string;
 		milestoneId?: string | null;
 	}) => {
 		updateTask({ id: task.id, ...data });
@@ -200,17 +200,17 @@ export const TaskContextMenu = ({
 						Move to
 					</ContextMenuSubTrigger>
 					<ContextMenuSubContent className="w-48">
-						{columns?.data
-							?.filter((column) => column.id !== task.columnId)
-							.map((column) => (
+						{statuses?.data
+							?.filter((status) => status.id !== task.statusId)
+							.map((status) => (
 								<ContextMenuItem
-									key={column.id}
+									key={status.id}
 									onClick={handleUpdateTask.bind(null, {
-										columnId: column.id,
+										statusId: status.id,
 									})}
 								>
-									<ColumnIcon type={column.type} className="size-4" />
-									{column.name}
+									<StatusIcon type={status.type} className="size-4" />
+									{status.name}
 								</ContextMenuItem>
 							))}
 					</ContextMenuSubContent>

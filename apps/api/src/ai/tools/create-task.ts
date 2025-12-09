@@ -1,5 +1,5 @@
 import { openai } from "@ai-sdk/openai";
-import { getColumns } from "@db/queries/columns";
+import { getStatuses } from "@db/queries/columns";
 import { getLabels } from "@db/queries/labels";
 import { createTask } from "@db/queries/tasks";
 import { getMembers } from "@db/queries/teams";
@@ -44,7 +44,7 @@ export const createTaskTool = tool({
 				text: `Creating task: ${input.title}`,
 			};
 
-			const columns = await getColumns({
+			const columns = await getStatuses({
 				pageSize: 10,
 				teamId: teamId,
 			});
@@ -64,9 +64,9 @@ export const createTaskTool = tool({
 						.string()
 						.optional()
 						.describe("User ID (uuid) of the assignee"),
-					columnId: z
+					statusId: z
 						.string()
-						.describe("Column ID (uuid) where the task will be created"),
+						.describe("Status ID (uuid) where the task will be created"),
 					labelsIds: z
 						.array(z.string())
 						.optional()
@@ -132,7 +132,7 @@ export const createTaskTool = tool({
 			const newTask = await createTask({
 				title: input.title,
 				description: input.description,
-				columnId: result.object.columnId,
+				statusId: result.object.statusId,
 				assigneeId: result.object.assigneeId || undefined,
 				dueDate: input.dueDate
 					? new Date(input.dueDate).toISOString()

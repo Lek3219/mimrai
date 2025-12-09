@@ -98,8 +98,8 @@ const data: {
 					url: "/dashboard/settings/labels",
 				},
 				{
-					title: "Columns",
-					url: "/dashboard/settings/columns",
+					title: "Statuses",
+					url: "/dashboard/settings/statuses",
 				},
 				{
 					title: "Notifications",

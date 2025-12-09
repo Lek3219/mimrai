@@ -7,33 +7,33 @@ import {
 } from "@api/schemas/columns";
 import { protectedProcedure, router } from "@api/trpc/init";
 import {
-	createColumn,
-	deleteColumn,
-	getBacklogColumn,
-	getColumnById,
-	getColumns,
-	updateColumn,
+	createStatus,
+	deleteStatus,
+	getBacklogStatus,
+	getStatusById,
+	getStatuses,
+	updateStatus,
 } from "@mimir/db/queries/columns";
 
-export const columnsRouter = router({
+export const statusesRouter = router({
 	get: protectedProcedure
 		.input(getColumnsSchema.optional())
 		.query(({ ctx, input }) => {
-			return getColumns({
+			return getStatuses({
 				pageSize: 100,
 				...input,
 				teamId: ctx.user.teamId!,
 			});
 		}),
 	getBacklogColumn: protectedProcedure.query(({ ctx }) => {
-		return getBacklogColumn({
+		return getBacklogStatus({
 			teamId: ctx.user.teamId!,
 		});
 	}),
 	getById: protectedProcedure
 		.input(getColumnByIdSchema)
 		.query(({ ctx, input }) => {
-			return getColumnById({
+			return getStatusById({
 				...input,
 				teamId: ctx.user.teamId!,
 			});
@@ -42,7 +42,7 @@ export const columnsRouter = router({
 	create: protectedProcedure
 		.input(createColumnSchema)
 		.mutation(async ({ ctx, input }) => {
-			return createColumn({
+			return createStatus({
 				...input,
 				teamId: ctx.user.teamId!,
 			});
@@ -50,7 +50,7 @@ export const columnsRouter = router({
 	update: protectedProcedure
 		.input(updateColumnSchema)
 		.mutation(async ({ ctx, input }) => {
-			return updateColumn({
+			return updateStatus({
 				...input,
 				teamId: ctx.user.teamId!,
 			});
@@ -58,7 +58,7 @@ export const columnsRouter = router({
 	delete: protectedProcedure
 		.input(deleteColumnSchema)
 		.mutation(async ({ ctx, input }) => {
-			return deleteColumn({
+			return deleteStatus({
 				...input,
 				teamId: ctx.user.teamId!,
 			});

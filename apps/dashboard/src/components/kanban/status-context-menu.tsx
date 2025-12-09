@@ -8,22 +8,22 @@ import {
 } from "@mimir/ui/context-menu";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { useColumnParams } from "@/hooks/use-column-params";
+import { useStatusParams } from "@/hooks/use-status-params";
 import { queryClient, trpc } from "@/utils/trpc";
 
-export const ColumnContextMenu = ({
-	column,
+export const StatusContextMenu = ({
+	status,
 	children,
 }: {
-	column: RouterOutputs["columns"]["get"]["data"][number];
+	status: RouterOutputs["statuses"]["get"]["data"][number];
 	children: React.ReactNode;
 }) => {
-	const { setParams } = useColumnParams();
+	const { setParams } = useStatusParams();
 
-	const { mutate: deleteColumn } = useMutation(
-		trpc.columns.delete.mutationOptions({
+	const { mutate: deleteStatus } = useMutation(
+		trpc.statuses.delete.mutationOptions({
 			onSuccess: () => {
-				queryClient.invalidateQueries(trpc.columns.get.queryOptions());
+				queryClient.invalidateQueries(trpc.statuses.get.queryOptions());
 				queryClient.invalidateQueries(trpc.tasks.get.queryOptions());
 			},
 			onError: (error) => {
@@ -39,19 +39,19 @@ export const ColumnContextMenu = ({
 				<ContextMenuItem
 					onClick={() => {
 						queryClient.setQueryData(
-							trpc.columns.getById.queryKey({ id: column.id }),
-							column,
+							trpc.statuses.getById.queryKey({ id: status.id }),
+							status,
 						);
-						setParams({ columnId: column.id });
+						setParams({ statusId: status.id });
 					}}
 				>
-					Edit Column
+					Edit Status
 				</ContextMenuItem>
 				<ContextMenuItem
 					variant="destructive"
-					onClick={() => deleteColumn({ id: column.id })}
+					onClick={() => deleteStatus({ id: status.id })}
 				>
-					Delete Column
+					Delete Status
 				</ContextMenuItem>
 			</ContextMenuContent>
 		</ContextMenu>

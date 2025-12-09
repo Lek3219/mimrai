@@ -1,7 +1,7 @@
 import { and, eq, ilike, isNull, ne, not, or, type SQL } from "drizzle-orm";
 import { db } from "..";
 import { type plansEnum, teams, users, usersOnTeams } from "../schema";
-import { createDefaultColumns } from "./columns";
+import { createDefaultStatuses } from "./columns";
 import { createDefaultLabels } from "./labels";
 import { createDefaultTasks } from "./tasks";
 
@@ -64,11 +64,11 @@ export const createTeam = async ({
 	const defaultLabels = await createDefaultLabels(team.id);
 
 	// Create default columns
-	const defaultColumns = await createDefaultColumns(team.id);
+	const defaultColumns = await createDefaultStatuses(team.id);
 
 	// Create default tasks
 	await createDefaultTasks({
-		columnId: defaultColumns[0]!.id,
+		statusId: defaultColumns[0]!.id,
 		labelId: defaultLabels[0]!.id,
 		assigneeId: userId,
 		teamId: team.id,

@@ -16,15 +16,15 @@ import {
 	SelectValue,
 } from "@mimir/ui/select";
 import { Textarea } from "@mimir/ui/textarea";
-import { columnsLabels } from "@mimir/utils/columns";
+import { statusesLabels } from "@mimir/utils/statuses";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import z from "zod";
-import { useColumnParams } from "@/hooks/use-column-params";
+import { useStatusParams } from "@/hooks/use-status-params";
 import { useZodForm } from "@/hooks/use-zod-form";
 import { trpc } from "@/utils/trpc";
-import { ColumnIcon } from "../column-icon";
+import { StatusIcon } from "../status-icon";
 
 const schema = z.object({
 	id: z.string().optional(),
@@ -33,12 +33,12 @@ const schema = z.object({
 	type: z.enum(["done", "to_do", "backlog", "in_progress", "review"]),
 });
 
-export const ColumnForm = ({
+export const StatusForm = ({
 	defaultValues,
 }: {
 	defaultValues?: Partial<z.infer<typeof schema>>;
 }) => {
-	const { setParams } = useColumnParams();
+	const { setParams } = useStatusParams();
 	const queryClient = useQueryClient();
 	const form = useZodForm(schema, {
 		defaultValues: {
@@ -49,37 +49,37 @@ export const ColumnForm = ({
 		},
 	});
 
-	const { mutate: createColumn, isPending: isCreating } = useMutation(
-		trpc.columns.create.mutationOptions({
+	const { mutate: createStatus, isPending: isCreating } = useMutation(
+		trpc.statuses.create.mutationOptions({
 			onMutate: async () => {
-				toast.loading("Creating column...", { id: "create-column" });
+				toast.loading("Creating status...", { id: "create-status" });
 			},
-			onSuccess: (column) => {
+			onSuccess: (status) => {
 				queryClient.setQueryData(
-					trpc.columns.getById.queryKey({ id: column.id }),
-					column,
+					trpc.statuses.getById.queryKey({ id: status.id }),
+					status,
 				);
-				queryClient.invalidateQueries(trpc.columns.get.queryOptions());
+				queryClient.invalidateQueries(trpc.statuses.get.queryOptions());
 				queryClient.invalidateQueries(trpc.tasks.get.queryOptions());
-				toast.success("Column created successfully", { id: "create-column" });
+				toast.success("Status created successfully", { id: "create-status" });
 				setParams(null);
 			},
 			onError: (error) => {
-				toast.error(`Error creating column: ${error.message}`, {
-					id: "create-column",
+				toast.error(`Error creating status: ${error.message}`, {
+					id: "create-status",
 				});
 			},
 		}),
 	);
 
-	const { mutate: updateColumn, isPending: isUpdating } = useMutation(
-		trpc.columns.update.mutationOptions({
-			onSuccess: (column) => {
+	const { mutate: updateStatus, isPending: isUpdating } = useMutation(
+		trpc.statuses.update.mutationOptions({
+			onSuccess: (status) => {
 				queryClient.setQueryData(
-					trpc.columns.getById.queryKey({ id: column.id }),
-					column,
+					trpc.statuses.getById.queryKey({ id: status.id }),
+					status,
 				);
-				queryClient.invalidateQueries(trpc.columns.get.queryOptions());
+				queryClient.invalidateQueries(trpc.statuses.get.queryOptions());
 				queryClient.invalidateQueries(trpc.tasks.get.queryOptions());
 				setParams(null);
 			},
@@ -88,14 +88,14 @@ export const ColumnForm = ({
 
 	const onSubmit = async (data: z.infer<typeof schema>) => {
 		if (data.id) {
-			// Update existing column
-			updateColumn({
+			// Update existing status
+			updateStatus({
 				id: data.id,
 				...data,
 			});
 		} else {
-			// Create new column
-			createColumn({
+			// Create new status
+			createStatus({
 				...data,
 				teamId: "default",
 			});
@@ -140,7 +140,7 @@ export const ColumnForm = ({
 								<FormControl>
 									<Select onValueChange={field.onChange} value={field.value}>
 										<SelectTrigger className="w-full capitalize">
-											<SelectValue placeholder="Select column type" />
+											<SelectValue placeholder="Select status type" />
 										</SelectTrigger>
 										<SelectContent>
 											{["in_progress", "review", "done", "to_do"].map(
@@ -150,10 +150,14 @@ export const ColumnForm = ({
 														value={type}
 														className="capitalize"
 													>
-														<ColumnIcon
-															type={type as keyof typeof columnsLabels}
+														<StatusIcon
+															type={type as keyof typeof statusesLabels}
 														/>
-														{columnsLabels[type as keyof typeof columnsLabels]}
+														{
+															statusesLabels[
+																type as keyof typeof statusesLabels
+															]
+														}
 													</SelectItem>
 												),
 											)}

@@ -1,9 +1,9 @@
-import { columnsLimits } from "@mimir/utils/columns";
+import { statusesLimits } from "@mimir/utils/statuses";
 import { and, count, eq, inArray, type SQL } from "drizzle-orm";
 import { db } from "..";
-import { columns, type columnTypeEnum } from "../schema";
+import { statuses, type statusTypeEnum } from "../schema";
 
-export const getColumns = async ({
+export const getStatuses = async ({
 	pageSize,
 	cursor,
 	teamId,
@@ -12,25 +12,25 @@ export const getColumns = async ({
 	pageSize: number;
 	cursor?: string;
 	teamId?: string;
-	type?: Array<(typeof columnTypeEnum.enumValues)[number]>;
+	type?: Array<(typeof statusTypeEnum.enumValues)[number]>;
 }) => {
 	const whereConditions: SQL[] = [];
 
-	if (teamId) whereConditions.push(eq(columns.teamId, teamId));
+	if (teamId) whereConditions.push(eq(statuses.teamId, teamId));
 	if (type && type.length > 0)
-		whereConditions.push(inArray(columns.type, type));
+		whereConditions.push(inArray(statuses.type, type));
 
 	const query = db
 		.select({
-			id: columns.id,
-			name: columns.name,
-			description: columns.description,
-			order: columns.order,
-			type: columns.type,
+			id: statuses.id,
+			name: statuses.name,
+			description: statuses.description,
+			order: statuses.order,
+			type: statuses.type,
 		})
-		.from(columns)
+		.from(statuses)
 		.where(and(...whereConditions))
-		.orderBy(columns.order);
+		.orderBy(statuses.order);
 
 	// Apply pagination
 	const offset = cursor ? Number.parseInt(cursor, 10) : 0;
@@ -55,111 +55,113 @@ export const getColumns = async ({
 	};
 };
 
-export const createColumn = async (input: {
+export const createStatus = async (input: {
 	name: string;
 	description?: string;
 	order?: number;
-	type: (typeof columnTypeEnum.enumValues)[number];
+	type: (typeof statusTypeEnum.enumValues)[number];
 	teamId: string;
 }) => {
-	// Check column limits
-	const [columnsCount] = await db
+	// Check status limits
+	const [statusesCount] = await db
 		.select({
-			count: count(columns.id),
+			count: count(statuses.id),
 		})
-		.from(columns)
-		.where(and(eq(columns.teamId, input.teamId), eq(columns.type, input.type)));
+		.from(statuses)
+		.where(
+			and(eq(statuses.teamId, input.teamId), eq(statuses.type, input.type)),
+		);
 
-	const currentCount = Number(columnsCount?.count ?? 0) + 1;
-	const limit = columnsLimits[input.type as keyof typeof columnsLimits];
+	const currentCount = Number(statusesCount?.count ?? 0) + 1;
+	const limit = statusesLimits[input.type as keyof typeof statusesLimits];
 
 	if (limit && currentCount > limit) {
 		throw new Error(
-			`Cannot create more than ${limit} columns of type ${input.type}`,
+			`Cannot create more than ${limit} statuses of type ${input.type}`,
 		);
 	}
 
-	const [column] = await db
-		.insert(columns)
+	const [status] = await db
+		.insert(statuses)
 		.values({
 			...input,
 		})
 		.returning();
 
-	if (!column) {
-		throw new Error("Failed to create column");
+	if (!status) {
+		throw new Error("Failed to create status");
 	}
 
-	return column;
+	return status;
 };
 
-export const deleteColumn = async (input: { id: string; teamId: string }) => {
-	const [column] = await db
-		.delete(columns)
-		.where(and(eq(columns.id, input.id), eq(columns.teamId, input.teamId)))
+export const deleteStatus = async (input: { id: string; teamId: string }) => {
+	const [status] = await db
+		.delete(statuses)
+		.where(and(eq(statuses.id, input.id), eq(statuses.teamId, input.teamId)))
 		.returning();
 
-	if (!column) {
-		throw new Error("Failed to delete column");
+	if (!status) {
+		throw new Error("Failed to delete status");
 	}
 
-	return column;
+	return status;
 };
 
-export const updateColumn = async (input: {
+export const updateStatus = async (input: {
 	id: string;
 	name?: string;
 	description?: string;
 	order?: number;
-	type?: (typeof columnTypeEnum.enumValues)[number];
+	type?: (typeof statusTypeEnum.enumValues)[number];
 	teamId: string;
 }) => {
-	const [column] = await db
-		.update(columns)
+	const [status] = await db
+		.update(statuses)
 		.set({
 			...input,
 		})
-		.where(and(eq(columns.id, input.id), eq(columns.teamId, input.teamId)))
+		.where(and(eq(statuses.id, input.id), eq(statuses.teamId, input.teamId)))
 		.returning();
 
-	if (!column) {
-		throw new Error("Failed to update column");
+	if (!status) {
+		throw new Error("Failed to update status");
 	}
 
-	return column;
+	return status;
 };
 
-export const getColumnById = async ({
+export const getStatusById = async ({
 	id,
 	teamId,
 }: {
 	id: string;
 	teamId?: string;
 }) => {
-	const whereClause: SQL[] = [eq(columns.id, id)];
-	if (teamId) whereClause.push(eq(columns.teamId, teamId));
+	const whereClause: SQL[] = [eq(statuses.id, id)];
+	if (teamId) whereClause.push(eq(statuses.teamId, teamId));
 
-	const [column] = await db
+	const [status] = await db
 		.select({
-			id: columns.id,
-			name: columns.name,
-			description: columns.description,
-			order: columns.order,
-			type: columns.type,
+			id: statuses.id,
+			name: statuses.name,
+			description: statuses.description,
+			order: statuses.order,
+			type: statuses.type,
 		})
-		.from(columns)
+		.from(statuses)
 		.where(and(...whereClause))
 		.limit(1);
 
-	if (!column) {
-		throw new Error("Column not found");
+	if (!status) {
+		throw new Error("Status not found");
 	}
 
-	return column;
+	return status;
 };
 
-export const createDefaultColumns = async (teamId: string) => {
-	const defaultColumns = [
+export const createDefaultStatuses = async (teamId: string) => {
+	const defaultStatuses = [
 		{
 			name: "Backlog",
 			description: "Tasks to be prioritized",
@@ -187,10 +189,10 @@ export const createDefaultColumns = async (teamId: string) => {
 	];
 
 	const data = await db
-		.insert(columns)
+		.insert(statuses)
 		.values(
-			defaultColumns.map((column) => ({
-				...column,
+			defaultStatuses.map((status) => ({
+				...status,
 				teamId,
 			})),
 		)
@@ -199,19 +201,19 @@ export const createDefaultColumns = async (teamId: string) => {
 	return data;
 };
 
-export const getBacklogColumn = async ({ teamId }: { teamId: string }) => {
+export const getBacklogStatus = async ({ teamId }: { teamId: string }) => {
 	const [existing] = await db
 		.select()
-		.from(columns)
-		.where(and(eq(columns.teamId, teamId), eq(columns.type, "backlog")))
+		.from(statuses)
+		.where(and(eq(statuses.teamId, teamId), eq(statuses.type, "backlog")))
 		.limit(1);
 
 	if (existing) {
 		return existing;
 	}
 
-	const [column] = await db
-		.insert(columns)
+	const [status] = await db
+		.insert(statuses)
 		.values({
 			name: "Backlog",
 			description: "Not yet prioritized tasks",
@@ -221,9 +223,9 @@ export const getBacklogColumn = async ({ teamId }: { teamId: string }) => {
 		})
 		.returning();
 
-	if (!column) {
-		throw new Error("Failed to create backlog column");
+	if (!status) {
+		throw new Error("Failed to create backlog status");
 	}
 
-	return column;
+	return status;
 };

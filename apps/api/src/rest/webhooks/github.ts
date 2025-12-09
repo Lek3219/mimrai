@@ -91,16 +91,16 @@ app.post(validateGithubWebhook, async (c) => {
 					await updateTask({
 						id: plan.taskId,
 						teamId: teamId,
-						columnId: plan.columnId,
+						statusId: plan.statusId,
 					});
 				} catch (error) {
 					log(
 						connectedRepository.integrationId,
 						"error",
-						`Error updating task ${plan.taskId} to column ${plan.columnId} for team ${teamId}`,
+						`Error updating task ${plan.taskId} to status ${plan.statusId} for team ${teamId}`,
 						{
 							taskId: plan.taskId,
-							columnId: plan.columnId,
+							statusId: plan.statusId,
 						},
 					);
 					console.error("Error updating task:", error);

@@ -1,6 +1,6 @@
 import { and, asc, desc, eq, type SQL, sql } from "drizzle-orm";
 import { db } from "..";
-import { columns, milestones, tasks } from "../schema";
+import { milestones, statuses, tasks } from "../schema";
 
 export const getMilestones = async ({
 	teamId,
@@ -21,16 +21,16 @@ export const getMilestones = async ({
 		.select({
 			milestoneId: tasks.milestoneId,
 			completed:
-				sql<number>`COUNT(${tasks.id}) FILTER (WHERE ${columns.type} = 'done')`.as(
+				sql<number>`COUNT(${tasks.id}) FILTER (WHERE ${statuses.type} = 'done')`.as(
 					"completed",
 				),
 			inProgress:
-				sql<number>`COUNT(${tasks.id}) FILTER (WHERE ${columns.type} IN ('in_progress', 'review', 'to_do', 'backlog'))`.as(
+				sql<number>`COUNT(${tasks.id}) FILTER (WHERE ${statuses.type} IN ('in_progress', 'review', 'to_do', 'backlog'))`.as(
 					"in_progress",
 				),
 		})
 		.from(tasks)
-		.innerJoin(columns, eq(tasks.columnId, columns.id))
+		.innerJoin(statuses, eq(tasks.statusId, statuses.id))
 		.groupBy(tasks.milestoneId)
 		.as("progress_sq");
 

@@ -1,11 +1,11 @@
 import { Suspense } from "react";
-import { ColumnsList } from "./columns-list";
+import { StatusesList } from "./statuses-list";
 
 export default function Page() {
 	return (
 		<div>
 			<Suspense>
-				<ColumnsList />
+				<StatusesList />
 			</Suspense>
 		</div>
 	);

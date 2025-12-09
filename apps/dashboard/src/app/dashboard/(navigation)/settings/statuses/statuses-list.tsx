@@ -17,18 +17,18 @@ import {
 import { cn } from "@ui/lib/utils";
 import { EllipsisIcon, PlusIcon } from "lucide-react";
 import { toast } from "sonner";
-import { ColumnIcon } from "@/components/column-icon";
-import { useColumnParams } from "@/hooks/use-column-params";
+import { StatusIcon } from "@/components/status-icon";
+import { useStatusParams } from "@/hooks/use-status-params";
 import { queryClient, trpc } from "@/utils/trpc";
 
-export const ColumnsList = () => {
-	const { setParams } = useColumnParams();
-	const { data } = useQuery(trpc.columns.get.queryOptions());
-	const { mutate: deleteColumn, isPending } = useMutation(
-		trpc.columns.delete.mutationOptions({
+export const StatusesList = () => {
+	const { setParams } = useStatusParams();
+	const { data } = useQuery(trpc.statuses.get.queryOptions());
+	const { mutate: deleteStatus, isPending } = useMutation(
+		trpc.statuses.delete.mutationOptions({
 			onSuccess: () => {
-				queryClient.invalidateQueries(trpc.columns.get.queryOptions());
-				toast.success("Column deleted successfully");
+				queryClient.invalidateQueries(trpc.statuses.get.queryOptions());
+				toast.success("Status deleted successfully");
 			},
 		}),
 	);
@@ -39,10 +39,10 @@ export const ColumnsList = () => {
 		<Card>
 			<CardHeader>
 				<div className="flex items-center justify-between">
-					<CardTitle>Columns</CardTitle>
-					<Button size="sm" onClick={() => setParams({ createColumn: true })}>
+					<CardTitle>Statuses</CardTitle>
+					<Button size="sm" onClick={() => setParams({ createStatus: true })}>
 						<PlusIcon />
-						Add Column
+						Add Status
 					</Button>
 				</div>
 			</CardHeader>
@@ -58,23 +58,23 @@ export const ColumnsList = () => {
 						<span>Description</span>
 						<span>Type</span>
 					</li>
-					{data?.data.map((column) => (
+					{data?.data.map((status) => (
 						<li
-							key={column.id}
+							key={status.id}
 							className={cn(
 								gridClass,
 								"items-center border-b py-2 text-sm last:border-0",
 							)}
 						>
 							<span className="flex items-center gap-2">
-								<ColumnIcon className="inline size-4!" type={column.type} />
-								{column.name}
+								<StatusIcon className="inline size-4!" type={status.type} />
+								{status.name}
 							</span>
 							<span className="text-muted-foreground">
-								{column.description}
+								{status.description}
 							</span>
 							<span className="text-muted-foreground">
-								{column.type.replaceAll("_", " ").toUpperCase()}
+								{status.type.replaceAll("_", " ").toUpperCase()}
 							</span>
 							<div className="flex justify-end">
 								<DropdownMenu>
@@ -88,11 +88,11 @@ export const ColumnsList = () => {
 											<DropdownMenuItem
 												onClick={() => {
 													queryClient.setQueryData(
-														trpc.columns.getById.queryKey({ id: column.id }),
-														column,
+														trpc.statuses.getById.queryKey({ id: status.id }),
+														status,
 													);
 													setParams({
-														columnId: column.id,
+														statusId: status.id,
 													});
 												}}
 											>
@@ -100,8 +100,8 @@ export const ColumnsList = () => {
 											</DropdownMenuItem>
 											<DropdownMenuItem
 												variant="destructive"
-												disabled={isPending || column.type === "backlog"}
-												onClick={() => deleteColumn({ id: column.id })}
+												disabled={isPending || status.type === "backlog"}
+												onClick={() => deleteStatus({ id: status.id })}
 											>
 												Delete
 											</DropdownMenuItem>

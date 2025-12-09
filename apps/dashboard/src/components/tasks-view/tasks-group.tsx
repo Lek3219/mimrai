@@ -2,18 +2,18 @@ import type { RouterOutputs } from "@api/trpc/routers";
 import { type UseQueryOptions, useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { trpc } from "@/utils/trpc";
-import { ColumnIcon } from "../column-icon";
 import { AssigneeAvatar } from "../kanban/asignee-avatar";
 import { MilestoneIcon } from "../milestone-icon";
 import { ProjectIcon } from "../project-icon";
+import { StatusIcon } from "../status-icon";
 import { useTasksViewContext } from "./tasks-view";
 
 export type Task = RouterOutputs["tasks"]["get"]["data"][number];
-export type Column = RouterOutputs["columns"]["get"]["data"][number];
+export type Status = RouterOutputs["statuses"]["get"]["data"][number];
 export type TeamMember = RouterOutputs["teams"]["getMembers"][number];
 export type Project = RouterOutputs["projects"]["get"]["data"][number];
 export type Milestone = RouterOutputs["milestones"]["get"]["data"][number];
-export type TasksGroupBy = "column" | "assignee" | "project" | "milestone";
+export type TasksGroupBy = "status" | "assignee" | "project" | "milestone";
 
 export type GenericGroup<O = any> = {
 	id: string | null;
@@ -36,34 +36,34 @@ export type GroupByOption<O = any, D = GenericGroup<O>, DD = Array<D>> = {
 
 // Group By Options
 export const tasksGroupByOptions: Record<TasksGroupBy, GroupByOption> = {
-	column: {
-		label: "Column",
-		updateKey: "columnId",
-		getGroupName: (item) => item.column.name || "No Column",
-		getData: (item) => item.column,
+	status: {
+		label: "Status",
+		updateKey: "statusId",
+		getGroupName: (item) => item.status.name || "No Status",
+		getData: (item) => item.status,
 		updateData: (item, data) => {
-			item.column = data;
+			item.status = data;
 		},
-		select: (tasks, group) => tasks.filter((t) => t.columnId === group.id),
+		select: (tasks, group) => tasks.filter((t) => t.statusId === group.id),
 
-		queryOptions: trpc.columns.get.queryOptions(
+		queryOptions: trpc.statuses.get.queryOptions(
 			{
 				type: ["to_do", "in_progress", "review", "done"],
 			},
 			{
-				select: (columns) => {
-					return columns.data.map((column) => ({
-						id: column.id,
-						name: column.name,
-						type: "column" as const,
-						icon: <ColumnIcon {...column} className="size-4!" />,
-						data: column,
-						original: column,
+				select: (statuses) => {
+					return statuses.data.map((status) => ({
+						id: status.id,
+						name: status.name,
+						type: "status" as const,
+						icon: <StatusIcon {...status} className="size-4!" />,
+						data: status,
+						original: status,
 					}));
 				},
 			},
 		),
-	} as GroupByOption<Column>,
+	} as GroupByOption<Status>,
 	assignee: {
 		label: "Assignee",
 		updateKey: "assigneeId",
@@ -174,8 +174,8 @@ export const useTasksSorted = () => {
 		return [...tasks].sort((a, b) => {
 			// Weight-based sorting: each criterion only breaks ties from the previous one
 			const comparisons = [
-				// 1. Sort by column order (only when grouping by column)
-				filters.groupBy === "column" ? a.column.order - b.column.order : 0,
+				// 1. Sort by status order (only when grouping by status)
+				filters.groupBy === "status" ? a.status.order - b.status.order : 0,
 				// 2. Sort by priority (urgent > high > medium > low)
 				(priorityOrder[a.priority ?? ""] ?? 5) -
 					(priorityOrder[b.priority ?? ""] ?? 5),

@@ -2,7 +2,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { trpc } from "@/utils/trpc";
 import { Assignee } from "./assignee";
-import { ColumnSelect } from "./column-select";
 import { DueDate } from "./due-date";
 import { Labels } from "./labels";
 import { MilestoneSelect } from "./milestone-select";
@@ -10,6 +9,7 @@ import { Priority } from "./priority";
 import { ProjectSelect } from "./project-select";
 import { Recurring } from "./recurring";
 import { RepositorySelect } from "./repository-select";
+import { StatusSelect } from "./status-select";
 
 export const TaskFormProperties = () => {
 	const { data: isGithubConnected } = useQuery(
@@ -32,7 +32,7 @@ export const TaskFormProperties = () => {
 				<Assignee />
 				<DueDate />
 				<Priority />
-				<ColumnSelect />
+				<StatusSelect />
 				<ProjectSelect />
 				<MilestoneSelect />
 				<Recurring />

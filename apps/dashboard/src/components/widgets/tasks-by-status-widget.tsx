@@ -19,7 +19,7 @@ const chartConfig = {
 	},
 } satisfies ChartConfig;
 
-export const TasksByColumnWidget = () => {
+export const TasksByStatusWidget = () => {
 	const [dateRange, setDateRange] = useState<{
 		startDate: Date;
 		endDate: Date;
@@ -29,7 +29,7 @@ export const TasksByColumnWidget = () => {
 	});
 
 	const { data } = useQuery(
-		trpc.widgets.tasksByColumn.queryOptions({
+		trpc.widgets.tasksByStatus.queryOptions({
 			...dateRange,
 		}),
 	);
@@ -38,7 +38,7 @@ export const TasksByColumnWidget = () => {
 		<Card className="flex flex-col justify-between border bg-transparent">
 			<CardHeader>
 				<CardDescription>
-					Determine the distribution of tasks across different columns
+					Determine the distribution of tasks across different statuses
 				</CardDescription>
 			</CardHeader>
 			<CardContent>
@@ -55,7 +55,7 @@ export const TasksByColumnWidget = () => {
 							tickLine={false}
 							tickMargin={10}
 							axisLine={false}
-							dataKey="column.name"
+							dataKey="status.name"
 							tickFormatter={(value) =>
 								(value as string)
 									.split(" ")

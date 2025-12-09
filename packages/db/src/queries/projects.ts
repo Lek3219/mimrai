@@ -1,6 +1,6 @@
 import { and, asc, desc, eq, ilike, type SQL, sql } from "drizzle-orm";
 import { db } from "..";
-import { columns, milestones, projects, tasks, users } from "../schema";
+import { milestones, projects, statuses, tasks, users } from "../schema";
 import { createMilestone } from "./milestones";
 import { cloneTask, createTask } from "./tasks";
 
@@ -24,16 +24,16 @@ export const getProjects = async ({
 		.select({
 			projectId: tasks.projectId,
 			completed:
-				sql<number>`COUNT(${tasks.id}) FILTER (WHERE ${columns.type} = 'done')`.as(
+				sql<number>`COUNT(${tasks.id}) FILTER (WHERE ${statuses.type} = 'done')`.as(
 					"completed",
 				),
 			inProgress:
-				sql<number>`COUNT(${tasks.id}) FILTER (WHERE ${columns.type} IN ('in_progress', 'review', 'to_do', 'backlog'))`.as(
+				sql<number>`COUNT(${tasks.id}) FILTER (WHERE ${statuses.type} IN ('in_progress', 'review', 'to_do', 'backlog'))`.as(
 					"in_progress",
 				),
 		})
 		.from(tasks)
-		.innerJoin(columns, eq(tasks.columnId, columns.id))
+		.innerJoin(statuses, eq(tasks.statusId, statuses.id))
 		.groupBy(tasks.projectId)
 		.as("progress_sq");
 
@@ -213,17 +213,17 @@ export const getProjectProgress = async ({
 	const [overall] = await db
 		.select({
 			completed:
-				sql<number>`COUNT(${tasks.id}) FILTER (WHERE ${columns.type} = 'done')`.as(
+				sql<number>`COUNT(${tasks.id}) FILTER (WHERE ${statuses.type} = 'done')`.as(
 					"completed",
 				),
 			inProgress:
-				sql<number>`COUNT(${tasks.id}) FILTER (WHERE ${columns.type} NOT IN ('done'))`.as(
+				sql<number>`COUNT(${tasks.id}) FILTER (WHERE ${statuses.type} NOT IN ('done'))`.as(
 					"in_progress",
 				),
 		})
 		.from(projects)
 		.leftJoin(tasks, eq(projects.id, tasks.projectId))
-		.leftJoin(columns, eq(tasks.columnId, columns.id))
+		.leftJoin(statuses, eq(tasks.statusId, statuses.id))
 		.where(and(...whereClause))
 		.groupBy(projects.id)
 		.limit(1);
@@ -236,17 +236,17 @@ export const getProjectProgress = async ({
 			color: users.color,
 			image: users.image,
 			completed:
-				sql<number>`COUNT(${tasks.id}) FILTER (WHERE ${columns.type} = 'done')`.as(
+				sql<number>`COUNT(${tasks.id}) FILTER (WHERE ${statuses.type} = 'done')`.as(
 					"completed",
 				),
 			inProgress:
-				sql<number>`COUNT(${tasks.id}) FILTER (WHERE ${columns.type} NOT IN ('done'))`.as(
+				sql<number>`COUNT(${tasks.id}) FILTER (WHERE ${statuses.type} NOT IN ('done'))`.as(
 					"in_progress",
 				),
 		})
 		.from(projects)
 		.innerJoin(tasks, eq(projects.id, tasks.projectId))
-		.innerJoin(columns, eq(tasks.columnId, columns.id))
+		.innerJoin(statuses, eq(tasks.statusId, statuses.id))
 		.innerJoin(users, eq(tasks.assigneeId, users.id))
 		.where(and(...whereClause))
 		.groupBy(users.id);

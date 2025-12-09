@@ -5,7 +5,7 @@ import { autopilotSettingsRouter } from "./autopilot-settings";
 import { billingRouter } from "./billing";
 import { chatRouter } from "./chats";
 import { checklistsRouter } from "./checklists";
-import { columnsRouter } from "./columns";
+import { statusesRouter } from "./columns";
 import { chatFeedbackRouter } from "./feedback";
 import { githubRouter } from "./github";
 import { importsRouter } from "./imports";
@@ -35,7 +35,7 @@ export const appRouter = router({
 	}),
 	tasks: tasksRouter,
 	taskDependencies: taskDependenciesRouter,
-	columns: columnsRouter,
+	statuses: statusesRouter,
 	chats: chatRouter,
 	users: usersRouter,
 	teams: teamsRouter,

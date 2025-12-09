@@ -1,5 +1,5 @@
 import { createAdminClient } from "@jobs/utils/supabase";
-import { getBacklogColumn } from "@mimir/db/queries/columns";
+import { getBacklogStatus } from "@mimir/db/queries/columns";
 import { getImportById, updateImportStatus } from "@mimir/db/queries/imports";
 import { createLabel, getLabelByName } from "@mimir/db/queries/labels";
 import { createTask, getTaskByTitle } from "@mimir/db/queries/tasks";
@@ -134,7 +134,7 @@ export const tasksImportJob = schemaTask({
 			? headers.indexOf(headersMap.labels)
 			: -1;
 
-		const backlogColumn = await getBacklogColumn({
+		const backlogColumn = await getBacklogStatus({
 			teamId: importJob.teamId,
 		});
 
@@ -225,7 +225,7 @@ export const tasksImportJob = schemaTask({
 				await createTask({
 					title: title!,
 					description: description,
-					columnId: backlogColumn.id,
+					statusId: backlogColumn.id,
 					teamId: importJob.teamId,
 					userId: importJob.userId,
 					labels: labelsIdsArray.length > 0 ? labelsIdsArray : undefined,

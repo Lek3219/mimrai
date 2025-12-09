@@ -25,7 +25,7 @@ export const KanbanTask = ({
 			className={cn(
 				"flex min-h-14 cursor-pointer flex-col rounded-sm border bg-card transition-colors hover:bg-card/80 dark:border-0",
 				{
-					"opacity-50!": task.column?.type === "done",
+					"opacity-50!": task.status?.type === "done",
 				},
 				className,
 			)}
@@ -61,7 +61,7 @@ export const KanbanTask = ({
 
 					<div className="mt-2 flex flex-wrap items-center gap-1.5">
 						<TaskProperty property="priority" task={task} />
-						<TaskProperty property="column" task={task} />
+						<TaskProperty property="status" task={task} />
 						<TaskProperty property="labels" task={task} />
 						<TaskProperty property="project" task={task} />
 						<TaskProperty property="milestone" task={task} />

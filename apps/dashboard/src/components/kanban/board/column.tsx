@@ -53,7 +53,7 @@ export function BoardColumn({ column, columnName, tasks }: BoardColumnProps) {
 						onClick={() => {
 							setTaskParams({
 								createTask: true,
-								taskColumnId: column.id,
+								taskStatusId: column.id,
 							});
 						}}
 					>
@@ -93,7 +93,7 @@ export function BoardColumn({ column, columnName, tasks }: BoardColumnProps) {
 							onClick={() => {
 								setTaskParams({
 									createTask: true,
-									taskColumnId: column.id,
+									taskStatusId: column.id,
 								});
 							}}
 						>

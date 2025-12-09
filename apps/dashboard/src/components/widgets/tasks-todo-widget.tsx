@@ -18,9 +18,9 @@ import {
 import { format } from "date-fns";
 import { useTaskParams } from "@/hooks/use-task-params";
 import { trpc } from "@/utils/trpc";
-import { ColumnIcon } from "../column-icon";
 import { AssigneeAvatar } from "../kanban/asignee-avatar";
 import { Priority } from "../kanban/priority";
+import { StatusIcon } from "../status-icon";
 
 export const TasksTodoWidget = ({ className }: { className?: string }) => {
 	const { setParams } = useTaskParams();
@@ -38,7 +38,7 @@ export const TasksTodoWidget = ({ className }: { className?: string }) => {
 					<TableHeader>
 						<TableRow>
 							<TableHead>Title</TableHead>
-							<TableHead>Column</TableHead>
+							<TableHead>Status</TableHead>
 							<TableHead className="text-end">Due Date</TableHead>
 							<TableHead className="text-end">Assigned</TableHead>
 						</TableRow>
@@ -59,8 +59,8 @@ export const TasksTodoWidget = ({ className }: { className?: string }) => {
 								</TableCell>
 								<TableCell>
 									<div className="flex items-center justify-start gap-2">
-										<ColumnIcon {...task.column} className="size-3.5" />
-										{task.column.name}
+										<StatusIcon {...task.status} className="size-3.5" />
+										{task.status.name}
 									</div>
 								</TableCell>
 								<TableCell className="text-end">

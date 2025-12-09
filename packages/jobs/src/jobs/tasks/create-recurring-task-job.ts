@@ -2,9 +2,9 @@ import { getDb } from "@jobs/init";
 import { createTask, updateTaskRecurringJob } from "@mimir/db/queries/tasks";
 import {
 	checklistItems,
-	columns,
 	labels,
 	labelsOnTasks,
+	statuses,
 	tasks,
 } from "@mimir/db/schema";
 import { getNextTaskRecurrenceDate } from "@mimir/utils/recurrence";
@@ -33,14 +33,14 @@ export const createRecurringTaskJob = schemaTask({
 		if (originalTask.recurringJobId) {
 			const [column] = await db
 				.select()
-				.from(columns)
+				.from(statuses)
 				.where(
 					and(
-						eq(columns.teamId, originalTask.teamId),
-						eq(columns.type, "in_progress"),
+						eq(statuses.teamId, originalTask.teamId),
+						eq(statuses.type, "in_progress"),
 					),
 				)
-				.orderBy(desc(columns.order))
+				.orderBy(desc(statuses.order))
 				.limit(1);
 
 			if (!column) {
@@ -60,7 +60,7 @@ export const createRecurringTaskJob = schemaTask({
 				title: originalTask.title,
 				description: originalTask.description,
 				assigneeId: originalTask.assigneeId,
-				columnId: column.id,
+				statusId: column.id,
 				priority: originalTask.priority,
 				labels: originalLabels.map((l) => l.labels.id),
 				attachments: originalTask.attachments,

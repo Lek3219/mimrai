@@ -20,7 +20,7 @@ import {
 	tasks,
 	users,
 } from "../schema";
-import { getColumnById } from "./columns";
+import { getStatusById } from "./columns";
 import {
 	notificationChannels,
 	shouldSendNotification,
@@ -155,7 +155,7 @@ export const createTaskUpdateActivity = async ({
 			oldValue: oldTask.description,
 		};
 	if (oldTask.columnId !== newTask.columnId) {
-		const newColumn = await getColumnById({ id: newTask.columnId, teamId });
+		const newColumn = await getStatusById({ id: newTask.columnId, teamId });
 		changes.columnId = {
 			value: newTask.columnId,
 			display: newColumn.name,

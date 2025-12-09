@@ -25,10 +25,10 @@ export const tasksFilterParams = {
 	labels: parseAsArrayOf(parseAsString),
 	groupBy: parseAsStringLiteral<TasksGroupBy>([
 		"assignee",
-		"column",
+		"status",
 		"milestone",
 		"project",
-	]).withDefault("column"),
+	]).withDefault("status"),
 	viewType: parseAsStringLiteral<TasksViewType>(["board", "list"]),
 	properties: parseAsArrayOf(parseAsStringLiteral(propertiesList)),
 	recurring: parseAsBoolean,

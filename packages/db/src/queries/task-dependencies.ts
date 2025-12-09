@@ -128,7 +128,7 @@ export const getTaskDependencies = async ({
 				id: tasks.id,
 				title: tasks.title,
 				permalinkId: tasks.permalinkId,
-				columnId: tasks.columnId,
+				columnId: tasks.statusId,
 			},
 		})
 		.from(tasksDependencies)
@@ -146,7 +146,7 @@ export const getTaskDependencies = async ({
 				id: tasks.id,
 				title: tasks.title,
 				permalinkId: tasks.permalinkId,
-				columnId: tasks.columnId,
+				columnId: tasks.statusId,
 			},
 		})
 		.from(tasksDependencies)

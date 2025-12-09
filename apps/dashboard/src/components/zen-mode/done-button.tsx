@@ -14,7 +14,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { trpc } from "@/utils/trpc";
-import { ColumnIcon } from "../column-icon";
+import { StatusIcon } from "../status-icon";
 import type { ZenModeTask } from "./view";
 
 export const ZenModeDoneButton = ({
@@ -27,13 +27,13 @@ export const ZenModeDoneButton = ({
 	const router = useRouter();
 	const [dialogOpen, setDialogOpen] = useState(false);
 
-	const { data: columns } = useQuery(
-		trpc.columns.get.queryOptions({
+	const { data: statuses } = useQuery(
+		trpc.statuses.get.queryOptions({
 			type: ["review", "done", "in_progress", "to_do", "backlog"],
 		}),
 	);
 
-	const sortedColumns = columns?.data?.sort((a, b) => {
+	const sortedStatuses = statuses?.data?.sort((a, b) => {
 		const order = {
 			done: 0,
 			review: 1,
@@ -107,49 +107,49 @@ export const ZenModeDoneButton = ({
 						</DialogDescription>
 					</DialogHeader>
 					<div className="flex flex-col gap-2">
-						{sortedColumns?.map((column, index) => (
+						{sortedStatuses?.map((status, index) => (
 							<Button
-								key={column.id}
+								key={status.id}
 								type="button"
 								variant={"secondary"}
 								className="group h-14 w-full justify-start rounded-md"
 								onClick={() => {
 									updateTask({
 										id: task.id,
-										columnId: column.id,
+										statusId: status.id,
 									});
 									setDialogOpen(false);
 								}}
 								onKeyDown={(e) => {
-									// move to the column on number key press
+									// move to the status on number key press
 									const key = e.key;
-									if (key >= "1" && key <= String(sortedColumns.length)) {
+									if (key >= "1" && key <= String(sortedStatuses.length)) {
 										const colIndex = Number.parseInt(key, 10) - 1;
-										if (sortedColumns[colIndex]) {
+										if (sortedStatuses[colIndex]) {
 											updateTask({
 												id: task.id,
-												columnId: sortedColumns[colIndex].id,
+												statusId: sortedStatuses[colIndex].id,
 											});
 											setDialogOpen(false);
 										}
 									}
 								}}
 							>
-								<ColumnIcon {...column} className="size-4" />
+								<StatusIcon {...status} className="size-4" />
 								<div className="ml-2 flex flex-col items-start">
-									{column.name}
+									{status.name}
 									<span className="text-muted-foreground text-xs">
-										{column.type === "done" && "This task is completed"}
-										{column.type === "review" && "This task needs review"}
-										{column.type === "in_progress" && "Just update the status"}
-										{column.type === "to_do" && "This task is not started yet"}
-										{column.type === "backlog" &&
+										{status.type === "done" && "This task is completed"}
+										{status.type === "review" && "This task needs review"}
+										{status.type === "in_progress" && "Just update the status"}
+										{status.type === "to_do" && "This task is not started yet"}
+										{status.type === "backlog" &&
 											"This task is moved to backlog"}
 									</span>
 								</div>
 								<span className="ml-auto flex items-center gap-1 text-muted-foreground">
 									<span className="ml-2 flex items-center gap-1 text-muted-foreground text-xs opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
-										Move to this column
+										Move to this status
 									</span>
 									<div className="h-fit rounded-md bg-background px-2 py-1 font-mono text-xs">
 										{index + 1}
