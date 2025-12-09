@@ -4,9 +4,9 @@ import { getDb } from "@jobs/init";
 import { createActivity } from "@mimir/db/queries/activities";
 import {
 	autopilotSettings,
-	columns,
 	milestones,
 	projects,
+	statuses,
 	tasks,
 	teams,
 } from "@mimir/db/schema";
@@ -83,15 +83,15 @@ export const createDigestActivityJob = schemaTask({
 				and(
 					eq(tasks.assigneeId, userId),
 					eq(tasks.teamId, teamId),
-					inArray(columns.type, ["to_do", "in_progress"]),
+					inArray(statuses.type, ["to_do", "in_progress"]),
 				),
 			)
-			.innerJoin(columns, eq(columns.id, tasks.columnId))
+			.innerJoin(statuses, eq(statuses.id, tasks.statusId))
 			.leftJoin(projects, eq(projects.id, tasks.projectId))
 			.leftJoin(milestones, eq(milestones.id, tasks.milestoneId))
 			.limit(5)
 			.orderBy(
-				asc(sql`CASE ${columns.type} WHEN 'in_progress' THEN 1 ELSE 2 END`),
+				asc(sql`CASE ${statuses.type} WHEN 'in_progress' THEN 1 ELSE 2 END`),
 				asc(
 					sql`CASE ${tasks.priority} WHEN 'urgent' THEN 1 WHEN 'high' THEN 2 WHEN 'medium' THEN 3 WHEN 'low' THEN 4 END`,
 				),
@@ -177,7 +177,7 @@ The user has the following top priority tasks:
 	${topPriorities
 		.map(
 			(task) =>
-				`- Task ID: ${task.tasks.id}, Title: "${task.tasks.title}", Status: ${task.columns.type} Priority: ${task.tasks.priority}, Due Date: ${
+				`- Task ID: ${task.tasks.id}, Title: "${task.tasks.title}", Status: ${task.statuses.type} Priority: ${task.tasks.priority}, Due Date: ${
 					task.tasks.dueDate
 						? format(new Date(task.tasks.dueDate), "yyyy-MM-dd")
 						: "None"

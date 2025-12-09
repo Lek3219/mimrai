@@ -4,7 +4,7 @@ import { createActivity } from "@mimir/db/queries/activities";
 import {
 	activities,
 	autopilotSettings,
-	columns,
+	statuses,
 	tasks,
 	teams,
 } from "@mimir/db/schema";
@@ -88,16 +88,16 @@ export const createEODActivityJob = schemaTask({
 				count: count(tasks.id).as("count"),
 			})
 			.from(tasks)
-			.innerJoin(columns, eq(columns.id, tasks.columnId))
-			.where(and(...taskWhereClause, inArray(columns.type, ["to_do"])));
+			.innerJoin(statuses, eq(statuses.id, tasks.statusId))
+			.where(and(...taskWhereClause, inArray(statuses.type, ["to_do"])));
 
 		const [inProgressTasksCount] = await db
 			.select({
 				count: count(tasks.id).as("count"),
 			})
 			.from(tasks)
-			.innerJoin(columns, eq(columns.id, tasks.columnId))
-			.where(and(...taskWhereClause, inArray(columns.type, ["in_progress"])));
+			.innerJoin(statuses, eq(statuses.id, tasks.statusId))
+			.where(and(...taskWhereClause, inArray(statuses.type, ["in_progress"])));
 
 		const completedTasks = await db
 			.select()

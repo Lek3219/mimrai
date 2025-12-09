@@ -56,7 +56,6 @@ export const trackFollowUp = async ({
 	userId,
 	teamId,
 	teamName,
-	message,
 }: {
 	userId: string;
 	teamId: string;
@@ -67,6 +66,5 @@ export const trackFollowUp = async ({
 		profileId: userId,
 		teamId,
 		teamName,
-		message,
 	});
 };

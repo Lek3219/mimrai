@@ -345,7 +345,6 @@ export const generateTeamSuggestionsJob = schemaTask({
 				userId: followUp.userId,
 				teamId: payload.teamId,
 				teamName: team.name || "",
-				message: followUp.message,
 			});
 		}
 		try {
